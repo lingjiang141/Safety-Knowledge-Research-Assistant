@@ -1,6 +1,32 @@
 # 新窗口交接：安全知识研究助手
 
-## 最新：原始资料验收 Q01 中断已诊断修复（v3.4），待用户重跑批次
+## 最新：原始资料验收十题全跑完，2 生成缺陷已修（v3.5），余项待用户裁定
+
+用户付费跑 v3.4 批次，十题**全部执行**（Q01 中断已修）。报告
+`docs/evidence/issue05-acceptance-live-v34-full-20260910.json`，复核
+`docs/evidence/issue05-acceptance-review-v34-20260910.md`。状态命中 5/10：
+
+- **已修生成/契约缺陷 2 条（先失败回归后最小改动）**：
+  - Q01（call_id=35）：模型把「资料没有提供……」缺失说明写进顶层 `claims`（无引用且未被 coverage 关联），
+    触发「问题覆盖存在未关联的结论」。**契约正确、不放松**；提示词明确缺失说明只能进 `missing`。
+    失败正文 `issue05-acceptance-q01-unlinked-claim-failure.json`。
+  - Q07（call_id=41）：800 token 输出上限导致 JSON 被截断（`finish_reason=length`）。输出上限
+    800→**1500**（常量 `OUTPUT_TOKEN_LIMIT`），提示词补 quote 尽量短。失败正文
+    `issue05-acceptance-q07-truncation-failure.json`。
+  - 提示词升 **evidence-v3.5**，`cli.py` replay 集合同步。本地 **31 tests 通过**。
+    v3.5 preflight：最大预留 3.159228 元、output_limit=1500、budget_ready=true。
+- **未修（非生成缺陷，需用户决定）**：
+  - Q04/Q06 判 partial 是**检索未命中**：所需片段在库里但向量排序第 7（20 行块过粗稀释定义）。
+    按验收草案「固定检索器」不中途更换，记入结构适配待办（未来 13/14/11）。**不改题面预期蒙对。**
+  - Q09 预期 `partial`、实测 `insufficient`：问题实际只索取百分比，模型判 insufficient 自洽；
+    草案预期先答概念部分。**两种理解都成立，请用户裁定预期行为。**
+- **未达标**：Q01 因缺 S01 本就不能判 grounded；原始资料题尚未全部达标，Issue 05 不收尾。
+
+下一步（需用户决定）：① 定向重跑 Q01/Q07 确认 v3.5 生效（省钱）；② Q04/Q06 记为检索待办，
+本轮不修；③ 裁定 Q09 预期。账本 **0.309189** 元、可用 9.690811 元、预留 0、blocked=false
+（本批新增 0.129213；修复轮免费）。提交：`d4ec180`（修复）、`0250bab`（复核）。不进入 06。
+
+## 最新（此前）：原始资料验收 Q01 中断已诊断修复（v3.4），待用户重跑批次
 
 用户付费跑 `scripts/check_acceptance.py --live`，**Q01 即报错停止**，Q02–Q10 未执行；报告
 `docs/evidence/issue05-acceptance-live-halted-q01-20260910.json`，诊断
