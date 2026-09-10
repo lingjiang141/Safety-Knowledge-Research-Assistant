@@ -25,6 +25,16 @@ Source: [PRD](../../../PRD.md)
 
 ## Completion evidence
 
+2026-09-10 原始资料开发题（真实资料 + 向量检索）验收：新增 `examples/acceptance-cases.json` 与
+`scripts/check_acceptance.py`，十题接入真实知识库。v3.4 全跑（状态命中 5/10）后修 2 条生成缺陷升
+**evidence-v3.5**（缺失说明不入顶层 claims；输出上限 800→1500），定向重跑确认：
+**Q07 → grounded、Q09 → partial**。**Q01 已换题**（原题依赖 S01，S01 无开放许可不可导入）为
+「提示注入与越狱有什么区别？」，**待真实运行**。**Q04/Q06 为检索未命中欠项**（所需片段向量排序第 7），
+按「固定检索器」不改，记入结构适配待办（13/14/11）。
+报告/复核：issue05-acceptance-live-v34-full / issue05-acceptance-review-v34 /
+issue05-acceptance-live-v35-targeted / issue05-acceptance-review-v35-targeted-20260910。
+**十题全批重跑与用户最终语义验收仍保留**，State 保持进行中。账本 0.344997 元。
+
 2026-09-10 v3.3 十题受控复验：三题（number/partial/conditions）+ 七题
 （principle/agreement/conflict/negation/injection/analogy/missing_measurement）在同一 evidence-v3.3 下
 **全部有符合要求的观察**，number 为 v3.1/v3.2 连续失败后首次通过。

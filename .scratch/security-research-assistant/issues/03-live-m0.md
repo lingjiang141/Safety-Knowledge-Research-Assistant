@@ -1,15 +1,30 @@
 # 03 — 验证 DeepSeek 真实调用和三类回答
 
-Status: needs-info
+Status: ready-for-agent
 State: blocked
 Type: HITL
 Milestone: M0
 User stories: US4, US6, US7, US11, US12, US19, US20
 Source: [PRD](../../../PRD.md)
 
+> State 保持 blocked：三类端到端验收仍未完成（HITL，需用户参与真实运行与语义复核）。
+> **2026-09-10 用户指示：当前进入 03 三类端到端验收收尾。** 收尾范围见 ROADMAP「03 收尾范围」节。
+
 ## What to build
 
 核对官方模型与价格，由用户在本机配置密钥，在现有 10 元总预算内演示有依据、无依据和部分有依据的问答。
+
+## 收尾复用资产（2026-09-10）
+
+05 的原始资料验收已把可用资产建好，03 收尾复用而非重造：
+
+- `docs/acceptance-draft.md` 十题正好覆盖三类：Q02/Q05 有据（grounded）、Q08 无据（insufficient）、
+  Q09 部分有据（partial）。**注意 Q01 已换题、Q09 已改写**。
+- `scripts/check_acceptance.py`（真实资料 + 向量检索，默认免费准备、`--live` 付费）
+  与 `examples/acceptance-cases.json`（含 `human_review` 人工核查项）。
+- 逐条复核方法论见 `docs/evidence/issue05-acceptance-review-v34/v35-*.md`：
+  **结构状态命中 ≠ 语义通过**，必须人工核对结论、引用、翻译与冲突处理。
+- 尚未做：新版 Q01 + v3.5 的全批重跑；用户最终语义验收；平台实际账单核对（当前账本为保守记账，非账单）。
 
 ## Acceptance criteria
 
@@ -28,6 +43,11 @@ Source: [PRD](../../../PRD.md)
 完成时填写：代码版本、演示命令、测试结果、真实与模拟验证的区分、费用与未知预留、未解决问题。不得仅凭复选框关闭任务。
 
 ## Comments
+
+2026-09-10：**进入三类端到端验收收尾**。复用 05 已建成的 `scripts/check_acceptance.py` 与十题用例
+（真实资料+检索），三类代表题 Q02/Q05（有据）、Q08（无据）、Q09（部分有据）。收尾待办：
+新版 Q01 + v3.5 全批重跑 → 人工逐题语义复核 → 与用户核对平台账单。**不以 05 受控场景结果代替本任务端到端验收。**
+账本 0.344997 元（保守记账，非平台账单）；本地 31 tests 通过。
 
 2026-09-09：首次真实调用已有结果但校验失败；输入 449、输出 331 token，保守记账 0.004326 元。旧版未保留正文，原因未知。已修复错误诊断丢失、增加离线重放支持，13 个测试通过；等待一次带诊断的重跑，三类真实验收仍未完成。
 

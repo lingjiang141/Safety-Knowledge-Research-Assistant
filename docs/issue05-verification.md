@@ -1,6 +1,25 @@
 # Issue 05 回答边界验收
 
-最新 v3.2 三题已跑完：analogy、missing_measurement 本次符合要求，number 仍错误 partial。下一步先离线诊断，不重复下方历史三题命令。详见 `docs/evidence/issue05-v32-review-20260910.md`。不同版本累计观察不能当作同版本全量通过；Issue 05 未完成。
+## 当前状态（2026-09-10 最新）
+
+**当前提示词 `evidence-v3.5`，输出上限 1500 token，本地 31 tests 通过。** 两条路径已完成：
+
+1. **受控场景（`check_boundaries.py`，非检索）**：v3.3 下十题**全部有符合要求的观察**（number 首次通过）。
+   报告 `docs/evidence/issue05-live-v33-three/seven-20260910.json`。**不等于稳定准确率**。
+2. **原始资料开发题（`check_acceptance.py`，真实资料+向量检索）**：v3.4 全跑（状态命中 5/10）→ 修 2 条生成缺陷
+   升 v3.5 → 定向重跑 Q01/Q07/Q09 确认修复生效。
+   - **已符合要求**：Q02/Q03/Q05/Q08/Q10 此前通过；**Q07 → grounded**、**Q09 → partial**（v3.5 复核确认）。
+   - **Q01 已换题**（原依赖 S01，S01 无开放许可不能导入）→「提示注入与越狱有什么区别？」，**待真实运行**。
+   - **Q04/Q06 检索未命中欠项**（所需片段向量排序第 7，20 行块过粗稀释定义）：不改检索器，记入结构适配待办 13/14/11。
+   - 报告与复核：`issue05-acceptance-live-v34-full-*` / `issue05-acceptance-review-v34-*` /
+     `issue05-acceptance-live-v35-targeted-*` / `issue05-acceptance-review-v35-targeted-*`。
+
+**下一步（需用户决定）**：是否整体重跑十题确认新 Q01 与 v3.5 修复在全批下的表现。
+Issue 05 未完成，不收尾、不进入 06。以下为历史记录。
+
+## 历史（v3.2 及以前）
+
+v3.2 三题已跑完：analogy、missing_measurement 本次符合要求，number 仍错误 partial。不同版本累计观察不能当作同版本全量通过。
 
 最新：v3.1 十题结果已收齐，七题本次符合要求，number/analogy 语义未通过，missing_measurement 程序误拒绝已离线修复。当前 v3.2、25 测试通过；下一步 `python scripts/check_boundaries.py --live --case number --case analogy --case missing_measurement`。详见 `docs/evidence/issue05-v31-six-review-20260910.md`。
 
@@ -51,8 +70,22 @@ python scripts/check_boundaries.py --live --case principle --case number --case 
 
 ## 尚未完成
 
-- evidence-v2 在真实模型上的状态与语义复核。
-- 原始十道真实资料开发题的全量标注与执行（现有语料不完整时明确未运行）。
+- **十题整体重跑**：新 Q01 与 v3.5 修复尚未在全批下验证（定向三题已过，不等同全批）。
+- **Q04/Q06 检索未命中**：不改固定检索器，记入结构适配待办（未来 13/14/11 的切分粒度调整）。
+- **用户最终语义验收**：助手复核不等同用户验收。
 - 受控场景不能证明对任意提示注入都安全；后续检索工具循环仍由 Issue 10 验证。
 
 完成上述检查前，Issue 05 保持进行中。下一次反馈可以只提供生成报告路径，由助手从本机读取，不必手工粘贴全部 JSON。
+
+## 原始资料开发题命令（真实资料 + 检索）
+
+```powershell
+# 免费准备：只检索、不联网不付费
+.\.venv\Scripts\python.exe scripts\check_acceptance.py
+# 付费执行：密钥来自环境变量或交互隐藏输入
+.\.venv\Scripts\python.exe scripts\check_acceptance.py --live
+# 定向重跑（省钱）
+.\.venv\Scripts\python.exe scripts\check_acceptance.py --live --case Q01 --case Q07 --case Q09
+```
+
+用例 `examples/acceptance-cases.json`；运行器付费批次遇单题错误**记录后继续**，仅账本阻塞时停止。

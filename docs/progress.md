@@ -1,5 +1,104 @@
 # 项目一进度
 
+> 本文件倒序记录，旧段落会出现过时状态；以最新节、ROADMAP.md 任务 State 与 HANDOFF.md 为准。
+
+## 2026-09-10 S01 许可不通过，Q01 替换为库内可答题
+
+- 用户选 A（导入 S01）后核查发现 **S01 不能导入**：Anthropic《Building effective agents》页脚仅 © Anthropic PBC，
+  **无开放许可**，条款第 3 条禁止抓取、第 10 条保留全部知识产权。导入语料库会进 git+检索，构成未授权再分发。
+  S01 继续仅作外链阅读参考。
+- 经沟通，用户裁定 **Q01 换题**：「工作流和 Agent 有什么区别？用容易理解的话说明。」（依赖 S01）
+  → **「提示注入与越狱有什么区别？」**（OWASP LLM01 开篇第 1–14 行完整给出定义，检索首命中即该段，
+  grounded 可达；且新题只有一个问句，消除原题风格后缀被切分引起的 partial 伪影）。
+- 已更新 `examples/acceptance-cases.json` 与 `docs/acceptance-draft.md`；31 tests 通过；
+  证据 `docs/evidence/issue05-s01-license-and-q01-replacement-20260910.md`。**尚未真实运行新 Q01**，本轮无付费调用。
+- 提交 d894cf8、ad3f9c0。教训：导入任何资料前先核查页脚许可 + 使用条款；公开可读 ≠ 可全文再发布。
+- 账本 0.344997 元、可用 9.655003 元、预留 0、blocked=false。Issue 05 仍 in-progress，未进入 06。
+
+**十题当前状态**：Q01（新题，待跑）/ Q02 / Q03 / Q05 / Q08 / Q10 此前符合要求；
+Q07、Q09 在 v3.5 已修复并定向复核；Q04、Q06 为**检索未命中**欠项（不改检索器，记入结构适配待办 13/14/11）。
+
+## 2026-09-10 v3.5 定向重跑三题（Q01/Q07/Q09）
+
+- 用户付费跑 `--case Q01 --case Q07 --case Q09`，`complete=True` 无错误。报告
+  `docs/evidence/issue05-acceptance-live-v35-targeted-20260910.json`，复核
+  `issue05-acceptance-review-v35-targeted-20260910.md`。
+- **Q07 → grounded**：v3.5 输出上限（800→1500）修复生效，不再截断，语义完整、引文逐字。
+- **Q09 → partial**：题面改写生效，q1 答最小权限概念（引 OWASP 原文），q2 单列缺百分比，符合选项 C 设计。
+- **Q01 → partial（预期 grounded，但不再报错）**：**非代码缺陷，是范围/预期问题**——草案与用例均写明
+  「S01 未导入则 Q01 暂不可答」，当前无 S01，`expected_status=grounded` 是占位；模型基于 LLM06 降级作答
+  属可辩护，q2「用容易理解的话说明」是风格要求被按「？」切成独立问题项而落入 missing（切分伪影）。
+- 账本 0.309189 → **0.344997** 元（本批 0.035808），预留 0、blocked=false。提交 5b185e5。
+
+## 2026-09-10 Q09 题面按裁定改写（选项 C）
+
+- 用户裁定选项 C：Q09 原题「资料提到了最小权限。它在我的电脑上能降低多少百分比的风险？」把前提句与
+  问句混写，模型可读成纯数值题判 insufficient。改为两个显式小问
+  「资料里的最小权限是什么意思？它在我的电脑上能降低多少百分比的风险？」，partial 成为无歧义预期。
+- **未改提示词**，以免纯数字题回退。已更新 `examples/acceptance-cases.json` 与 `docs/acceptance-draft.md`；
+  31 tests 通过；尚未重跑。提交 22fa8f2、e3af22d。
+
+## 2026-09-10 原始资料验收十题全跑完（v3.4→v3.5）
+
+- 用户付费跑 v3.4 批次，十题**全部执行**（Q01 中断已修）。报告
+  `docs/evidence/issue05-acceptance-live-v34-full-20260910.json`，复核
+  `issue05-acceptance-review-v34-20260910.md`。状态命中 5/10。
+- **已修 2 条生成/契约缺陷**（先失败回归后最小改动）：
+  - Q01（call_id=35）：模型把「资料没有提供……」缺失说明写进顶层 `claims`（无引用且未被 coverage 关联），
+    触发「问题覆盖存在未关联的结论」。契约正确不放松；提示词升 v3.5 明确缺失说明只能进 `missing`。
+  - Q07（call_id=41）：800 token 输出上限截断 JSON（`finish_reason=length`）。输出上限 800→**1500**
+    （常量 `OUTPUT_TOKEN_LIMIT`），提示词补 quote 尽量短。
+  - 提示词升 **evidence-v3.5**，`cli.py` replay 集合同步。本地 **31 tests 通过**；v3.5 preflight 最大预留 3.159228 元。
+- **未修（非生成缺陷）**：Q04/Q06 判 partial 属**检索未命中**（所需片段在库但向量排序第 7，20 行块过粗稀释定义），
+  按草案「固定检索器」不中途更换，记入结构适配待办（13/14/11）；Q09 已按裁定改写题面。
+- 账本 0.179976 → **0.309189** 元（本批 0.129213）。提交 d4ec180、0250bab、81d659f。
+
+## 2026-09-10 原始资料验收 Q01 中断修复（v3.4）
+
+- 用户付费跑 `scripts/check_acceptance.py --live`，**Q01 即报错停止**（`引用标识无效或重复`），
+  Q02–Q10 未执行。根因：模型对**同一证据片段**给出两条**不同**逐字 quote（均真实），而 `validate()`
+  用 `cid in verified` 强制每片段最多出现一次——**契约过严**。
+- 先写失败回归 `test_two_distinct_quotes_from_one_chunk_are_kept_not_rejected` 与负向守卫
+  `test_duplicate_id_with_conflicting_quote_is_still_rejected`，再最小修复：`verified` 改为 `{cid:[entry,…]}`，
+  保留同一 id 的多条**不同** quote；仍拒绝未知 id / 非逐字 / 空释义 / **完全相同**重复项。提示词升 **evidence-v3.4**。
+- 运行器同步修复：付费批次遇单题 `ValueError` **记录后继续**，仅账本阻塞时停止，不再浪费整批。
+- 本地 **29 tests 通过**；诊断 `docs/evidence/issue05-acceptance-q01-fix-v34-20260910.md`。
+- 账本 0.166719 → **0.179976** 元（本批 0.013257）；修复轮免费。提交 4bafb17、d2b4a0d。
+
+## 2026-09-10 原始资料开发验收运行器就绪（真实资料 + 检索）
+
+- 按用户选择「原始资料开发题（真实资料+检索）」，把 `docs/acceptance-draft.md` 十题接入**真实知识库 + 本地向量检索**。
+  新增 `examples/acceptance-cases.json` 与 `scripts/check_acceptance.py`（默认仅准备，`--live` 才付费）。
+- 关键修正：合成 CC0 夹具「Security demo」（`85772b00…`）原本会污染真实资料题（Q07 检索排第三），
+  已在用例 `excluded_doc_ids` 中剔除，运行器检索时过滤。
+- 准备报告 `docs/evidence/issue05-acceptance-prepared-20260910.json`，说明 `issue05-acceptance-prep-20260910.md`；
+  免费 preflight（Q05）通过：12870 字节、最大预留 3.152928 元、`budget_ready=true`、`network_called=false`。
+- 欠项：知识库缺 S01，Q01 不能据现有资料断言达标（后经裁定换题，见最新节）。
+- 账本 **0.166719** 元（准备与 preflight 均免费）。提交 659cc17、dcd1c72、23c88ad。
+
+## 2026-09-10 v3.3 十题受控场景全部符合要求
+
+- 十题分两批（三题 call 24–26 + 七题 call 27–33），同为 `evidence-v3.3`、同模型、受控证据（非真实检索）：
+  **全部有符合要求的观察**，number 为 v3.1/v3.2 连续失败后**首次通过**。
+- 要点：agreement 三条结论分别引用两方且不编造分歧；conflict 并列正反不裁决；negation 释义保留否定；
+  injection 解释不执行、不拒答；analogy 给出具体生活情境并标注；missing_measurement 不借外部成绩、
+  `citation_scope=missing_context`；number 未编造数字。
+- **边界**：不等于稳定准确率或正式评测，样本极小；原始资料开发题欠项、03 三类端到端验收欠项、
+  用户最终语义验收均保留。报告 `issue05-live-v33-three/seven-20260910.json`。
+- 账本 0.125391 → **0.166719** 元（本批七题 0.041328）。
+
+## 2026-09-10 v3.3 number 修复与三题复验
+
+- number 场景按 diagnose 完成离线诊断、先失败回归、最小修复：`apply_coverage` 增加 `answered` 标记
+  （只写 missing、无 claims 的问题项不计为已答），提示词升 v3.3 明确「只索取数值的问题项不能由原则凑部分答案」。
+  27 tests 通过；详见 `docs/evidence/issue05-number-fix-v33-20260910.md`。
+- 定向真实复验三题：number（首次通过，claims 空、insufficient、`citation_scope=missing_context`）、
+  partial、conditions 均符合要求。报告 `issue05-live-v33-three-20260910.json`。
+- 账本 0.108174 → **0.125391** 元（本次三题 0.017217）。
+- 另：本轮发生 **git 对象库损坏**（`git stash push` 导致 11 个历史提交对象被删），经用户确认从完好工作区
+  重建基提交 `a08ac81`（分支 `master——ddd`），历史无法逐条还原。见 `.data/git-recovery-20260910T143815/INCIDENT.md`。
+  **教训：不要用 `git stash` 演示「修复前失败」，改用临时目录副本 / git worktree / 测试内断言旧行为。**
+
 ## 2026-09-10 v3.2 复核与技能时机校准
 
 - analogy 和 missing_measurement 本次符合要求，number 仍 partial（应 insufficient）。报告与复核已保存 docs/evidence/issue05-live-v32-20260910.json、issue05-v32-review-20260910.md。
