@@ -4,7 +4,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .store import digest
+from .store import active_chunk_ids, check_search_args, digest, record_run
 
 MODEL_DIR = Path(__file__).resolve().parents[1] / ".data/models/minilm"
 
@@ -71,15 +71,14 @@ class VectorSearch:
                 "elapsed_ms": (time.perf_counter()-started)*1000}
 
     def search(self, query, limit=5):
-        if not query.strip() or not 1 <= limit <= 20:
-            raise ValueError("问题不能为空；limit 必须为 1–20。")
+        check_search_args(query, limit)
         started = time.perf_counter()
         _, fingerprint = self.corpus()
         meta = dict(self.db.execute("SELECT key,value FROM vector_meta").fetchall())
         if meta.get("corpus") != fingerprint or meta.get("encoder") != self.encoder.identity:
             raise ValueError("向量索引缺失或资料/模型已变化，请先运行 index 重建。")
         q = self.encoder.encode([query])[0]
-        active = {r["id"] for r in self.db.execute("SELECT id FROM chunks WHERE active=1")}
+        active = active_chunk_ids(self.db)
         ranking = []
         for r in self.db.execute("SELECT id,embedding FROM vectors"):
             if r["id"] not in active:
@@ -92,8 +91,5 @@ class VectorSearch:
                   "candidates": [{**self.store.read(cid), "score": score} for score,cid in ranking[:limit]],
                   "elapsed_ms": (time.perf_counter()-started)*1000,
                   "note": "纯向量基线，无关键词扩展；相似度不等于答案有依据。"}
-        with self.db:
-            row = self.db.execute("INSERT INTO runs(created,query,result,elapsed_ms) VALUES (?,?,?,?)",
-                (datetime.now(timezone.utc).isoformat(),query,json.dumps(result,ensure_ascii=False),result["elapsed_ms"]))
-        result["run_id"] = row.lastrowid
+        result["run_id"] = record_run(self.db, query, result, result["elapsed_ms"])
         return result

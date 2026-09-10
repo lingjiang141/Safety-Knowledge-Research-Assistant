@@ -1,8 +1,8 @@
 """Controlled evidence tests isolate generation from retrieval quality."""
 import json
 from pathlib import Path
-from datetime import datetime, timezone
 from skra.answer import question_parts
+from skra.store import record_run
 
 CASES = Path(__file__).resolve().parents[1] / "examples/boundary-cases.json"
 
@@ -27,10 +27,7 @@ def prepare(store, directory, case):
     def selected(query, limit):
         result = {"mode": "controlled-evidence-not-retrieval", "query": query,
                   "candidates": evidence, "case_id": case["id"], "elapsed_ms": 0}
-        with store.db:
-            row = store.db.execute("INSERT INTO runs(created,query,result,elapsed_ms) VALUES (?,?,?,0)",
-                (datetime.now(timezone.utc).isoformat(), query, json.dumps(result, ensure_ascii=False)))
-        result["run_id"] = row.lastrowid
+        result["run_id"] = record_run(store.db, query, result, 0)
         return result
     return evidence, selected
 

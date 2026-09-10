@@ -1,37 +1,39 @@
 # Issue 05 回答边界验收
 
-## 当前状态（2026-09-10 最新）
+## 结论（2026-09-10 收尾）
 
-**当前提示词 `evidence-v3.5`，输出上限 1500 token，本地 31 tests 通过。** 两条路径已完成：
+**Issue 05 已完成（done）**。当前提示词 `evidence-v3.5`，输出上限 1500 token，本地 **98 tests 通过**
+（收尾当时为 72；07 新增评测 21 例、15 新增切分标签 5 例）。
+两条验收路径均达标：
 
 1. **受控场景（`check_boundaries.py`，非检索）**：v3.3 下十题**全部有符合要求的观察**（number 首次通过）。
    报告 `docs/evidence/issue05-live-v33-three/seven-20260910.json`。**不等于稳定准确率**。
 2. **原始资料开发题（`check_acceptance.py`，真实资料+向量检索）**：v3.4 全跑（状态命中 5/10）→ 修 2 条生成缺陷
-   升 v3.5 → 定向重跑 Q01/Q07/Q09 确认修复生效。
-   - **已符合要求**：Q02/Q03/Q05/Q08/Q10 此前通过；**Q07 → grounded**、**Q09 → partial**（v3.5 复核确认）。
-   - **Q01 已换题**（原依赖 S01，S01 无开放许可不能导入）→「提示注入与越狱有什么区别？」，**待真实运行**。
-   - **Q04/Q06 检索未命中欠项**（所需片段向量排序第 7，20 行块过粗稀释定义）：不改检索器，记入结构适配待办 13/14/11。
+   升 v3.5 → v3.5 全批重跑（`complete=True`，8/10 命中）→ 用户最终语义验收达标。
+   - **已符合要求**：Q02/Q03/Q05/Q07/Q08/Q09/Q10（Q07 grounded、Q09 partial 由 v3.5 复核确认）。
+   - **Q01 已换题**（原依赖 S01，S01 无开放许可不能导入）→「提示注入与越狱有什么区别？」，全批中 **grounded**。
+   - **Q04/Q06 检索未命中欠项**：已转 **Issue 13/14/11 结构适配**处理，**13 使 Q04 定义段排名 2→1**；
+     Q06 跨资料比较仍为第 4，**如实记录未改善**，不改检索器、不改预期蒙对。
    - 报告与复核：`issue05-acceptance-live-v34-full-*` / `issue05-acceptance-review-v34-*` /
-     `issue05-acceptance-live-v35-targeted-*` / `issue05-acceptance-review-v35-targeted-*`。
+     `issue05-acceptance-live-v35-targeted-*` / `issue03-acceptance-review-v35-full-20260910.md`。
 
-**下一步（需用户决定）**：是否整体重跑十题确认新 Q01 与 v3.5 修复在全批下的表现。
-Issue 05 未完成，不收尾、不进入 06。以下为历史记录。
+**后续**：主线已进入 **Issue 07**（冻结评测样本与基线报告）。以下为历史记录。
 
-## 历史（v3.2 及以前）
+## 历史（v3.2 及以前，均为过时状态，勿据此执行下一步）
 
 v3.2 三题已跑完：analogy、missing_measurement 本次符合要求，number 仍错误 partial。不同版本累计观察不能当作同版本全量通过。
 
-最新：v3.1 十题结果已收齐，七题本次符合要求，number/analogy 语义未通过，missing_measurement 程序误拒绝已离线修复。当前 v3.2、25 测试通过；下一步 `python scripts/check_boundaries.py --live --case number --case analogy --case missing_measurement`。详见 `docs/evidence/issue05-v31-six-review-20260910.md`。
+v3.1 十题结果已收齐，七题本次符合要求，number/analogy 语义未通过，missing_measurement 程序误拒绝已离线修复。
 
 输出契约补充：insufficient 仍要求无结论及明确缺失，但允许已验证的资料范围引用，并返回 citation_scope=missing_context；引用可定位仍不自动证明缺失说明的语义。此前“insufficient 必须 citations 为空”不再是当前约束。以下为历史。
 
-最新 v3.1 四题已完整运行，principle/partial/conditions 本次符合要求，number 仍误判 partial。见 `docs/evidence/issue05-v31-review-20260910.md`。下一步先补 agreement、conflict、negation、injection、analogy、missing_measurement 六题，再集中处理与复验语义失败；不要重复执行已经完成的四题命令作为默认下一步。Issue 05 仍未完成。以下为历史记录。
+v3.1 四题已完整运行，principle/partial/conditions 本次符合要求，number 仍误判 partial。见 `docs/evidence/issue05-v31-review-20260910.md`。以下为历史记录。
 
 最新：v3 实测仅 principle 执行即失败，后三题未运行。已修复完全重复的内嵌引用形状问题，24 本地测试通过；原则题过度声明缺失仍未通过语义复核。当前 evidence-v3.1，待重新执行下方定向四题命令，详见 `docs/evidence/issue05-v3-review-20260910.md`。以下版本记录为历史。
 
 2026-09-10 更新：已用保存的真实失败先复现、写失败回归再修复。当前为 evidence-v3，22 个本地测试通过；真实 v3 输出尚未验证。详细说明见 `docs/evidence/issue05-offline-diagnosis-20260910.md`。下面 evidence-v2 描述保留为历史实现背景。
 
-新版输出 coverage 按输入问题片段关联结论索引或说明缺失，程序汇总状态。不能将合法关联视为真实语义覆盖；人工仍需检查数量子问、条件、否定及两方引用。优先运行 `python scripts/check_boundaries.py --live --case principle --case number --case partial --case conditions`，再补其余真实场景。Issue 05 仍进行中。
+新版输出 coverage 按输入问题片段关联结论索引或说明缺失，程序汇总状态。不能将合法关联视为真实语义覆盖；人工仍需检查数量子问、条件、否定及两方引用。
 
 当前：evidence-v2 提示词及工具调用拒绝已实现；16 个本地测试通过，包含十个受控场景子测试。真实语义效果未验证，不能将测试构造的答案当作模型生成质量。
 

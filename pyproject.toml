@@ -7,7 +7,7 @@ name = "safety-knowledge-research-assistant"
 version = "0.1.0"
 description = "Local, evidence-first security knowledge research assistant"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["pypdf==6.18.0"]
 
 [project.optional-dependencies]
 vector = ["sentence-transformers==5.1.0"]

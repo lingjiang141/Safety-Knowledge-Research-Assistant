@@ -1,6 +1,6 @@
 # 04 — 中文问题检索多份英文资料并建立向量基线
 
-Status: ready-for-agent
+Status: done
 State: done
 Type: AFK
 Milestone: M1

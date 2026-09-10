@@ -8,6 +8,8 @@ from decimal import Decimal, InvalidOperation, ROUND_CEILING
 from datetime import date
 from pathlib import Path
 
+from .store import record_run
+
 PROMPT_VERSION = "evidence-v3.5"
 # Per-call output ceiling. Q07 (acceptance) was truncated mid-JSON at 800 tokens
 # while carrying the required per-citation quote + Chinese translation, so the
@@ -395,7 +397,5 @@ def answer(store, query, ledger, config=None, key=None, send=transport, demo=Fal
             output["model_output"] = model_output
         raise
     finally:
-        with store.db:
-            record = store.db.execute("INSERT INTO runs(created,query,result,elapsed_ms) VALUES (datetime('now'),?,?,?)",
-                (query, json.dumps(output, ensure_ascii=False), (time.perf_counter()-started)*1000))
-        output["answer_run_id"] = record.lastrowid
+        output["answer_run_id"] = record_run(
+            store.db, query, output, (time.perf_counter()-started)*1000, sqlite_clock=True)

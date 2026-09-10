@@ -1,6 +1,318 @@
 # 新窗口交接：安全知识研究助手
 
-## 最新：**05 收尾（done）→ 06 完成（done）→ 架构检查（建议保留现状）**，下一步 13
+## 最新：**Issue 08 完成（done）** —— 向量 / BM25 / RRF 三路检索对照，**无净提升（如实负面结果）**，下一步 10
+
+本轮按用户「继续」推进 Issue 08，**全程无付费调用**；账本保持 **0.471396** 元。
+
+### Issue 08 → done（先架构复核，再按 TDD 落地，最后对照）
+
+在已有问答与评测路径增加 **BM25** 与 **RRF 融合**，保持纯向量模式可选，对同一固定开发集比较。**结论：本语料上混合检索未带来提升，如实记录为负面结果，未做任何参数拟合。**
+
+**对照结果（束级 Recall@5，开发集 D01–D10，只改检索与排序方式）：**
+
+| 检索方式 | recall@5 | 证据估算 token | 相对向量 |
+| --- | --- | --- | --- |
+| vector（07 基线） | **0.850** | 1979 | — |
+| bm25 | 0.400 | 830 | **−0.450**（退化 D02/D05/D06/D09/D10） |
+| hybrid-rrf | 0.750 | 1876 | **−0.100**（退化 D09） |
+
+**有利案例：无。** 融合只把 BM25 自己的伤害收窄（D05/D06/D10 救回 1.00），不是相对基线的净提升。
+
+```bash
+./.venv/Scripts/python.exe scripts/compare_retrievers.py \
+  --out docs/evidence/issue08-retriever-comparison-20260910.json
+```
+
+**三条机制结论（报告内可复查，非口头断言）：**
+
+1. **中英词项错配是结构性限制**：4/10 用例（D04/D05/D06/D10）在纯词项检索下**零候选**，
+   与实现前量化的错配完全吻合（`docs/evidence/issue08-term-mismatch-20260910.txt`）。BM25 的 −0.450 主要来自这里。
+2. **融合的失效模式已定位**：RRF 奖励"跨路一致"，而**词面相似但跨度错误**的片段（D09 的 `e9312b2a`）
+   能同时拿到 BM25 第 1 + 向量第 9，被抬到第 2，挤掉了**只有向量支持、但跨度正确**的目标片段
+   （D09 唯一标注束由单片段 `1e8bc828` 覆盖，向量排第 5）。**一致 ≠ 正确。**
+3. **D04/D07 是切分/跨资料排序问题，不是检索方式问题**：融合只能重排已有候选，补不上缺失的束。
+   继续交由 11/14 结构适配路径。
+
+### 前置：架构发现 ⑤ 复核 → 刻意最小收敛（等价性逐字节证明）
+
+架构检查实测 `INSERT INTO runs` 在代码中重复 **5 处**（比记录的 4 处更多），`limit` 校验、`active`
+过滤也各有 4–5 份拷贝。为让 BM25 与融合层不制造第 5、第 6 份拷贝，把共享规则收进 `skra/store.py`：
+`check_search_args` / `active_chunk_ids` / `record_run` / `search_terms` / `TOKEN_RE` / 参数常量。
+
+**等价性证明**：收敛前后 keyword 检索结果哈希均为
+`010e9ca4a50a37fc936dc11c2dce8bf43b68a5d0cf07c4af3f82df9a8480ea04`，**行为逐字节不变**。
+新增防回潮守卫 `tests/test_shared_retrieval_rules.py`（5 例，白名单仅 `skra/store.py`）。
+
+### 交付物
+
+- `skra/bm25.py`（新增：Okapi BM25，`k1=1.5`/`b=0.75`，body 优先排序，中文无共享词项时如实返回空候选）
+- `skra/fusion.py`（新增：RRF，`K=60` 等权，**只读排名、不合并分数尺度**；**拒绝融合已失效片段**）
+- `skra/store.py`（共享规则 + 参数常量）、`skra/vector.py`、`skra/answer.py`、`skra/boundaries.py`（改用共享规则）
+- `scripts/compare_retrievers.py`（新增：三路对照，含零候选与退化机制说明）、`scripts/measure_term_mismatch.py`
+- `tests/test_bm25.py`（7 例）、`tests/test_fusion.py`（8 例）、`tests/test_shared_retrieval_rules.py`（5 例）
+- `docs/evidence/issue08-retriever-comparison-20260910.{json,md}`、`issue08-term-mismatch-20260910.txt`、
+  `issue08-precheck-architecture-20260910.md`
+- **118 tests 通过**（98 → 118）
+
+### ⚠️ 保留集封存（未打开）
+
+`holdout_loaded: false`；`examples/eval-holdout-cases.json`（H01–H10）**全程未打开**，按设计留到 **Issue 12**。
+
+### 下一步：**Issue 10 — 有限补充检索（M2）**
+
+主线：**10 → 12**（+ 可选 09）。10 依赖 08（已完成）。08 的证据表明：**在扩大检索能力之前，
+瓶颈更多在切分粒度与跨资料排序**（D04/D07），10 设计补充检索时应把这一点纳入考虑，
+而不是继续堆检索路数。**边界**：不重置账本（0.471396 元）、不动任何标签；付费调用仅在本机交互终端。
+
+## 此前：**Issue 15 完成（done）** —— 四种切分策略对照，并修复一处真实缺陷，下一步 08
+
+本轮按用户「下一步」推进 Issue 15，**全程无付费调用**；账本保持 **0.471396** 元。
+
+### Issue 15 → done（对照型任务，**一个外部行为测试 → 最小实现 → 回归**）
+
+在同一组语料、查询、编码器与检索器上对照切分策略，展示正文证据是否更完整，
+并如实报告退化与局限。**对照脚本 `scripts/compare_splitters.py`（免费离线，可反复运行）。**
+
+- **一次只改一个因素**：语料 / 问题 / 标注 / 编码器 / top-k=5 / 证据预算全部冻结，
+  每个策略从**同一批快照**建独立 SQLite（不做「重导入基线」这种会污染对照的操作）。
+- **Recall 锚在原文行跨度，不锚在片段 id**：分母恒为标注的**证据束数**（报告里
+  `annotated_bundles` 对每策略同值，证明分母没动）。**跨策略不用 chunk 数或 id 比较 Recall。**
+- **`required_together` 的束**只有**所有覆盖片段都被取回**才算命中；只取到一部分记 `broken`。
+- **未运行项如实声明**：`complete=false`；PDF 策略（语料无 PDF、不能切 Markdown）、生成侧指标、
+  保留集执行逐条写入 `not_run`。
+
+### 对照结果（开发集 D01–D10，向量检索 k=5）
+
+| 策略 | recall@5 | 证据估算 token | 相对基线 |
+| --- | --- | --- | --- |
+| `heading-lines-v1:20`（基线） | 0.850 | 1979.3 | — |
+| `heading-block-v2`（指南结构） | **0.900** | 1920.7 | **+0.050**（提升 D07，无退化） |
+| `heading-procedure-v3`（步骤/代码） | **0.400** | 398.3 | **−0.450**（退化 D05–D09） |
+
+```bash
+./.venv/Scripts/python.exe scripts/compare_splitters.py \
+  --out docs/evidence/issue15-splitter-comparison-20260910.json \
+  --preview docs/evidence/issue15-splitter-preview-20260910.json
+```
+
+### 发现并修复的真实缺陷：procedure 策略把正文误标为元数据
+
+首跑时 `heading-procedure-v3` 下 LLM01 正文行（9/11/13）被标 `kind=metadata`，元数据数 **11（应为 3）**，
+会把真实正文挤出 body 搜索槽。根因两段：① `peel_metadata` 剥离标题块后，无标题的正文单元
+继承了上一单元的 `(说明性元数据)` 标签；② 合并阶段又无条件并入元数据单元。
+**指南策略 `_chunk_structured` 无此 bug**（有 `is_metadata_block` 双重保险）——这个不对称值得记录。
+
+- 先失败回归：`tests/test_procedures.py::test_body_following_a_peeled_title_block_is_not_called_metadata`。
+- 修复后 procedure 元数据数 **11 → 3**；新增 `tests/test_split_labels.py`（4 例，两策略子测试，
+  含「元数据不抢占正文命中」防搬运）。
+- **98 tests 通过**（93 → 98）。
+
+### 报告的两项退化/局限（验收项 5，非虚构）
+
+1. **procedure-v3 的 −0.450**：LLM06 从 7 片段切成 37（平均 233 字符），候选仍是真实 body 证据，
+   但切太碎、排序竞争不过完整段落。
+2. **D04 三策略皆 0.00**：procedure 把「编号行 + 定义句」（如 `S03:21-23`）切成两片段 → `broken`。
+   这是**标注单元与切分粒度错配**的诚实缺口，非 bug；基线与指南结构下的 0.00 则是**排序未进前 5**。
+   **两种 0.00 原因不同，报告里分开写明。**
+
+**采样局限（验收项 1）**：语料仅 3 份 OWASP Markdown（81/86/50 行），**无围栏代码、无独立长篇报告**，
+故「步骤/代码」只用编号措施代表，「文本型报告」由指南散文段落代表 —— 已在证据文档如实记录。
+
+### 交付物
+
+- `scripts/compare_splitters.py`（新增：切分对照 + `--preview` 导出切分预览与原文前后对照）
+- `docs/evidence/issue15-splitter-comparison-20260910.{json,md}`、`issue15-splitter-preview-20260910.json`（215 片段）
+- `tests/test_split_labels.py`（新增 4 例）、`tests/test_procedures.py`（+1 例）、`skra/store.py`（修复）
+
+### ⚠️ 保留集封存（验收项 6）
+
+本题**只用开发集**；`examples/eval-holdout-cases.json`（H01–H10）**全程未打开**，按设计留到 **Issue 12**。
+选择规则：指南结构**零风险采用**（指标升、无退化），步骤/代码结构**本语料下不采用**（−0.450 的实测退化）；
+最终取舍在 12 用保留集验收后定。
+
+### 下一步：**Issue 08 — 混合检索（M2D）**
+
+主线：**08 → 10 → 12**（+ 可选 09）。08 前复核架构发现 ③（`answer()` 巨函数）、
+⑤（两检索器规则重复）与 07 新增的 `eval.py` 跨度解析耦合点；无新证据则不重构。
+**边界**：不重置账本（0.471396 元）、不动任何标签；付费调用仅在本机交互终端。
+
+## 此前：**Issue 07 完成（done）** —— 评测样本冻结 + 检索基线，下一步 15
+
+本轮按用户「开始」推进 Issue 07，**全程无付费调用**；账本保持 **0.471396** 元。
+
+### Issue 07 → done（按 **tdd** 逐条红→绿）
+
+冻结评测样本并保存可复查的基线报告。接口（用户确认四项）：新增 `skra/eval.py` + CLI `eval` 子命令；
+**以原文字符/行跨度 + 必须共同出现的条件为锚**（不用片段 id）；开发/保留集**文件与代码双重隔离**；
+先只做**免费检索/结构基线**（不跑付费生成）。
+
+- **为什么不用片段 id**：fragment id 是切分策略的函数，锚在它上面会让 Recall 在策略之间不可比
+  （PRD 5.3 要求切分可对照）。跨度按行范围映射到当前策略产出的片段，**分母是标注的证据束数**，
+  切分策略改变时分母不动。
+- **`required_together`**：束被切分切开、只取到一部分 → 记 `broken`，**不算命中**。
+  若算命中就等于奖励这个标注本来要抓的失败。
+- **双重隔离**：① 分文件；② 文件自身 `kind` 字段权威（把保留集改名当开发集也拒）；
+  ③ `load_sample(dev)` 默认 `holdout=None` 不可达；④ 测试守卫（磁盘上放保留集，断言普通运行不打开它）。
+- **冻结**：`sample_hash` / `corpus_hash` / `splitter` / `encoder` / 逐文档 hash，同输入同哈希。
+- **未运行项如实声明**：`complete=false`、`not_run` 三条（生成侧指标、保留集执行、切分对照/混合检索）。
+- **`estimate_tokens` 是字符数/4 的确定性估算，不是真实分词计数**，报告内已标注。
+
+### 基线结果（开发集 10 题，向量检索 k=5，免费离线）
+
+`recall_at_5 = 0.85`、`failed_cases = []`、`broken_bundles = 0`、
+`mean_evidence_tokens = 1979.3`（估算）、`total_metadata_chunks = 0`、耗时 936.5 ms。
+未命中：**D04（0/3 束）、D07（1/2 束）** —— 与 03/05 全批的 Q04/Q06 检索欠项同源，属已知缺口。
+**没有 `broken` 束**说明当前基线切分下所有标注跨度都落在单片段内，缺口全部来自排序未进前 5。
+
+```bash
+./.venv/Scripts/python.exe -m skra eval \
+  --exclude 85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97 \
+  --out docs/evidence/issue07-baseline-20260910.json
+```
+
+### 交付物
+
+- `skra/eval.py`（新增：跨度锚定、双隔离装载、束级 Recall、冻结、基线报告）
+- `skra/cli.py`（新增 `eval` 子命令；`--sample/--holdout/--retrieval/--k/--out/--exclude`）
+- `examples/eval-dev-cases.json`（开发集 D01–D10）、`examples/eval-holdout-cases.json`（保留集 H01–H10）
+- `tests/test_eval.py`（21 例）、`docs/evidence/issue07-baseline-and-freeze-20260910.md`
+- **93 tests 通过**（72 → 93）
+
+### ⚠️ 保留集封存
+
+`examples/eval-holdout-cases.json`（H01–H10）**已创建但 Issue 07 不运行**，
+按设计推迟到 **Issue 12 最终评测**。它覆盖三类结构（长段落散文 / 项目符号清单 / 编号措施步骤）。
+**在 12 之前不得打开**；如因本体 bug 需要接触，须先记录理由并重跑冻结。
+
+### 下一步：**Issue 15 — 用实际问题验证文档切分改良（M2D，HITL）**
+
+15 依赖 07（已 done）。用同一套开发集对照四种切分策略（`heading-lines-v1:20` / `heading-block-v2` /
+`heading-procedure-v3` / `pdf-pages-v1`），回答 D04/D07 是否被结构切分救回。
+主线：**15 → 08 → 10 → 12**（+ 可选 09）。
+**边界**：不重置账本（0.471396 元）、不动任何标签；付费调用仅在本机交互终端。
+
+### 待用户处理（Issue 07 遗留）
+
+- **生成侧指标未运行**（拒答率、误拒答率、引用支持率）：需付费 + 人工语义复核，是 07 的明确未运行项。
+- **架构发现 ⑤（两检索器规则重复）仍开放**；07 新增一处待复核：`eval.py` 的跨度解析直接读 `chunks` 表，
+  与两检索器各自维护的 active/装配规则耦合，15 做切分对照前先确认影响面。
+- **D04/D07 未命中**：记入 15 的切分对照范围，不改固定检索器。
+
+## 此前：**Issue 11 完成（done）** —— 文本型 PDF 按页定位，下一步 07
+
+本轮按用户「继续」推进 Issue 11，**无付费调用**；账本保持 **0.471396** 元。
+
+### Issue 11 → done（按 **tdd** 逐条红→绿）
+导入文本型 PDF 并按页核对回答，新增 `pdf-pages-v1` 策略。
+- 接口（用户确认）：**pypdf**（纯文本层，不执行文件内容）；chunks 增 **`page` 列**（1 基，
+  Markdown 为 NULL）；**重复页眉页脚标 `kind=metadata`、保留可查不占正文名额**；
+  **严格按 PRD 4.4 边界**（不做 OCR / 复杂表格 / 双栏重建）。
+- TDD 11 循环：正文可检索带页码 → 引用落回真实页 → 装饰行标 metadata → 正文重复句不误删 →
+  跨页段落两半可检索 → 扫描件明确失败 → 损坏文件给原因 → 记录提取版本+hash →
+  更新/删除契约 → CLI 展示页码 → 向量检索正文档先于装饰行。
+- **71 tests 通过**（69 → 71；PDF 专项 `tests/test_pdf_import.py` 12 例）。
+- **真实 PDF 夹具**：`scripts/make_pdf_fixtures.py` 直接生成 PDF 语法（无额外依赖），
+  5 页报告含重复页眉、仅页码不同的页脚、**第 3→4 页跨页续写段落**；引用与页内文本逐行相等。
+- **调试暴露 3 个问题**：① 页码索引 off-by-one（装饰行未标 metadata）；
+  ② 装饰行与正文粘连致正文继承 metadata 标签；③ 标题页前言未剥离（规则正确拒绝，如实记录）。
+- 改动：新增 `skra/pdf.py`；`store.py`（`PDF_SPLITTER`/`page` 列/`_chunk_pdf`/`_page_furniture`/
+  `_as_row`/按扩展名分派/`update()`）；`cli.py`（`--splitter` 改可选）。
+- 证据：`docs/evidence/issue11-pdf-tdd-20260910.md`。
+
+### 下一步：**Issue 07 — 冻结评测样本并保存可复查的基线报告（M1，HITL）**
+07 依赖 05/06/13/14/11（**均已 done**）。将冻结开发集/保留集与基线入口，为 15 的切分对照做准备。
+主线：**07 → 15 → 08 → 10 → 12**（+ 可选 09）。
+
+### 待用户处理（Issue 11 遗留）
+- ~~**`pypdf` 未写入依赖锁**~~ → **已解决**：`pypdf==6.18.0` 已写入 `pyproject.toml`（`dependencies`）
+  与 `requirements-vector.lock.txt`。核实 pypdf **无运行时依赖**（纯 Python），锁文件只加一行。
+- **架构发现 ⑤（两检索器规则重复）仍开放**：`store.search` 有 body 优先规则、`vector.search` 无；
+  PDF 使其更易触发。已加护栏测试固化期望，未顺手改检索器，留待 08 前。
+**边界**：不重置账本（0.471396 元）、不动任何标签；付费调用仅在本机交互终端。
+
+## 此前：**Issue 14 后续收敛（元数据剥离共享）** —— 下一步 11
+
+用户问「这个保留会有什么后果」后裁定：**11 前做局部收敛**（非整体重构）。**无付费调用**，
+账本保持 **0.471396** 元。
+
+### 为何触发（13/14 改变了前提）
+- 架构检查 ②「切分不变量分散」当时裁定保留；但 13/14 后**元数据剥离逻辑成了两份独立拷贝**
+  （`_chunk_structured` 与 `_chunk_procedure`），逐行 diff 仅变量名不同。
+- **14 的缺陷③（变量遮蔽）正是复制的直接产物** —— 若只有一份实现，该 bug 结构上不存在。
+- **11 要加第四个策略（PDF）**，将成为第三次复制。
+
+### 收敛（刻意最小）
+抽模块级纯函数 `peel_metadata(lines, units)`，两策略改调用、删副本；**不动⑤检索规则、不动③巨函数**。
+
+### 等价性证明（三重，不止"测试通过"）
+1. `scripts/check_peel_equivalence.py`：共享函数 vs **逐字重建的旧拷贝**，**160 例 0 不一致**。
+2. **片段指纹**：3 夹具 + 5 真实语料 × 3 策略 = 142 片段，收敛前后均 `d768b2fdb0bad5c0`，**逐字节相同**。
+3. 回归护栏实测：把 `_chunk_structured` 改回内联 → 测试立即失败，恢复转绿。
+
+### 结果
+- **60 tests 通过**（52 → 60，新增 `tests/test_metadata_peeling.py` 8 例，含
+  `test_both_strategies_share_this_one_rule` 防复制回潮）。
+- 证据：`docs/evidence/issue14-followup-peel-metadata-20260910.md`。
+
+### 下一步：**Issue 11 — 导入文本型 PDF 并按页核对回答（M1D，按 tdd）**
+11 可直接复用 `peel_metadata`，不必再抄第四份；另承接 13/14 遗留的 **Q06 跨资料比较未改善**。
+主线：**11 → 07 → 15 → 08 → 10 → 12**（+ 可选 09）。
+**边界**：不重置账本（0.471396 元）、不动任何标签；付费调用仅在本机交互终端。
+
+## 此前：**Issue 14 完成（done）** —— 步骤/代码切分落地，下一步 11
+
+本轮按用户「下一步」推进 Issue 14，**无付费调用**；账本保持 **0.471396** 元。
+
+### Issue 14 → done（按 **tdd** 逐条红→绿）
+检索操作步骤时保留前提、代码与警告，新增 `heading-procedure-v3` 步骤/代码策略。
+- 接口（用户确认）：新增步骤/代码策略 + 可覆盖；**前提/警告与步骤同块**；
+  步骤/前提/代码/警告保持关联。
+- TDD 六循环：步骤携带前提与相邻警告 → 围栏代码为一整块且 `#` 不冒充标题 →
+  警告归属其守护的小节 → 未知结构回退基线并记原因 → 引用为真实原文跨度 → CLI 策略。
+- **52 tests 通过**（原 46 + 新 6，`tests/test_procedures.py`）。
+- **调试中暴露并修复三个真实缺陷**（已固化为测试）：
+  ① 围栏内 `#` 注释被误判为标题，把代码块拦腰切断 → 先标记围栏区域再识别标题；
+  ② 合并守卫 `if headed and merged` 令标题链塌陷，整篇缩成 **1 片段** → 带标题单元一律另起小节；
+  ③ peel 循环复用变量名 `start` 遮蔽单元起点，导致标签整体错位 → 改用 `unit_start/unit_end`。
+  另修正：标签**按片段**判定（只有真含围栏的片段才标 `代码（…）`）；引入句归入代码片段、不重复。
+- **真实语料验证**（`owasp-prevention-cheatsheet-full.md`）：切出 13 片段，小节名正确、
+  元数据正确剥离（该资料无围栏代码，围栏行为由测试夹具覆盖）。
+- 改动：`store.py`（`PROCEDURE_SPLITTER`/`_chunk_procedure`/`_procedure_pieces`/
+  分派/未知结构回退）、`tests/test_procedures.py`。
+- 证据：`docs/evidence/issue14-procedures-tdd-20260910.md`。
+
+### 下一步：**Issue 11 — 跨资料召回与比较（M1D，按 tdd）**
+11 承接 13/14 遗留的 **Q06 跨资料比较未改善**（两策略下均为第 4 名）——
+单资料内切分有效，跨资料排序需在 11 处理。11 依赖 13/14（均已完成）。
+主线：**11 → 07 → 15 → 08 → 10 → 12**（+ 可选 09）。
+**边界**：不重置账本（0.471396 元）、不动任何标签；付费调用仅在本机交互终端；
+结构切分为工程改良，不声称创新或效果提升比例。
+
+## 此前：**Issue 13 完成（done）** —— 结构切分落地，下一步 14
+
+本轮按用户「下一步」推进 Issue 13，**无付费调用**；账本保持 **0.471396** 元。
+
+### Issue 13 → done（按 **tdd** 逐条红→绿）
+按指南结构切分并展示完整证据，新增 `heading-block-v2` 结构策略（保留 `heading-lines-v1:20` 基线）。
+- 接口（用户确认）：新增结构策略 + CLI `--splitter` 可覆盖；**说明性元数据标记 `kind=metadata`、
+  默认不占正文检索名额**（不删除、仍可读）。
+- TDD 六循环：定义句与列表项共存 → 元数据不挤占正文 → 标题路径不冒充逐字引文 →
+  未知结构回退基线并记原因 → 策略变更旧片段失效 → CLI `--splitter`，均先失败后最小实现。
+- **46 tests 通过**（原 40 + 新 6，`tests/test_structured_guides.py`）。
+- **真实语料对比（五份 OWASP 指南，本地向量检索）**：Q04「三概念区别」定义段
+  **排名第 2 → 第 1**（证据块 `L1–18`→`L9–18`，剥离标题+元数据的稀释）。
+  Q06（跨资料比较）仍为第 4 —— **诚实记录未改善**，跨资料排序留待 14/11。
+- 改动：`store.py`（`_chunk_structured`/`_split_block`/元数据识别/`kind` 列 + 旧库迁移/
+  未知结构回退/search 正文优先）、`cli.py`（`--splitter`）。
+- 证据：`docs/evidence/issue13-structured-guides-tdd-20260910.md`。
+
+### 下一步：**Issue 14 — 检索操作步骤时保留前提、代码与警告（M1D，按 tdd）**
+14 依赖 13（已完成）。将按 tdd 验证步骤与前提绑定、围栏代码块、警告保留、代码范围提示。
+主线：**14 → 11 → 07 → 15 → 08 → 10 → 12**（+ 可选 09）。
+**边界**：不重置账本（0.471396 元）、不动任何标签；付费调用仅在本机交互终端；
+结构切分为工程改良，不声称创新或效果提升比例。
+
+## 最新（此前）：**05 收尾（done）→ 06 完成（done）→ 架构检查（建议保留现状）**，下一步 13
 
 本轮按用户「收尾，下一步」推进，**无付费调用**（全部本地测试与 CLI 演示）；账本保持 **0.471396** 元。
 
@@ -292,6 +604,13 @@ Issue 05 number 场景已按 diagnose 完成离线诊断 + 先失败回归 + 最
 再补 negation/injection 等未执行场景。账本累计 0.108174 元、可用 9.891826 元、预留 0、blocked=false，本轮无新增付费调用。
 Issue 05 保持进行中，不进入 06。
 
+## ⚠️ 以下全部为历史交接记录（v3.2 及更早，均已过时）
+
+> **不要据此执行任何下一步。** 这些段落记录的是 2026-09-09 至 09-10 早期的中间状态
+> （"Issue 05 进行中""不进入 06""继续 diagnose"等表述**全部已过时**）。
+> 当前状态以本文件顶部第 1 节、第 3 节、第 7 节与 `ROADMAP.md` 任务 State 为准。
+> 保留原因：追溯每轮真实调用的账本变化、报告文件位置与诊断结论。
+
 ## 最新（历史）：v3.2 三题已复核，技能时机再次确认
 
 报告 `docs/evidence/issue05-live-v32-20260910.json`，复核 `docs/evidence/issue05-v32-review-20260910.md`。analogy 与 missing_measurement 本次符合要求；number 仍误判 partial。不要再让用户原样重跑：下一步先离线诊断直接答案/相关背景的覆盖契约混淆，建立正确回归再做最小修复。不要将不同版本的九题符合要求称为同版十题通过。05 仍进行中，原资料题验收欠项保留。
@@ -328,9 +647,11 @@ Issue 05 保持进行中，不进入 06。
 
 ## 1. 从这里继续
 
-**当前任务是 Issue 05，尚未完成。用户刚返回十题真实边界测试，执行到第六题出错。下一步应诊断已有响应、修复并回归验证，不要跳到 Issue 06，也不要重复询问项目选择。**
+**当前进度（2026-09-10）：01–08、11、13、14、15 全部 done；M0/M1/M1D 里程碑完成，15 属 M2D、08 属 M2。主线剩余 10 → 12（09 可选）。**
 
-本轮用户要求整理交接而非继续修复，因此下面两个新失败尚未修复。先离线利用已保存响应，必要时再运行定向真实验证。不要再次让用户粘贴已上传的报告。
+**下一步是 Issue 10**（有限补充检索，M2），入口
+`.scratch/security-research-assistant/issues/10-*.md`。**保留集仍封存至 12**。
+下面第 2–8 节的历史内容保留以便追溯，其中"下一步 08""下一步 15"等表述**均已过时**，勿据此行事。
 
 ## 2. 用户与协作方式
 
@@ -354,25 +675,33 @@ Issue 05 保持进行中，不进入 06。
 
 - 工作目录：`E:/DSWorking/project_01`，Windows PowerShell。
 - Git origin：`https://github.com/lingjiang141/Safety-Knowledge-Research-Assistant.git`。本轮核对 HEAD 为 `cfc4563`（提交标题 `9.9 23：35`）；先前文档写“未提交”是历史状态。未核对远程同步情况，不声称已推送。
-- Python 3.13.7；普通功能只有标准库；向量依赖在 `.venv`，精确版本见 `requirements-vector.lock.txt`。
-- CLI 入口 `python -m skra`；向量功能使用 `.\.venv\Scripts\python.exe -m skra`。
-- 现有：Markdown 导入/快照/固定行数切分，SQLite 元数据、运行记录，关键词检索，本地纯向量索引，DeepSeek 回答，逐字引用校验，费用预留与结算，失败正文保存及离线重放。
-- 当前切分为 `heading-lines-v1:20`；同来源内容改变仍拒绝导入，更新删除待 Issue 06；结构适配为未来 13/14/11，不是已实现。
+- Python 3.13.7；**Markdown + 关键词检索只用标准库；导入 PDF 需 `pypdf`（已在 `pyproject.toml` 声明，无运行时依赖）；向量依赖在 `.venv`**，精确版本见 `requirements-vector.lock.txt`。
+- CLI 入口 `python -m skra`；向量功能与 **PDF 导入**使用 `.\.venv\Scripts\python.exe -m skra`。
+- 现有：Markdown / **文本型 PDF** 导入、快照、**四种切分策略**、SQLite 元数据与运行记录、关键词检索、
+  本地纯向量索引、**BM25 关键词检索**、**RRF 排名融合（混合检索）**、DeepSeek 回答、逐字引用校验、
+  **资料更新/删除（版本一致性）**、费用预留与结算、失败正文保存及离线重放。
+- 切分策略：`heading-lines-v1:20`（基线）/ `heading-block-v2`（指南）/ `heading-procedure-v3`（步骤代码）/
+  `pdf-pages-v1`（PDF 按页），导入时按格式与结构自动选择，`--splitter` 可覆盖。
+- chunks 列：`version` / `active` / `kind`（metadata|body）/ `page`（1 基，Markdown 为 NULL）。
 - 本地模型 `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`，revision `e8f8c211226b894fcb81acc59f3b34ba3efd5f42`，384 维，CPU。100-token 窗口归一化均值是编码策略，不是创新切分。
 - 模型位于 `.data/models/minilm`。曾出现 transformers 4.57.6 对重新保存非 Mistral 配置的误报警；核实 model_type=bert、token ID 与保存的 tokenizer.json 一致后，禁用不适用的 Mistral regex 修补。
 - 两份 OWASP 短节选的纯向量开发报告在 `docs/vector-baseline.json`；两题正文 top5 命中，但 top1 为说明段，总样本极小，不能当作正式效果。
-- 最近实际运行的自动测试：`python -m unittest discover -s tests -v`，16 个测试通过（其中一个包含十个受控场景子测试）。本交接轮没有重跑测试、修改产品代码或新增付费调用。
+- **最近实际运行的自动测试**：`./.venv/Scripts/python.exe -m unittest discover -s tests`，**118 tests 通过**。
 
 ## 5. 模型与预算
 
-- 用户有 DeepSeek 官方开放平台 API。当前适配 `deepseek-v4-flash`，提示词 `evidence-v2`，非思考模式、JSON 输出；具体配置 `examples/deepseek-flash.2026-09-09.json`。
+- 用户有 DeepSeek 官方开放平台 API。当前适配 `deepseek-v4-flash`，提示词 **`evidence-v3.5`**，非思考模式、JSON 输出；具体配置 `examples/deepseek-flash.2026-09-09.json`。
 - 第一阶段**总预算人民币 10 元**，不是每日/每题额度；不自动充值或增加额度。
 - 2026-09-09 核对的保守高峰价格：输入缓存未命中 3 元/百万 token，输出 9 元/百万 token。官方来源写在配置中，价格核对超过七天会阻断，不能只改日期绕过核价。
-- 输入按整个 1M 上下文的保守上界 1,048,576 token 预留，输出最多 800 token；单次最多暂占 3.152928 元，成功按实际用量及保守价格结算释放差额。不是每次实际扣 3.15 元。
+- 输入按整个 1M 上下文的保守上界 1,048,576 token 预留，输出最多 **1500** token；单次最多暂占 **3.159228** 元，成功按实际用量及保守价格结算释放差额。不是每次实际扣 3.16 元。
 - 请求正文最多 20000 UTF-8 字节，问题最多 2000 字符，网络超时 30 秒，无自动重试。费用未知保留预留并阻断，不能删除账本刷新额度。
-- `.data/budget.sqlite3` 是跨知识库共用账本。**2026-09-10 核对：累计保守记账 0.037608 元，余额 9.962392 元，预留 0，blocked=false。**不是已核对的实际平台账单；后续重新读取可能变化。
+- `.data/budget.sqlite3` 是跨知识库共用账本。**2026-09-10 核对：累计保守记账 0.471396 元，可用 9.528604 元，预留 0，blocked=false**
+  （用户已对照 DeepSeek 平台账单，确认一致）。后续重新读取可能变化；仍不得重置或删除账本。
 
-## 6. 最新真实报告：必须先处理
+## 6. 历史：已处理的真实失败（仅供追溯，勿据此继续）
+
+> 以下为 2026-09-09 至 09-10 期间已诊断修复并完成真实验收的历史记录。**Issue 05/03 均已 done**，
+> 不要重跑下列命令或重新诊断。保留是为追溯诊断过程与报告位置。
 
 用户上传的报告已提取保存到可迁移文件：`docs/evidence/issue05-live-20260909.json`。
 
@@ -381,17 +710,15 @@ Issue 05 保持进行中，不进入 06。
 
 这次测试是 **live + controlled-not-retrieval**：直接提供人工指定证据，隔离生成行为，不检验向量检索，不向模型提供参考答案。
 
-| 场景 | 实际情况 | 下一步关注 |
+| 场景 | 实际情况 | 后续处理（均已完成） |
 | --- | --- | --- |
-| principle | grounded；原则结论与原文/释义一致 | 原“只问原则却 partial”的问题在这一题已改善，不等于所有场景解决 |
-| number | insufficient；说明没有具体数量 | missing 中附带了原则性解释且无引用，注意是否需要更严格展示边界 |
-| partial | **错误 grounded**；只回答原则，missing 为空 | 用户明确问“具体最多几项”，被漏答；需要修复问题覆盖/状态一致性，不能一概强改为 partial |
-| agreement | grounded；两份证据均出现、解释一致 | 总结“两者一致”的第二条只直接引用第二份，建议合并结论引用两方；不能只检查状态 |
-| conflict | grounded；引用同环境下正反结论 | 这是回答“是否一致”，grounded 合理，不应因为存在分歧一律改成 partial |
-| conditions | **校验失败：部分回答必须说明缺失**，call_id=9 | 已保存失败正文，可离线诊断 |
-| negation / injection / analogy / missing_measurement | **未执行** | 脚本在 conditions 出错后停止，不报“十题通过” |
-
-当前报告 `complete=false`，human_review 和 review_result 仍是 pending。以上是助手初步核对，尚无用户最终语义验收。
+| principle | grounded；原则结论与原文/释义一致 | 保持 |
+| number | insufficient；说明没有具体数量 | v3.3 修复 `answered` 标记，十题受控场景全部符合要求 |
+| partial | 错误 grounded；只回答原则，missing 为空 | v3.3 修复，已复验通过 |
+| agreement | grounded；两份证据均出现、解释一致 | 保持 |
+| conflict | grounded；引用同环境下正反结论 | 保持 |
+| conditions | 校验失败：部分回答必须说明缺失，call_id=9 | v3 覆盖契约修复，已复验通过 |
+| negation / injection / analogy / missing_measurement | 未执行 | v3.3 补跑，全部符合要求 |
 
 失败正文在 `.data/boundaries.sqlite3` 的 **run_id=14**，对应 call_id=9；诊断 stage=citation_validation，保存了 model_output。失败记录与对应检索证据也已导出到 `docs/evidence/issue05-conditions-failure.json`，即使新环境缺少被 Git 忽略的 .data 仍可分析。无需付费可执行：
 
@@ -404,39 +731,68 @@ python -m skra --db .data/boundaries.sqlite3 replay 14
 
 ## 7. Issue 状态与后续顺序
 
-- done：01、02、04。
-- 03：三类端到端真实验收仍有欠项；用户已明确允许继续 04/05，但不能视为 03 已通过。
-- **05：in-progress**，当前优先解决第 6 节真实失败。不要关闭、不要先做 06。
-- 06–15 中其他任务尚未实现（编号不是执行顺序）。09 为可选。
-- 主线：**05 → 06 → 架构检查 → 13 → 14 → 11 → 07 → 15 → 08 → 10 → 12**；03 欠项需补齐。
-- 13 指南结构；14 步骤代码；11 PDF 提前；15 固定检索器的切分对照；保留开发/保留集隔离。
+- **done：01、02、03、04、05、06、07、08、11、13、14、15**（03/05/06/07/08/13/14/11/15 均 2026-09-10 完成）。
+- **open：10、12**；09 可选。
+- 主线：**10 → 12**（+ 可选 09）。**下一步 10**。
+- 里程碑：**M0（01–03）、M1（04–06 + 07）、M1D（13/14/11）均已完成**；M2D 完成（15）；M2 进行中（08 完成）。
+- 07 已完成（开发/保留集冻结 + `skra eval` 基线，`recall_at_5=0.85`）；**15 已完成**
+  （四策略对照：指南 +0.050 / 步骤 −0.450，并修复 procedure 元数据误标缺陷）；
+  **08 已完成**（三路检索对照：BM25 −0.450 / RRF −0.100，**无净提升**，如实负面结果）；
+  10 有限补充检索；12 最终保留评测与演示。
+- 编排：11 已提前完成（PDF），故 12 的依赖（10/11/15）中 11 与 15 已满足。
 
 ## 8. 技能授权与触发
 
 用户已明确要求“到时候直接调用”，不再询问是否启用：
 
-- 06、13、14、11、10 使用 **tdd**；一次外部行为测试失败→最小实现→通过，不先堆一整批测试。不要把之前事后测试称为 TDD。
-- 04/05/06 完成后、13 前使用 **improve-codebase-architecture**，聚焦真实改动痛点；08 前复核新问题，不机械重构。
-- 当前真实失败应用 **diagnose**：优先重放已经保存的响应、写正确层级的回归测试，再修复；不能仅追加提示词后声称语义问题解决。
+- **TDD**：06、13、14、11、07、15、**08** **均已完成**（按 tdd 逐条红→绿）；10 继续按 tdd。
+  一次外部行为测试失败→最小实现→通过，不先堆一整批测试。不要把之前事后测试称为 TDD
+  （15 是**对照型**：先写可复现的对照脚本，测试只固定外部行为，不把"指标变好"当通过条件；
+  **08 混合了两种**：BM25/融合模块按 TDD 红→绿，三路对照为对照型，**也不把"指标变好"当通过条件**）。
+- **improve-codebase-architecture**：04–06 后、13 前的检查**已完成**（用户裁定本次不重构）；
+  13/14 后就 ② 做了刻意最小的局部收敛（`peel_metadata`）；**08 前就 ⑤ 做了第二次刻意最小收敛**
+  （共享检索规则，等价性逐字节证明）。**10 前按新证据复核即可，无新证据则不重构。**
+- **diagnose**：当前没有待诊断的真实失败；遇到可复现产品错误时使用（先重放保存的响应、
+  写正确层级的回归测试，再修复），不能仅追加提示词后声称语义问题解决。
 - 详细授权见 `docs/development-workflow.md` 和对应 Issue。技能文件从新窗口当前技能目录读取，不凭本摘要替代技能原文。
 - 本地任务配置在 `docs/agents/`；根目录没有已配置的 AGENTS.md 时不假定存在。普通任务不要擅自开多 Agent，除非用户或实际使用技能要求。
 
 ## 9. 主要文件及命令
 
-先读：本文件 → `PRD.md` v0.2 → `CONTEXT.md` → `docs/development-workflow.md` → Issue 05 → 最新报告。`docs/progress.md` 是倒序历史记录，旧段落会出现过时状态，以最新节及任务 State 为准。
+先读：本文件 → `PRD.md` v0.2 → `CONTEXT.md` → `docs/development-workflow.md` → **`ROADMAP.md`（任务 State 以此为准）** → 目标 Issue → 最新证据。`docs/progress.md` 是倒序历史记录，旧段落会出现过时状态，以最新节及任务 State 为准。
 
 - 任务：`.scratch/security-research-assistant/issues/`；总览 `ROADMAP.md`。
-- 回答/预算：`skra/answer.py`；入口：`skra/cli.py`；资料：`skra/store.py`；向量：`skra/vector.py`。
+- 回答/预算：`skra/answer.py`；入口：`skra/cli.py`；资料：`skra/store.py`；向量：`skra/vector.py`；PDF：`skra/pdf.py`；评测：`skra/eval.py`；BM25：`skra/bm25.py`；融合：`skra/fusion.py`。
+- 切分策略：`store.py` 的 `SPLITTER` / `STRUCTURED_SPLITTER` / `PROCEDURE_SPLITTER` / `PDF_SPLITTER`。
+- 共享检索规则（08 收敛）：`store.py` 的 `check_search_args` / `active_chunk_ids` / `record_run` / `search_terms` / `TOKEN_RE` / `BM25_K1` / `BM25_B` / `RRF_K`。
 - 边界测试：`skra/boundaries.py`、`examples/boundary-cases.json`、`scripts/check_boundaries.py`、`tests/test_boundaries.py`。
+- 验收：`examples/acceptance-cases.json`、`scripts/check_acceptance.py`、`docs/acceptance-draft.md`。
+- 评测：`examples/eval-dev-cases.json`（开发集）、`examples/eval-holdout-cases.json`（**保留集，封存至 12**）、`tests/test_eval.py`。
+- 切分对照（15）：`scripts/compare_splitters.py`（免费离线；`--preview` 导出切分预览与原文前后对照）、
+  `docs/evidence/issue15-splitter-comparison-20260910.{json,md}`、`issue15-splitter-preview-20260910.json`。
+- 检索对照（08）：`scripts/compare_retrievers.py`（免费离线；三路向量/BM25/RRF）、
+  `docs/evidence/issue08-retriever-comparison-20260910.{json,md}`、`issue08-term-mismatch-20260910.txt`。
 - 指南：`docs/issue05-verification.md`、`docs/live-m0.md`、`docs/vector-usage.md`、`README.md`。
 
-```powershell
-cd E:\DSWorking\project_01
-python -m unittest discover -s tests -v
-python -m skra budget
-python scripts/check_boundaries.py
-# 以下才联网付费；需本机密钥，先诊断修复再运行：
-python scripts/check_boundaries.py --live --case partial --case conditions
+```bash
+cd E:/DSWorking/project_01
+./.venv/Scripts/python.exe -m unittest discover -s tests -v   # 当前 118 tests
+./.venv/Scripts/python.exe -m skra budget                      # 0.471396 / 9.528604 / 预留 0
+python scripts/check_boundaries.py                             # 受控边界（免费）
+python scripts/check_acceptance.py                             # 原资料验收（免费；--live 付费）
+python scripts/make_pdf_fixtures.py                            # 生成 PDF 夹具（免费）
+python scripts/measure_term_mismatch.py                        # 中英词项错配量化（免费）
+# 切分策略对照（免费、离线；--preview 另存切分预览与原文前后对照）
+./.venv/Scripts/python.exe scripts/compare_splitters.py \
+  --out docs/evidence/issue15-splitter-comparison-20260910.json \
+  --preview docs/evidence/issue15-splitter-preview-20260910.json
+# 三路检索对照（免费、离线；向量 / BM25 / RRF）
+./.venv/Scripts/python.exe scripts/compare_retrievers.py \
+  --out docs/evidence/issue08-retriever-comparison-20260910.json
+# 评测基线（免费、离线；--exclude 排除合成夹具，剔除项会写入报告）
+./.venv/Scripts/python.exe -m skra eval --exclude 85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97
+# 以下才联网付费；需本机交互终端，密钥不入库不入聊天
+python scripts/check_acceptance.py --live
 ```
 
 真实脚本没有环境密钥时会隐藏输入一次，本次进程内使用；未知费用或请求/格式错误即停止。生成报告按时间戳保存，不覆盖原失败证据。
@@ -445,4 +801,10 @@ python scripts/check_boundaries.py --live --case partial --case conditions
 
 ## 10. 给新窗口的第一条指令
 
-> 请先读取 E:/DSWorking/project_01/HANDOFF.md，按其中的阅读顺序检查项目文件，继承已确认范围、预算和技能授权。继续 Issue 05：先读取 docs/evidence/issue05-live-20260909.json，并离线检查 .data/boundaries.sqlite3 中 run_id=14 的失败正文。重点解决 partial 场景漏答数量却判 grounded、conditions 场景 partial 但缺少 missing 的问题；先复现和回归测试，再修复。不要重复询问已有背景，不要关闭未验收 Issue 或跳到 Issue 06。需要真实调用时继续遵守 10 元总预算，密钥只在本机配置，不在聊天收集。请先简短说明当前状态，然后继续工作。
+> 请先读取 E:/DSWorking/project_01/HANDOFF.md，按其中的阅读顺序检查项目文件，继承已确认范围、预算和技能授权。
+> **当前进度：01–08、11、13、14、15 已完成（done），M0/M1/M1D 里程碑完成、M2D 完成；主线剩余 10 → 12（09 可选）。**
+> **下一步是 Issue 10**（有限补充检索，M2）——先读 `.scratch/security-research-assistant/issues/` 下对应的 10 卡片。
+> 08 的实测已表明瓶颈在切分粒度与跨资料排序（D04/D07），10 设计补充检索时应纳入考虑，而非继续堆检索路数。
+> **保留集 `examples/eval-holdout-cases.json` 封存至 12，不要打开**。
+> 不预设指标门槛、不宣称效果提升。不要重复询问已有背景，不要重跑已完成的 Issue，不要重置账本。
+> 需要真实调用时继续遵守 10 元总预算，密钥只在本机交互终端配置，不在聊天收集。请先简短说明当前状态，然后继续工作。

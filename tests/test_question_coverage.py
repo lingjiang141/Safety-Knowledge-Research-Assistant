@@ -10,7 +10,7 @@ from datetime import date
 from pathlib import Path
 
 from skra.answer import Ledger, answer
-from skra.store import Store
+from skra.store import Store, record_run
 from skra.cli import main
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,11 +33,8 @@ class QuestionCoverageTest(unittest.TestCase):
     def run_body(self, question, evidence, body):
         def search(query, limit):
             result = {'query': query, 'candidates': evidence}
-            with self.store.db:
-                row = self.store.db.execute(
-                    "INSERT INTO runs(created,query,result,elapsed_ms) VALUES ('offline',?,?,0)",
-                    (query, json.dumps(result)))
-            return {**result, 'run_id': row.lastrowid}
+            run_id = record_run(self.store.db, query, result, 0, created='offline')
+            return {**result, 'run_id': run_id}
 
         def send(payload, key, timeout):
             self.payload = payload

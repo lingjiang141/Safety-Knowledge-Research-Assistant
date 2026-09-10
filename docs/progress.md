@@ -2,6 +2,112 @@
 
 > 本文件倒序记录，旧段落会出现过时状态；以最新节、ROADMAP.md 任务 State 与 HANDOFF.md 为准。
 
+## 2026-09-10 Issue 08 完成 —— 向量 / BM25 / RRF 三路检索对照（**无净提升，如实负面结果**）
+
+- **Issue 08 完成（done）**：在已有问答与评测路径增加 **BM25** 与 **RRF 融合**，保持纯向量模式可选。
+  新增 `scripts/compare_retrievers.py`（免费离线）。**一次只改一个因素**：语料 / 切分器 / 问题 / 标注 /
+  编码器 / top-k=5 / 证据预算全部冻结，三路跑在**同一个数据库、同一份片段**上。
+- **前置架构复核（发现 ⑤）**：实测 `INSERT INTO runs` 在代码中重复 **5 处**（比记录的 4 处更多），
+  `limit` 校验、`active` 过滤也各有 4–5 份拷贝。为让 BM25 与融合层不制造第 5、第 6 份拷贝，
+  把共享规则收进 `skra/store.py`：`check_search_args` / `active_chunk_ids` / `record_run` /
+  `search_terms` / `TOKEN_RE` / 参数常量。**等价性逐字节证明**：收敛前后 keyword 检索哈希均为
+  `010e9ca4a50a37fc936dc11c2dce8bf43b68a5d0cf07c4af3f82df9a8480ea04`。
+- **TDD 落地**：`skra/bm25.py`（Okapi BM25，`k1=1.5`/`b=0.75`，body 优先排序，7 例）、
+  `skra/fusion.py`（RRF，`K=60` 等权，**只读排名不合并分数尺度**、**拒绝融合已失效片段**，8 例）、
+  防回潮守卫 `tests/test_shared_retrieval_rules.py`（5 例，白名单仅 `skra/store.py`）。
+- **对照结果（束级 Recall@5，开发集 D01–D10）**：
+  `vector`（基线）**0.850** / 1979 token；`bm25` **0.400**（**−0.450**，退化 D02/D05/D06/D09/D10）；
+  `hybrid-rrf` **0.750**（**−0.100**，退化 D09）。**有利案例：无。**
+- **三条机制结论（报告内可复查）**：① **中英词项错配**：4/10 用例（D04/D05/D06/D10）在纯词项检索下
+  **零候选**，与实现前量化完全吻合；② **融合失效模式**：D09 唯一标注束由单片段 `1e8bc828` 覆盖（向量排第 5），
+  而「词面相似但跨度错误」的 `e9312b2a` 同时拿到 BM25 第 1 + 向量第 9 → 被 RRF 抬到第 2，
+  挤掉正确的目标片段，**一致 ≠ 正确**；③ **D04/D07 是切分/跨资料排序问题**，融合只能重排已有候选、
+  补不上缺失的束，继续交由 11/14 结构适配路径。
+- **测试**：**118 tests 通过**（98 → 118）。
+- **交付**：`skra/bm25.py`、`skra/fusion.py`、`skra/store.py`（共享规则）、`skra/vector.py`/`answer.py`/`boundaries.py`（改用共享规则）、
+  `scripts/compare_retrievers.py`、`scripts/measure_term_mismatch.py`、
+  `docs/evidence/issue08-retriever-comparison-20260910.{json,md}`、`issue08-term-mismatch-20260910.txt`、
+  `issue08-precheck-architecture-20260910.md`。
+- 本轮**无付费调用**（`billed_calls=0`、`cost_rmb=0`）；账本保持 **0.471396** 元 / 可用 9.528604 / 预留 0 / blocked=false。
+  **保留集未打开**（`holdout_loaded=false`）。
+- **里程碑/主线**：**01–08、11、13、14、15 done；10/12 open**（09 可选）。**下一步 Issue 10（有限补充检索）**。
+
+## 2026-09-10 Issue 15 完成 —— 四种切分策略对照（含一处真实缺陷修复）
+
+- **Issue 15 完成（done，对照型）**：新增 `scripts/compare_splitters.py`（免费离线）。
+  **一次只改一个因素**：语料 / 问题 / 标注 / 编码器 / top-k=5 / 证据预算全部冻结；
+  每个策略从**同一批快照**建独立 SQLite（不做「重导入基线」这种会污染对照的操作）。
+- **Recall 锚在原文行跨度，不锚在片段 id**：分母恒为标注**证据束数**（报告里 `annotated_bundles`
+  对每策略同值，证明分母没动）。**跨策略不用 chunk 数或 id 比较 Recall。**
+  `required_together` 的束只有**所有覆盖片段都被取回**才算命中，只取到一部分记 `broken`。
+- **对照结果（开发集 D01–D10，向量检索 k=5）**：
+  `heading-lines-v1:20`（基线）0.850 / 1979.3 token；
+  `heading-block-v2`（指南）**0.900 / 1920.7**（**+0.050**，提升 D07，无退化）；
+  `heading-procedure-v3`（步骤）**0.400 / 398.3**（**−0.450**，退化 D05–D09）。
+  `pdf-pages-v1` **未对照**（语料无 PDF、不能切 Markdown），写入 `not_run`。
+- **发现并修复真实缺陷**：procedure 策略把 LLM01 正文行（9/11/13）误标 `kind=metadata`，元数据数
+  **11（应为 3）**，会把正文挤出 body 搜索槽。根因两段：① `peel_metadata` 剥离标题块后无标题正文单元
+  继承了 `(说明性元数据)` 标签；② 合并阶段又无条件并入元数据单元。**指南策略无此 bug**（有
+  `is_metadata_block` 双重保险）。先失败回归 → 最小修复 → 元数据数 11 → 3。
+- **测试**：新增 `tests/test_split_labels.py` 4 例 + `tests/test_procedures.py` 1 例回归；
+  **98 tests 通过**（93 → 98）。
+- **两项诚实局限（验收项 5）**：① procedure-v3 的 −0.450（LLM06 从 7 片段切到 37，粒度过碎、
+  排序竞争不过完整段落）；② **D04 三策略皆 0.00**（procedure 把「编号行 + 定义句」切成两片段 →
+  `broken`；基线/指南下则是排序未进前 5，**两种 0.00 原因不同，未混称**）。
+- **采样局限（验收项 1）**：语料仅 3 份 OWASP Markdown（81/86/50 行）、**无围栏代码、无独立长篇报告**，
+  「步骤/代码」以编号措施代表、「文本型报告」以指南散文段代表，已如实记录。
+- **保留集未打开**：全程只用开发集；选择规则 = 指南结构零风险采用 / 步骤结构本语料不采用。
+- 交付：`scripts/compare_splitters.py`（含 `--preview` 导出切分预览与原文前后对照，215 片段）、
+  `docs/evidence/issue15-splitter-comparison-20260910.{json,md}`、`issue15-splitter-preview-20260910.json`。
+- 本轮**无付费调用**（`billed_calls=0`、`cost_rmb=0`）；账本保持 **0.471396** 元 / 可用 9.528604 / 预留 0 / blocked=false。
+- **里程碑/主线**：**01–07、11、13、14、15 done；08/10/12 open**（09 可选）。**下一步 Issue 08（混合检索）**。
+
+## 2026-09-10 Issue 07 完成 —— 评测样本冻结 + 免费检索基线
+
+- **Issue 07 完成（done，按 tdd 21 例）**：新增 `skra/eval.py` 与 CLI `eval` 子命令。
+  接口（用户确认）：**以原文跨度 + 必须共同出现的条件为锚**（不用片段 id）；开发/保留集**文件与代码双重隔离**；
+  **先只做免费检索/结构基线**。`tests/test_eval.py` 21 例；**93 tests 通过**（72 → 93）。
+- **为什么不用片段 id**：片段 id 是切分策略的函数，锚在它上面会让 Recall 在策略之间不可比（PRD 5.3）。
+  跨度按行范围映射到当前策略产出的片段，**分母是标注的证据束数**，切分不改分母。
+  `required_together` 的束被切开、只取到一部分 → 记 `broken`，**不算命中**（否则就是奖励本来要抓的失败）。
+- **双重隔离**：① 分文件；② 文件自身 `kind` 权威（改名也拒）；③ `load_sample(dev)` 默认不可达保留集；
+  ④ 测试守卫（磁盘上放保留集，断言普通运行不打开它）。CLI 实测把保留集当 `--sample` 传入即报错。
+- **冻结**：`sample_hash` / `corpus_hash` / `splitter` / `encoder` / 逐文档 hash；同输入同哈希（有测试断言）。
+- **基线结果（开发集 10 题，向量检索 k=5，免费离线）**：
+  `recall_at_5 = 0.85`、`failed_cases = []`、`broken_bundles = 0`、`mean_evidence_tokens = 1979.3`（估算）、
+  `total_metadata_chunks = 0`、耗时 936.5 ms。
+  未命中 **D04（0/3 束）、D07（1/2 束）** —— 与 03/05 全批的 Q04/Q06 检索欠项同源，属已知缺口。
+  **无 broken 束**说明基线切分下所有标注跨度都落在单片段内，缺口全部来自排序未进前 5。
+- **未运行项如实声明**：`complete=false`、`not_run` 三条（生成侧指标、保留集执行、切分对照/混合检索）、
+  `manual_review="pending"`。`estimate_tokens` 是字符数/4 的**估算，不是真实分词计数**，报告内已标注。
+- **保留集封存**：`examples/eval-holdout-cases.json`（H01–H10）已创建但**本题不运行**，
+  覆盖三类结构（长段落散文 / 项目符号清单 / 编号措施步骤），推迟到 Issue 12。
+- **依赖教训复用**：本轮新增文件均无新依赖；`--exclude` 剔除项写入报告，否则基线不可复现。
+- 证据 `docs/evidence/issue07-baseline-and-freeze-20260910.md` + 原始报告 `issue07-baseline-20260910.json`。
+- 本轮**无付费调用**；账本保持 **0.471396** 元 / 可用 9.528604 / 预留 0 / blocked=false。
+- **里程碑/主线**：**01–07、11、13、14 done；15/08/10/12 open**（09 可选）。**下一步 Issue 15**。
+
+## 2026-09-10 17:20 Issue 11 收尾 + 全库文档对账
+
+- **Issue 11 完成（done，按 tdd 11 循环）**：新增 `skra/pdf.py`（`pdf-text-v1`，pypdf 纯文本层，
+  **不执行文件内容**）；新策略 `pdf-pages-v1`；chunks 增 **`page` 列**（1 基，Markdown 为 NULL）；
+  重复页眉页脚→`kind=metadata`（保留可查、不占正文名额）；跨页段落**不合并**；
+  扫描件/无文本层/阅读顺序混乱**明确抛错不静默降级**；无 OCR / 复杂表格 / 双栏重建（守 PRD 4.4 边界）。
+  夹具 `scripts/make_pdf_fixtures.py` 直接生成 PDF 语法（无额外依赖），5 页含跨页续写。
+  证据 `docs/evidence/issue11-pdf-tdd-20260910.md`。**72 tests 通过**。
+- **依赖补齐**：`pypdf==6.18.0` 写入 `pyproject.toml` 与 `requirements-vector.lock.txt`。
+  核实 pypdf **无运行时依赖**（纯 Python）——最初误写 `pycryptodome` 已纠正。
+- **架构发现 ⑤ 确认为真实缺口**：`store.search` 有 body 优先于 metadata 的排序规则，`vector.search` **没有**；
+  PDF 页面装饰行成为常规 metadata 片段后更易触发。**已加护栏测试固化期望，未改检索器**，留待 08 前。
+- **文档对账**（消除与当前进度冲突的表述）：`README.md`（原停在"当前交付 Issue 01–02 / 仅标准库 / 800 token"）、
+  `CONTEXT.md`（"待实现"→已实现）、`docs/development-workflow.md`（TDD 与架构检查时机）、
+  `docs/issue05-verification.md`（"Issue 05 未完成"→done）、`docs/live-m0.md`（"验收仍未完成"→done）、
+  `ROADMAP.md`、`HANDOFF.md`、`.workbuddy/memory/MEMORY.md`。
+- **里程碑**：M0 / M1 / M1D 均已完成。主线 **01–06、11、13、14 done；07/15/08/10/12 open**（09 可选）。
+  **当时下一步为 Issue 07**（冻结评测样本与基线报告，HITL）—— 已于同日晚完成，见本文件顶部最新节。
+- 本节当时的测试数为 72；07 完成后为 **93 tests**（顶部最新节为准）。
+- 本轮**无付费调用**；账本保持 **0.471396** 元 / 可用 9.528604 / 预留 0 / blocked=false。
+
 ## 2026-09-10 S01 许可不通过，Q01 替换为库内可答题
 
 - 用户选 A（导入 S01）后核查发现 **S01 不能导入**：Anthropic《Building effective agents》页脚仅 © Anthropic PBC，

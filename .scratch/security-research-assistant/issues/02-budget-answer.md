@@ -1,6 +1,6 @@
 # 02 — 在预算保护下生成带引用的中文回答
 
-Status: ready-for-agent
+Status: done
 State: done
 Type: AFK
 Milestone: M0

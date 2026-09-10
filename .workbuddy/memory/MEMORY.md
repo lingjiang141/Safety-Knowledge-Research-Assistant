@@ -14,23 +14,89 @@
 ## 流程约定
 
 - 每次任务开始：读 HANDOFF.md → PRD.md → CONTEXT.md → docs/development-workflow.md → 对应 Issue → 最新证据。
-- 技能时机：05 用 diagnose；06/13/14/11/10 用 tdd；04–06 后、13 前完整 improve-codebase-architecture。
+- **08 用 diagnose（已完成）**；**06/13/14/11/07/15/08 已按 tdd 完成**；**10 仍需在开始时按 tdd**
+  （对照型任务不把「指标变好」当通过条件——15 与 08 的对照部分均如此）；
+  04–06 后、13 前完整 improve-codebase-architecture（**已完成**，用户裁定不重构）；
+  13/14 后就 ② 做了一次**局部收敛**（`peel_metadata`）；08 前就 ⑤ 做了第二次**刻意最小收敛**（共享检索规则）。
+- **TDD 调试要点（08 新增）**：BM25 排序键必须 `(kind!="body", -score, id, score)`——**body 标志在首位**，
+  否则元数据片段会抢占正文槽；小语料下 IDF 极小，TF 饱和测试应断言**比率**而非「谁赢」
+  （长度归一化不足以抵消 tf 1→10 是 BM25 **正确行为**，不要写成错误断言）。
 - 先失败回归、再最小修复；模拟契约测试 ≠ 真实语义验证，不得混称；**结构状态命中 ≠ 语义通过**。
 - 分阶段提交；更新 HANDOFF；不移动/不伪造恢复标签。用户提到的工作分支 `codex/issue05-continue`
   与标签 `checkpoint-issue05-before-handoff` 本机从未存在。
+- **依赖声明改动前先核验真实依赖**：本次给 `pypdf` 编了 `pycryptodome` 依赖是错的（pypdf 无运行时依赖）。
+  加依赖前用 `importlib.metadata.distribution(x).requires` 查实际 Requires-Dist，不要凭印象写锁文件。
 
-## 当前进度快照（2026-09-10）
+## 当前进度快照（2026-09-10，Issue 08 后）
 
-- **Issue：01/02/03/04/05/06 done**（03/05/06 均 2026-09-10 完成）；07–15 open（09 可选）。
-- 主线：**13 → 14 → 11 → 07 → 15 → 08 → 10 → 12**（+ 可选 09）。**架构检查已完成（用户裁定不重构）**，下一步 13（按 tdd）。
+- **Issue：01/02/03/04/05/06/07/08/11/13/14/15 done**（03/05/06/07/08/13/14/11/15 均 2026-09-10 完成）；10/12 open（09 可选）。
+- 主线：**10 → 12**（+ 可选 09）。01–08 + 架构检查 + 13/14/11 + 15 全部收口，
+  **M0/M1/M1D 已完成，M2D 完成（15），M2 完成（08）**。
 - 当前提示词 **evidence-v3.5**，输出上限 **1500** token（常量 `OUTPUT_TOKEN_LIMIT`），单次最大预留 3.159228 元。
-- 本地 **39 tests 通过**（06 新增版本一致性 6 例）。
+- 本地 **118 tests 通过**（08 新增 BM25 7 例 + RRF 8 例 + 共享规则守卫 5 例）。
+- **08 检索对照（done，TDD + 对照型）**：`scripts/compare_retrievers.py`（免费离线）。
+  **一次只改检索器**，三路跑同一 DB、同一份片段。**结果（束级 Recall@5，开发集 D01–D10）**：
+  `vector` 0.850 / `bm25` **0.400（−0.450）** / `hybrid-rrf` **0.750（−0.100）**。**有利案例为无。**
+  ① 中英词项错配：4/10 用例（D04/D05/D06/D10）纯词项检索**零候选**，是 BM25 −0.450 主因；
+  ② 融合失效模式：D09 唯一标注束由单片段 `1e8bc828` 覆盖（向量排第 5），而「词面相似但跨度错误」的
+  `e9312b2a` 同时拿 BM25 第 1 + 向量第 9 → 被 RRF 抬到第 2，挤掉正确目标。**一致 ≠ 正确**；
+  ③ D04/D07 是切分/跨资料排序问题，融合补不上缺失的束 → 交 11/14 结构适配。
+  新增 `skra/bm25.py`（Okapi，`k1=1.5`/`b=0.75`，**body 优先排序键 `(kind!="body", -score, id, score)`**）、
+  `skra/fusion.py`（RRF `K=60` 等权，**只读排名不合并分数尺度**、**拒绝融合已失效片段**）。
+  **架构发现 ⑤ 前置复核后做了刻意最小收敛**：共享规则收进 `skra/store.py`
+  （`check_search_args`/`active_chunk_ids`/`record_run`/`search_terms`/`TOKEN_RE`/`BM25_K1`/`BM25_B`/`RRF_K`），
+  `INSERT INTO runs` 实测重复 **5 处**（比记录的 4 处更多）。**等价性逐字节证明**：
+  收敛前后 keyword 哈希均为 `010e9ca4a50a37fc936dc11c2dce8bf43b68a5d0cf07c4af3f82df9a8480ea04`。
+  详见 `docs/evidence/issue08-retriever-comparison-20260910.md`。
+- **15 切分对照（done，对照型 + 一处缺陷修复）**：`scripts/compare_splitters.py`（免费离线，
+  `--preview` 导出切分预览与原文前后对照）。**一次只改一个因素（切分器）**，其余全冻结；
+  每策略从**同一批快照**建独立 SQLite（不做「重导入基线」这种污染对照的操作）。
+  **结果（开发集 D01–D10，向量检索 k=5，每策略内嵌 `k` 与语料哈希）**：
+  基线 0.850 / 1979.3 tok；`heading-block-v2` **0.900 / 1920.7**（+0.050，提升 D07，无退化）；
+  `heading-procedure-v3` **0.400 / 398.3**（−0.450，退化 D05–D09）；`pdf-pages-v1` **未对照**（语料无 PDF）。
+  **修复 procedure 元数据误标缺陷**：正文行被标 `kind=metadata`（元数据 11 → 3）。根因两段在
+  `_chunk_procedure`：① 标注阶段无标题续段继承 `(说明性元数据)` 标签；② 合并阶段无条件并入元数据单元。
+  **指南策略 `_chunk_structured` 无此 bug**（有 `is_metadata_block` 双重保险）——架构发现 ② 的价值佐证。
+  详见 `docs/evidence/issue15-splitter-comparison-20260910.md`。
+- **07 评测基线（done，按 tdd）**：新增 `skra/eval.py` + CLI `eval` 子命令。
+  标注锚在**原文跨度 + 必须共同出现的条件**（不用片段 id，因为片段 id 随切分策略变化会让 Recall 不可比）；
+  `recall_at_5` 分母是**标注的证据束数**；`required_together` 的束被切开记 `broken` **不算命中**；
+  开发/保留集四层隔离（分文件 / 文件 `kind` 权威 / 默认入口不可达 / 测试守卫）；
+  冻结 `sample_hash`/`corpus_hash`/`splitter`/`encoder`/逐文档 hash。
+  开发集 10 题（`examples/eval-dev-cases.json` D01–D10）向量检索 **`recall_at_5 = 0.85`**，
+  **D04（0/3 束）、D07（1/2 束）未命中**（与 Q04/Q06 同源）；无 broken 束 = 缺口全来自排序未进前 5。
+  `network_called=false`、`billed_calls=0`、`complete=false`、`not_run` 三条、`manual_review="pending"`。
+  **保留集 `examples/eval-holdout-cases.json`（H01–H10）封存至 Issue 12，调参期间不得打开。**
+  详见 `docs/evidence/issue07-baseline-and-freeze-20260910.md`。
+- **11 PDF 导入（done，按 tdd 11 循环）**：新增 `skra/pdf.py`（`pdf-text-v1`，pypdf 纯文本层，不执行文件内容）；
+  新策略 `pdf-pages-v1`；chunks 增 **`page` 列**（1 基，Markdown 为 NULL）；重复页眉页脚判
+  `kind=metadata`（保留可查、不占正文名额）；跨页段落**不合并**；扫描件/无文本层/阅读顺序混乱
+  **明确抛错不静默降级**；无 OCR / 不做复杂表格 / 不做双栏重建（严格守 PRD 4.4 边界）。
+  夹具 `scripts/make_pdf_fixtures.py` 直接生成 PDF 语法（无额外依赖）。
+  详见 `docs/evidence/issue11-pdf-tdd-20260910.md`。
+- **依赖**：`pypdf==6.18.0` 已写入 `pyproject.toml`（`dependencies`）与 `requirements-vector.lock.txt`；
+  pypdf **无运行时依赖**（纯 Python），锁文件只加这一行。
+- **14 步骤/代码切分（done）**：新增 `heading-procedure-v3`；**围栏代码原子化**（先标记围栏区域
+  再识别标题，故代码内 `#` 注释不冒充标题）；围栏片段标签 `代码（…）`；前提/警告与步骤同块；
+  无标题文档回退基线 + `splitter_note`。调试中修复 3 个真实缺陷：围栏内 `#` 误判标题、
+  标题链合并塌陷（9→1 片段）、peel 循环变量 `start` 遮蔽。
+  详见 `docs/evidence/issue14-procedures-tdd-20260910.md`。
+- **13 结构切分（done）**：新增 `heading-block-v2`（保留 `heading-lines-v1:20` 基线）；
+  标题分块、列表引导行与项不拆；`kind=metadata` 标记 Source/License 前言且默认不占正文检索名额；
+  无标题文档自动回退基线 + `splitter_note`；CLI `--splitter` 可覆盖。真实语料 Q04 定义段
+  向量排名 **2→1**（L1–18→L9–18）；**Q06 跨资料仍第 4 未改善**（留待 11）。
+  详见 `docs/evidence/issue13-structured-guides-tdd-20260910.md`。
 - **06 版本一致性（done）**：`update`/`delete` CLI 子命令；chunks 增 `version`/`active` 列；
   更新=新版本失效旧版（PRD 4.3）；`answer.revalidate` 阻止回答期间证据失效的过时答案；
   向量索引仅取 active。旧库自动 `ALTER TABLE` 迁移。详见 `docs/evidence/issue06-version-sync-tdd-20260910.md`。
 - **架构检查（done，用户裁定不重构）**：5 项「规则被复制」摩擦点记录于
   `docs/evidence/architecture-review-20260910.md`（①提示词版本白名单漂移 ②切分不变量分散
-  ③answer()巨函数 ④revalidate 可注入性 ⑤两检索器规则重复），供 13 前复核。
+  ③answer()巨函数 ④revalidate 可注入性 ⑤两检索器规则重复）。
+  **13/14 新增两个策略后 ②⑤ 进一步放大**；**2026-09-10 已就 ② 做局部收敛**：
+  元数据剥离抽为模块级纯函数 `peel_metadata(lines, units)`，两策略共享，
+  等价性经三重证明（160 例对拍 0 不一致 + 142 片段指纹逐字节相同 + 回归护栏实测）。
+  ⑤检索规则重复与 ③巨函数**仍保留**，待 08 前按新证据复核。
+  见 `docs/evidence/issue14-followup-peel-metadata-20260910.md`。
 - 05 两条验收路径：
   1. 受控场景 `check_boundaries.py`：v3.3 下十题全部有符合要求的观察（非检索、非准确率）。
   2. 原始资料题 `check_acceptance.py`：v3.4 全跑→修 2 生成缺陷→v3.5 定向重跑 Q01/Q07/Q09 确认修复生效。
@@ -49,7 +115,32 @@
   ② 切分策略版本编码进「片段 id/文档幂等/向量指纹」三个不变量，跨 store+vector；
   ③ `answer()` 121 行巨函数多职责；④ `revalidate` 缺可注入调用点；
   ⑤ `store.search` 与 `vector.search` 重复 limit/active/runs/装配 4 处规则。
-  13 引入新切分/检索后端前先按 ②⑤ 评估影响面。
+- **② 已部分收敛（2026-09-10）**：元数据剥离抽为 `peel_metadata`，两策略共享（三重等价证明）。
+  **15 已验证 ② 的价值**：procedure 的元数据误标正是两条各自演化的标注/合并规则所致。
+- **⑤ 已在 08 前收敛（2026-09-10）**：把共享检索规则收进 `skra/store.py`
+  （`check_search_args` / `active_chunk_ids` / `record_run` / `search_terms` / `TOKEN_RE` / 参数常量），
+  keyword 检索行为**逐字节不变**（哈希证明）；新增防回潮守卫 `tests/test_shared_retrieval_rules.py`（白名单仅 `store.py`）。
+  **注意**：`store.search` 有「正文优先于 metadata」排序、`vector.search` 仍**没有**——该差异仍开放
+  （融合层已被告知此事，未强行对称化）。
+- **07 新增一处待复核**：`skra/eval.py` 的 `resolve_span` 直接读 `chunks` 表（按行范围覆盖 + `active=1`），
+  与 `store.search` / `vector.search` 各自维护的 active/装配规则存在耦合。
+  **15 与 08 对照中均未观察到需同步改动**；10 前按新证据复核即可。
+- ③巨函数、①版本白名单、④revalidate 可注入性**仍保留**。
+
+## 评测契约（Issue 07，务必遵守）
+
+- **标注锚在原文跨度**，形如 `{source, start_line, end_line, must_include, required_together}`；
+  **永不用片段 id**。片段 id 是切分策略的函数，锚在它上面会让 Recall 跨策略不可比（PRD 5.3）。
+- **Recall@5 分母是标注的证据束数**，不是片段数；切分策略改变时分母不动。
+- **`required_together=true` 的束必须全部覆盖片段都被检索到才算命中**；
+  只取到一部分 → 记 `broken`，**不算命中**。把被切开的束算命中＝奖励本该抓的失败。
+- **开发/保留集四层隔离**：① 分文件；② 文件自身 `kind` 字段权威（保留集改名当开发集也拒）；
+  ③ `load_sample(dev)` / `run_baseline(...)` 默认 `holdout=None` 不可达；④ 测试守卫。
+- **保留集 `examples/eval-holdout-cases.json` 封存至 Issue 12，调参期间不得打开**；
+  如因本体 bug 需要接触，须先记录理由并重跑冻结。
+- **失效标注 ≠ 零分**：跨度匹配不上语料时记 `failed_cases`、`recall_at_5=None`、**不进平均**。
+- **`estimate_tokens` 是字符数/4 的确定性估算，不是真实分词计数**，报告必须标注。
+- **未运行项必须显式声明**（`complete=false` + `not_run`），不得让报告看起来完整而静默跳过。
 
 ## 回答契约
 
@@ -66,8 +157,24 @@
 ## 工具与命令
 
 - 工作目录 `E:/DSWorking/project_01`，CLI `python -m skra`；向量功能用 `.\.venv\Scripts\python.exe -m skra`。
-- 测试：`.\.venv\Scripts\python.exe -m unittest discover -s tests -v`（当前 39 tests）
+- 测试：`.\.venv\Scripts\python.exe -m unittest discover -s tests -v`（当前 **118 tests**）
 - 账本：`python -m skra budget`；离线重放：`python -m skra --db <db> replay <run_id>`
 - 受控边界：`python scripts/check_boundaries.py`（免费）/ `--live`（付费）
 - 原资料验收：`python scripts/check_acceptance.py`（免费）/ `--live`（付费）/ `--live --case Q01`（定向）
 - 资料版本管理（06）：`python -m skra update <file> --source <src>` / `python -m skra delete <src>`
+- PDF 导入（11）：`python -m skra import <file.pdf> ...`，需 `.venv`（pypdf）；切分策略自动选 `pdf-pages-v1`，
+  可用 `--splitter` 覆盖；`page` 列 1 基、Markdown 为 NULL
+- PDF 夹具：`python scripts/make_pdf_fixtures.py`（免费，无额外依赖）
+- **评测基线（07，免费离线，不记账）**：
+  `./.venv/Scripts/python.exe -m skra eval --exclude <夹具doc_id> --out <报告路径>`
+  选项：`--sample`（默认开发集）、`--holdout`（**显式才打开保留集**）、`--retrieval keyword|vector`、
+  `--k`（默认 5）、`--exclude`（可重复；剔除项写入报告，否则基线不可复现）
+- **切分策略对照（15，免费离线，不记账）**：
+  `./.venv/Scripts/python.exe scripts/compare_splitters.py --out <报告> --preview <预览>`
+  选项：`--splitter`（可重复；默认三个 Markdown 策略）、`--k`（默认 5）、`--context`（预览前后行数）、`--json`
+  注意：`pdf-pages-v1` 不在默认对照集内（语料无 PDF、不能切 Markdown），报告 `not_run` 已声明
+- **检索方式对照（08，免费离线，不记账）**：
+  `./.venv/Scripts/python.exe scripts/compare_retrievers.py --out <报告>`
+  选项：`--mode`（可重复；`vector`/`bm25`/`hybrid-rrf`，默认三种）、`--k`（默认 5）、`--splitter`、`--json`
+  中英错配量化：`python scripts/measure_term_mismatch.py`（免费）
+- **BM25 参数**：`k1=1.5`、`b=0.75`（`store.BM25_K1`/`BM25_B`）；**RRF**：`K=60` 等权（`store.RRF_K`）

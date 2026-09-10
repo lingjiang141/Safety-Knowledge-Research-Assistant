@@ -1,6 +1,6 @@
 # 01 — 导入一份 Markdown 并查询原文
 
-Status: ready-for-agent
+Status: done
 State: done
 Type: AFK
 Milestone: M0
