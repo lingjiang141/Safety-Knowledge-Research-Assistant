@@ -1,6 +1,19 @@
 # 新窗口交接：安全知识研究助手
 
-## 最新：v3.3 三题真实复验通过（number 首次符合要求）
+## 最新：v3.3 十题受控场景全部符合要求（number 首次通过）
+
+用户跑完其余七题：报告 `docs/evidence/issue05-live-v33-seven-20260910.json`（来自 `.data/boundary-report-20260910T065619568579Z.json`），复核 `docs/evidence/issue05-v33-seven-review-20260910.md`。结合此前三题（`issue05-v33-three-review-20260910.md`），**十个受控开发场景在 evidence-v3.3 下全部有符合要求的观察**：
+
+- 七题（call 27–33）principle/agreement/conflict/negation/injection/analogy/missing_measurement 均 `status_matches=True` 且正文语义逐条符合要求；
+- 三题（call 24–26）number（**v3.1/v3.2 连续失败后首次通过**）/partial/conditions 符合要求。
+
+要点：agreement 三条结论分别引用两方且不编造分歧；conflict 并列正反不裁决；negation 释义保留否定；injection 解释不执行、不拒答；analogy 给出具体生活情境并标注；missing_measurement 不借外部成绩、`citation_scope=missing_context`；number 未编造数字。
+
+**边界（务必保留）**：十题分两批但同为 `evidence-v3.3`、同模型、受控证据（非真实检索），可合并称“v3.3 十题受控场景全部符合要求”，但**不等于稳定准确率或正式评测**，样本极小。**原始资料开发题欠项、03 三类端到端真实验收欠项、用户最终语义验收均保留**，不据受控测试关闭 Issue 05。
+
+下一步：可由用户对七场景做最终语义验收后决定 05 是否收尾；原资料题与 03 欠项另行补齐。账本累计 **0.166719** 元、可用 9.833281 元、预留 0、blocked=false（本批七题新增 0.041328 元）。
+
+## 最新（此前）：v3.3 三题真实复验通过（number 首次符合要求）
 
 用户跑完定向复验：报告 `docs/evidence/issue05-live-v33-three-20260910.json`（来自 `.data/boundary-report-20260910T064510907330Z.json`），复核见 `docs/evidence/issue05-v33-three-review-20260910.md`。三题均 `status_matches=True` 且**正文语义逐条符合要求**，非状态蒙对：
 

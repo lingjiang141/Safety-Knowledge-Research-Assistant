@@ -25,9 +25,17 @@ Source: [PRD](../../../PRD.md)
 
 ## Completion evidence
 
-2026-09-10 v3.3 真实复验：number/partial/conditions 三题全部符合要求（number 首次通过），
+2026-09-10 v3.3 十题受控复验：三题（number/partial/conditions）+ 七题
+（principle/agreement/conflict/negation/injection/analogy/missing_measurement）在同一 evidence-v3.3 下
+**全部有符合要求的观察**，number 为 v3.1/v3.2 连续失败后首次通过。
+报告 issue05-live-v33-three-20260910.json 与 issue05-live-v33-seven-20260910.json；
+复核 issue05-v33-three-review / issue05-v33-seven-review-20260910.md。
+**不等于稳定准确率或正式评测**，原始资料开发题欠项、03 欠项、用户最终语义验收保留。
+账本累计 0.166719 元。State 保持进行中。
+
+2026-09-10 v3.3 真实复验（三题）：number/partial/conditions 三题全部符合要求（number 首次通过），
 报告 docs/evidence/issue05-live-v33-three-20260910.json，复核 docs/evidence/issue05-v33-three-review-20260910.md。
-为三题定向复验，不等于十题整体通过；其余七题未在本版重跑。账本累计 0.125391 元。State 保持进行中。
+账本累计 0.125391 元。State 保持进行中。
 
 2026-09-10 v3.3 修复：number 场景按 diagnose 完成离线诊断、先失败回归、最小修复。`apply_coverage` 增加
 `answered` 标记（只写 missing、无 claims 的问题项不计为已答），提示词升 v3.3 明确“只索取数值的问题项
