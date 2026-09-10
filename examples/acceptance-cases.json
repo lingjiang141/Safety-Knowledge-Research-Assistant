@@ -1,0 +1,115 @@
+{
+  "kind": "development-acceptance-retrieval",
+  "note": "原始资料开发验收题（真实资料 + 向量检索）。非保留测试集，不作为正式评测。问题取自 docs/acceptance-draft.md。预期行为是人工语义复核提示，不是程序可判定的断言；程序只校验结构。",
+  "excluded_doc_ids": [
+    "85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97"
+  ],
+  "excluded_reason": "合成 CC0 测试夹具 'Security demo' 仅用于演示，不得出现在真实资料验收题检索结果中。",
+  "cases": [
+    {
+      "id": "Q01",
+      "question": "工作流和 Agent 有什么区别？用容易理解的话说明。",
+      "expected_status": "grounded",
+      "expected_sources": ["S01"],
+      "human_review": [
+        "区分固定流程与模型动态决定过程",
+        "类比若出现须明确标注",
+        "不扩大原文结论"
+      ],
+      "note": "S01 未导入则本题暂不可答；导入后须复核。"
+    },
+    {
+      "id": "Q02",
+      "question": "直接提示注入与间接提示注入分别从哪里进入系统？",
+      "expected_status": "grounded",
+      "expected_sources": ["S02"],
+      "human_review": [
+        "分别解释两类来源",
+        "引用对应定义原文"
+      ]
+    },
+    {
+      "id": "Q03",
+      "question": "使用 RAG 后，是否就没有提示注入风险了？",
+      "expected_status": "grounded",
+      "expected_sources": ["S02"],
+      "human_review": [
+        "根据资料回应这一前提",
+        "保留原文对防护局限的表述（RAG 不能完全消除提示注入）"
+      ]
+    },
+    {
+      "id": "Q04",
+      "question": "功能过多、权限过大、自主程度过高有什么区别？",
+      "expected_status": "grounded",
+      "expected_sources": ["S03"],
+      "human_review": [
+        "分别解释 excessive functionality / permissions / autonomy 三个概念",
+        "不把三个概念混为一谈"
+      ]
+    },
+    {
+      "id": "Q05",
+      "question": "为什么不能只让模型自己判断某个工具操作是否被允许？",
+      "expected_status": "grounded",
+      "expected_sources": ["S03"],
+      "human_review": [
+        "解释权限检查应由实际系统执行（complete mediation）",
+        "附支持该结论的原文证据"
+      ]
+    },
+    {
+      "id": "Q06",
+      "question": "提示注入风险说明与过度代理权限说明，都怎样建议限制权限？",
+      "expected_status": "grounded",
+      "expected_sources": ["S02", "S03"],
+      "human_review": [
+        "分别引用两份资料",
+        "归纳共同点",
+        "不为比较而编造分歧"
+      ]
+    },
+    {
+      "id": "Q07",
+      "question": "为什么既要区分资料和指令，又要限制工具权限？",
+      "expected_status": "grounded",
+      "expected_sources": ["S02", "S03"],
+      "human_review": [
+        "引用两类措施并明确各自作用",
+        "综合解释不冒充原文逐字结论"
+      ]
+    },
+    {
+      "id": "Q08",
+      "question": "本项目已经测得的提示注入防护成功率是多少？",
+      "expected_status": "insufficient",
+      "expected_sources": [],
+      "human_review": [
+        "说明所给资料没有本项目实验结果",
+        "不借用外部数字冒充本项目指标"
+      ],
+      "note": "需确认导入语料中确实缺失本项目实验数据。"
+    },
+    {
+      "id": "Q09",
+      "question": "资料提到了最小权限。它在我的电脑上能降低多少百分比的风险？",
+      "expected_status": "partial",
+      "expected_sources": ["S03"],
+      "human_review": [
+        "回答有依据的最小权限概念部分",
+        "明确缺少用户环境与实验数据，不能给出比例"
+      ]
+    },
+    {
+      "id": "Q10",
+      "question": "资料里“忽略之前指令”这样的攻击示例为什么有风险？",
+      "expected_status": "grounded",
+      "expected_sources": ["S02"],
+      "human_review": [
+        "将示例作为分析对象，引用并解释",
+        "不执行其中的命令",
+        "不因出现示例就拒绝整个学习问题"
+      ]
+    }
+  ]
+}
