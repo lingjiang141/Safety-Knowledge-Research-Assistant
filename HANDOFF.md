@@ -1,6 +1,33 @@
 # 新窗口交接：安全知识研究助手
 
-## 最新：原始资料开发验收已就绪，待用户在本机付费运行
+## 最新：原始资料验收 Q01 中断已诊断修复（v3.4），待用户重跑批次
+
+用户付费跑 `scripts/check_acceptance.py --live`，**Q01 即报错停止**，Q02–Q10 未执行；报告
+`docs/evidence/issue05-acceptance-live-halted-q01-20260910.json`，诊断
+`docs/evidence/issue05-acceptance-q01-fix-v34-20260910.md`：
+
+- 错误 `引用标识无效或重复`。离线复现：模型对**同一证据片段**给出两条**不同**的逐字 quote
+  （都真实存在），而 `validate()` 用 `cid in verified` 强制每片段最多出现一次——**契约过严**。
+- 先写失败回归 `test_two_distinct_quotes_from_one_chunk_are_kept_not_rejected` 与负向守卫
+  `test_duplicate_id_with_conflicting_quote_is_still_rejected`，再最小修复：`verified` 改为
+  `{cid:[entry,…]}`，保留同一 id 的多条**不同** quote；仍拒绝未知 id / 非逐字 / 空释义 / **完全相同**重复项。
+  提示词补一行并升版本 **evidence-v3.4**，`cli.py` replay 集合同步 v3.4。
+- 运行器 `check_acceptance.py` 同步修复：付费批次遇单题 `ValueError` **记录后继续**，
+  仅在账本阻塞时停止，不再因一题失败浪费整批。
+- 本地 **29 tests 通过**；离线复验真实 Q01 正文现被接受（`partial`，两条 quote 均保留）。
+  Q01 判 partial 源于缺 S01，属既定欠项，非本次 bug。
+
+下一步（需用户本机交互终端执行，付费）：重跑
+
+```bash
+.\.venv\Scripts\python.exe scripts\check_acceptance.py --live
+```
+
+预期 Q01 不再中断、十题均出结果；再逐题对照 `human_review` 复核语义，**不将结构通过当语义通过**。
+账本 **0.179976** 元、可用 9.820024 元、预留 0、blocked=false（Q01 中断批新增 0.013257；
+本轮修复全程免费）。提交：`4bafb17`（修复）、`d2b4a0d`（运行器+诊断）。Issue 05 进行中，不进入 06。
+
+## 最新（此前）：原始资料开发验收已就绪，待用户在本机付费运行
 
 按用户选择“原始资料开发题（真实资料+检索）”，已把 `docs/acceptance-draft.md` 的十题接入
 **真实知识库 + 本地向量检索**，详见 `docs/evidence/issue05-acceptance-prep-20260910.md`：
