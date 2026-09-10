@@ -93,6 +93,33 @@ class QuestionCoverageTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, '引用'):
             self.run_body(failure['query'], failure['retrieval']['candidates'], body)
 
+    def test_two_distinct_quotes_from_one_chunk_are_kept_not_rejected(self):
+        # Live acceptance run Q01 (call_id=34) halted here: the model quoted two
+        # different sentences from the SAME evidence chunk, which the validator
+        # rejected as a duplicate id. Both quotes are real substrings, so both
+        # must be preserved; distinct quotes must not be silently discarded.
+        failure = json.loads((ROOT / 'docs/evidence/issue05-acceptance-q01-duplicate-citation-failure.json').read_text(encoding='utf-8'))
+        body = json.loads(failure['model_output'])
+        ids = [c['id'] for c in body['citations']]
+        self.assertEqual(len(ids), 2)
+        self.assertEqual(len(set(ids)), 1, '前置条件：本题模型对同一片段给出两条不同 quote。')
+        quotes = {c['quote'] for c in body['citations']}
+        self.assertEqual(len(quotes), 2)
+        result = self.run_body(failure['query'], failure['retrieval']['candidates'], body)
+        self.assertEqual(result['status'], 'partial')
+        self.assertEqual(len(result['citations']), 2)
+        self.assertEqual({c['quote'] for c in result['citations']}, quotes)
+        self.assertEqual(result['claims'][0]['citations'], [ids[0]])
+
+    def test_duplicate_id_with_conflicting_quote_is_still_rejected(self):
+        # Allowing repeated ids must not weaken verification: a repeated id whose
+        # quote is not a verbatim substring is still rejected.
+        failure = json.loads((ROOT / 'docs/evidence/issue05-acceptance-q01-duplicate-citation-failure.json').read_text(encoding='utf-8'))
+        body = json.loads(failure['model_output'])
+        body['citations'][1]['quote'] = 'invented quote that is not in the chunk'
+        with self.assertRaisesRegex(ValueError, '引用'):
+            self.run_body(failure['query'], failure['retrieval']['candidates'], body)
+
     def test_original_partial_omission_is_no_longer_accepted(self):
         with self.assertRaisesRegex(ValueError, '问题覆盖'):
             self.run_body(self.partial['question'], self.partial['result']['citations'], self.partial_body())
