@@ -23,6 +23,7 @@ class QuestionCoverageTest(unittest.TestCase):
         self.db_path = Path(temp.name) / 'docs.db'
         self.store = Store(self.db_path)
         self.ledger = Ledger(Path(temp.name) / 'budget.db')
+        self.payload = None
         self.addCleanup(self.store.close)
         self.addCleanup(self.ledger.close)
         report = json.loads((ROOT / 'docs/evidence/issue05-live-20260909.json').read_text(encoding='utf-8'))
@@ -39,6 +40,7 @@ class QuestionCoverageTest(unittest.TestCase):
             return {**result, 'run_id': row.lastrowid}
 
         def send(payload, key, timeout):
+            self.payload = payload
             self.request = json.loads(payload['messages'][1]['content'])
             return {'usage': {'prompt_tokens': 100, 'completion_tokens': 100},
                     'choices': [{'finish_reason': 'stop', 'message': {'content': json.dumps(body)}}]}
@@ -119,6 +121,32 @@ class QuestionCoverageTest(unittest.TestCase):
         body['citations'][1]['quote'] = 'invented quote that is not in the chunk'
         with self.assertRaisesRegex(ValueError, '引用'):
             self.run_body(failure['query'], failure['retrieval']['candidates'], body)
+
+    def test_absence_statement_in_claims_is_rejected_as_unlinked(self):
+        # Live acceptance Q01 (call_id=35) halted here: the model wrote a
+        # "资料没有直接给出……" absence statement as an UNCITED top-level claim and
+        # never referenced it from coverage. Absence text belongs in `missing`,
+        # so the contract must keep rejecting it rather than silently accepting.
+        failure = json.loads((ROOT / 'docs/evidence/issue05-acceptance-q01-unlinked-claim-failure.json').read_text(encoding='utf-8'))
+        body = json.loads(failure['model_output'])
+        self.assertTrue(any(not c.get('citations') for c in body['claims']),
+                        '前置条件：本题含一条无引用的顶层结论。')
+        with self.assertRaisesRegex(ValueError, '问题覆盖存在未关联的结论'):
+            self.run_body(failure['query'], failure['retrieval']['candidates'], body)
+
+    def test_request_asks_for_the_raised_output_ceiling(self):
+        # Q07 truncated mid-JSON at the old 800-token ceiling. Assert the outgoing
+        # request now asks for the constant so a regression cannot silently lower it.
+        from skra.answer import OUTPUT_TOKEN_LIMIT
+        ev = self.partial['result']['citations']
+        body = {'status': 'grounded',
+                'claims': [{'text': '受控结论。', 'citations': [ev[0]['id']]}],
+                'citations': [{'id': ev[0]['id'], 'quote': ev[0]['quote'], 'translation': '释义。'}],
+                'coverage': [{'question_id': 'q1', 'claims': [0], 'missing': ''}],
+                'missing': ''}
+        self.run_body('应如何限制工具？', ev, body)
+        self.assertEqual(self.payload['max_tokens'], OUTPUT_TOKEN_LIMIT)
+        self.assertGreaterEqual(OUTPUT_TOKEN_LIMIT, 1500)
 
     def test_original_partial_omission_is_no_longer_accepted(self):
         with self.assertRaisesRegex(ValueError, '问题覆盖'):

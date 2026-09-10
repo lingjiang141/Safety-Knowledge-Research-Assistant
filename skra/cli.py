@@ -83,7 +83,7 @@ def main(argv=None):
             result = {"mode": "offline-replay", "network_called": False,
                       "original_diagnostic": record.get("diagnostic"),
                       "answer": validate(json.loads(record["model_output"]), evidence,
-                                         record.get("questions") if record.get("prompt_version") in {"evidence-v3", "evidence-v3.1", "evidence-v3.2", "evidence-v3.3", "evidence-v3.4"} else None)}
+                                         record.get("questions") if record.get("prompt_version") in {"evidence-v3", "evidence-v3.1", "evidence-v3.2", "evidence-v3.3", "evidence-v3.4", "evidence-v3.5"} else None)}
         else:
             result = store.run(args.run_id)
         print(json.dumps(result, ensure_ascii=False, indent=2))

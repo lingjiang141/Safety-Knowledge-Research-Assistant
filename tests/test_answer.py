@@ -153,7 +153,8 @@ class AnswerTest(unittest.TestCase):
     def test_preflight_without_key_reports_bound_without_reserving(self):
         sent = Mock()
         result = answer(self.store, "提示注入", self.ledger, self.config, send=sent, preflight=True)
-        self.assertEqual(result["max_reservation_rmb"], 1.050176)
+        # 1048576 input tokens @1/M = 1.048576 + 1500 output tokens @2/M = 0.003.
+        self.assertEqual(result["max_reservation_rmb"], 1.051576)
         self.assertFalse(result["key_configured"])
         self.assertTrue(result["budget_ready"])
         self.assertEqual(result["budget"]["reserved_rmb"], 0)
