@@ -5,18 +5,21 @@
 ## 当前主线
 
 **05 → 06 → 架构检查 → 13 → 14 → 11 → 07 → 15 → 08 → 10 → 12**。09 为可选重排序实验，不阻塞主线；
-**03 三类端到端验收欠项并行补齐**（不要求多 Agent），用户已指示当前进入 03 收尾。
+**03 三类端到端验收已于 2026-09-10 完成**（用户账单核对 + 最终语义验收达标）。
 
 优先突出文档处理：指南保留定义与条件，步骤/代码保留前提与警告，文本报告保留章节与页码。先固定检索器验证切分，再考虑混合检索。必要验证保留，不堆指标、不预设创新或提升。
 
-### 03 收尾范围（2026-09-10 用户指示）
+### 03 收尾结果（2026-09-10 已完成）
 
-03 的三类端到端验收 = 有据 / 无据 / 部分有据三类真实回答。当前 05 已积累的验收资产可复用：
-`docs/acceptance-draft.md` 的 Q08（无据，insufficient）、Q02/Q05（有据，grounded）、
-Q09（部分有据，partial）恰好对应三类；`scripts/check_acceptance.py --live` 已在真实资料+检索下跑通。
-**收尾前仍需**：(1) 用新版 Q01 与 v3.5 全批重跑十题（或至少覆盖三类代表题）；
-(2) 人工逐题对照 `human_review` 做语义复核并记录；(3) 与用户核对平台实际账单。
-不得以 05 的受控场景结果代替 03 的端到端真实验收。
+03 的三类端到端验收 = 有据 / 无据 / 部分有据三类真实回答，已完成：
+
+- 全批 `check_acceptance.py --live` 十题跑完（`complete=True`，8/10 状态命中）。
+- 三类代表题通过：Q02/Q05（有据 grounded）、Q08（无据 insufficient，未编造数字）、
+  Q09（部分有据 partial，概念按原文、百分比单列缺失）。
+- 助手逐题语义复核 + 用户平台账单核对（一致，0.471396 元）+ 用户最终语义验收达标。
+- 证据：`docs/evidence/issue03-acceptance-live-v35-full-20260910.json`、
+  `issue03-acceptance-review-v35-full-20260910.md`。
+- 遗留 Q04/Q06 检索未命中欠项转 Issue 05 与 13/14/11 结构适配。
 
 ## 任务清单
 
@@ -24,7 +27,7 @@ Q09（部分有据，partial）恰好对应三类；`scripts/check_acceptance.py
 | --- | --- | --- | --- | --- | --- |
 | [01 导入一份 Markdown 并查询原文](.scratch/security-research-assistant/issues/01-import-search.md) | M0 | AFK | 无 | done | US1, US2, US3, US7, US18, US23 |
 | [02 在预算保护下生成带引用的中文回答](.scratch/security-research-assistant/issues/02-budget-answer.md) | M0 | AFK | 01 | done | US4, US5, US6, US7, US8, US19, US20 |
-| [03 验证 DeepSeek 真实调用和三类回答](.scratch/security-research-assistant/issues/03-live-m0.md) | M0 | HITL | 02 | blocked | US4, US6, US7, US11, US12, US19, US20 || [04 中文问题检索多份英文资料并建立向量基线](.scratch/security-research-assistant/issues/04-vector-baseline.md) | M1 | AFK | 03 | done | US1, US3, US9, US14, US18, US21 |
+| [03 验证 DeepSeek 真实调用和三类回答](.scratch/security-research-assistant/issues/03-live-m0.md) | M0 | HITL | 02 | done | US4, US6, US7, US11, US12, US19, US20 || [04 中文问题检索多份英文资料并建立向量基线](.scratch/security-research-assistant/issues/04-vector-baseline.md) | M1 | AFK | 03 | done | US1, US3, US9, US14, US18, US21 |
 | [05 验证比较、冲突和攻击示例的回答边界](.scratch/security-research-assistant/issues/05-evidence-cases.md) | M1 | AFK | 04 | in-progress | US5, US6, US8, US9, US10, US11, US12, US13 |
 | [06 更新和删除资料后阻止旧证据进入新回答](.scratch/security-research-assistant/issues/06-version-sync.md) | M1 | AFK | 04 | open | US2, US14, US15, US16 |
 | [13 按指南结构切分并展示完整证据](.scratch/security-research-assistant/issues/13-structured-guides.md) | M1D | AFK | 06 | open | US24, US27, US28 |
@@ -39,8 +42,8 @@ Q09（部分有据，partial）恰好对应三类；`scripts/check_acceptance.py
 
 ## 阶段完成标准
 
-- M0：01–03；01/02 的模拟通过不替代 03 三类真实验收。03 尚未完成，当前进入收尾（见上节范围）。
-- M1：04–06；已有基线和版本一致性。04 已完成；05 进行中（受控场景已达标，原始资料题 Q01/Q04/Q06 欠项保留）。
+- M0：01–03；**已完成**。01/02 的模拟通过不替代 03 三类真实验收，03 已于 2026-09-10 由真实端到端验收完成。
+- M1：04–06；已有基线和版本一致性。04 已完成；05 进行中（受控场景已达标，原始资料题 Q01 已在 v3.5 全批通过，Q04/Q06 检索未命中欠项保留）。
 - M1D：13、14、11；三类结构从导入到证据展示的完整路径。
 - 07：原文跨度标注、开发/保留集冻结与基线入口。
 - M2D：15；切分改良对照和适用范围，是项目展示重点。
@@ -48,7 +51,7 @@ Q09（部分有据，partial）恰好对应三类；`scripts/check_acceptance.py
 
 ## 执行约定
 
-每项完成需有演示、测试、版本和费用证据。AFK 表示常规实现可自主推进；HITL 表示需要人工核查。03 尚未完成，但用户已明确授权继续 04/05，不能将例外当作验收通过；当前用户已指示进入 03 收尾。
+每项完成需有演示、测试、版本和费用证据。AFK 表示常规实现可自主推进；HITL 表示需要人工核查。03 三类真实验收已于 2026-09-10 完成（含用户账单核对与最终验收）；不能以模拟通过替代真实验收，此原则继续适用于后续任务。
 
 10 元总预算不重置；付费调用条件不具备时保留待办，不宣称完成。新切分任务目前均为 needs-triage/open；先分诊再实施。后续先读 [技能触发规则](docs/development-workflow.md)，按授权直接调用。
 
