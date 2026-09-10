@@ -1,0 +1,40 @@
+# v3.3 三题真实复验复核
+
+原报告 `docs/evidence/issue05-live-v33-three-20260910.json`，来自
+`.data/boundary-report-20260910T064510907330Z.json`（2026-09-10 14:45 UTC），未更改原结果。
+以下为助手语义复核，不代替用户最终验收。
+
+本轮为定向真实复验，三题均为 live + controlled-not-retrieval，提示词 `evidence-v3.3`。
+本次新增记账 0.017217 元（调用 24/25/26，对应 answer run 62/64/66）。
+
+## 逐题复核
+
+- **number：本次符合要求**（call 24 / run 62）。
+  `claims` 为空，`coverage` 的 q1 `claims` 为空、missing 说明“资料仅给出原则，未提供具体数字”，
+  推导 `insufficient`。保留了说明资料范围的原文引用，程序正确标记 `citation_scope=missing_context`。
+  **纯数量误判 partial 的问题在本版未复现**，且没有编造数量。对比 v3.1/v3.2 连续失败，这是本场景首次符合要求。
+
+- **partial：本次符合要求**（call 25 / run 64）。
+  q1 关联原则结论（只授予必要工具）、missing 为空；q2 单独说明“未提供数量上限”，claims 为空。
+  推导 `partial`，missing 只含数量缺失。原则与数量被正确拆分到不同问题项，正是 v3.3 契约的目标行为。
+
+- **conditions：本次符合要求**（call 26 / run 66）。
+  结论“并不总是有效”同时引用隔离环境 A 与联网环境 B 两方原文，保留条件差异，未擅自裁决；
+  `grounded`，missing 为空。此前 v2 的“部分回答必须说明缺失”校验失败未复现。
+
+三题 `status_matches=True` 且正文语义与预期一致，非“状态蒙对”。
+
+## 小结与边界
+
+- 本次三题全部符合要求，说明 evidence-v3.3 补齐契约后，number 的“原则冒充数量答案”语义问题
+  在受控证据下已得到修正。**这是三题的定向复验，不等于十题整体通过**：
+  principle/agreement/conflict/negation/injection/analogy/missing_measurement 未在本版重跑。
+- 结果来自单一批次、单一受控证据配置，**不构成稳定准确率或正式检索评测结论**。原始资料开发题欠项保留。
+- 程序校验只证明结构与覆盖记录一致，语义正确性由本次人工逐条核对确认。
+
+## 下一步
+
+- 补跑其余场景（principle/agreement/conflict/negation/injection/analogy/missing_measurement），
+  确认 v3.3 未使已通过的场景退化，再考虑 Issue 05 的收尾验收。
+- 架构痛点仍记录待查：`skra/cli.py` replay 的覆盖校验版本列表逐版本手动维护。
+- 账本累计 0.125391 元、可用 9.874609 元、预留 0、blocked=false；未新增助手侧付费调用。

@@ -25,11 +25,15 @@ Source: [PRD](../../../PRD.md)
 
 ## Completion evidence
 
-2026-09-10 v3.3：number 场景按 diagnose 完成离线诊断、先失败回归、最小修复。`apply_coverage` 增加
+2026-09-10 v3.3 真实复验：number/partial/conditions 三题全部符合要求（number 首次通过），
+报告 docs/evidence/issue05-live-v33-three-20260910.json，复核 docs/evidence/issue05-v33-three-review-20260910.md。
+为三题定向复验，不等于十题整体通过；其余七题未在本版重跑。账本累计 0.125391 元。State 保持进行中。
+
+2026-09-10 v3.3 修复：number 场景按 diagnose 完成离线诊断、先失败回归、最小修复。`apply_coverage` 增加
 `answered` 标记（只写 missing、无 claims 的问题项不计为已答），提示词升 v3.3 明确“只索取数值的问题项
-不能由原则凑部分答案”。27 tests 通过；真实语义效果待定向复验。详见 docs/evidence/issue05-number-fix-v33-20260910.md。
+不能由原则凑部分答案”。27 tests 通过。详见 docs/evidence/issue05-number-fix-v33-20260910.md。
 本轮另发生 git 对象库损坏并按用户选择从工作区重建基提交 a08ac81，见 .data/git-recovery-20260910T143815/INCIDENT.md。
-无新增付费调用，累计保守记账 0.108174 元；State 保持进行中。
+无新增助手侧付费调用；State 保持进行中。
 
 2026-09-10 v3.2：analogy/missing_measurement 本次符合要求；number 仍误判 partial，见 docs/evidence/issue05-v32-review-20260910.md。下一步先离线诊断覆盖契约，不重复无改动付费测试。25 个程序测试的历史结果不证明语义全部通过；State 保持进行中。累计保守记账 0.108174 元。
 

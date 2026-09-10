@@ -92,6 +92,18 @@ python scripts/check_boundaries.py --live --case number --case partial --case co
   以 v3.3 结果确认 number 是否转为 insufficient、partial/conditions 是否保持符合要求，
   再补齐此前未执行的 negation/injection 等场景。原始资料开发题欠项保留。
 
+## 6. 真实复验结果（2026-09-10 更新）
+
+用户已运行上述定向复验，报告 `docs/evidence/issue05-live-v33-three-20260910.json`，
+复核 `docs/evidence/issue05-v33-three-review-20260910.md`。**三题全部符合要求，number 首次通过**：
+
+- number：claims 为空、insufficient，`citation_scope=missing_context`，未编造数量——v3.1/v3.2 连续误判未复现；
+- partial：原则归 q1、数量缺失归 q2，正确推导 partial；
+- conditions：同时引用环境 A/B，保留条件差异，grounded。
+
+说明 v3.3 的契约补充在受控证据下修复了“原则冒充数量答案”的语义问题。
+仍属三题定向复验，**不等于十题整体通过**，其余七题未在本版重跑。
+
 - 架构痛点记录（供 06 后、13 前的 improve-codebase-architecture）：`skra/cli.py` 的 replay
   按提示词版本逐次维护 coverage 校验版本集合，每次新增提示词版本都要手动同步一处，
   属“同一规则在多入口漂移”的候选检查点。

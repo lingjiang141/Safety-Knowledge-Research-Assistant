@@ -1,0 +1,272 @@
+{
+  "mode": "live",
+  "evidence_mode": "controlled-not-retrieval",
+  "human_review": "pending",
+  "cases": [
+    {
+      "id": "number",
+      "question": "工具数量最多应设为几项？",
+      "expected_status": "insufficient",
+      "human_review": [
+        "不能编造数量"
+      ],
+      "review_result": "pending",
+      "result": {
+        "prompt_version": "evidence-v3.3",
+        "retrieval_run_id": 61,
+        "mode": "live",
+        "versions": [
+          "7f2cd99b0b91dbd35e767b821bb4b956e5a56ca7c8d45806ef3146ab5146e3c8"
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "text": "工具数量最多应设为几项？"
+          }
+        ],
+        "model": "deepseek-v4-flash",
+        "pricing": {
+          "input_rmb_per_million": 3,
+          "output_rmb_per_million": 9,
+          "verified_at": "2026-09-09"
+        },
+        "input_token_bound": 1048576,
+        "output_token_limit": 800,
+        "coverage": [
+          {
+            "question_id": "q1",
+            "claims": [],
+            "missing": "资料仅给出“只授予为预期任务所必需的工具”的原则，未提供工具数量最多应设为几项的具体数字。"
+          }
+        ],
+        "citation_scope": "missing_context",
+        "status": "insufficient",
+        "claims": [],
+        "citations": [
+          {
+            "id": "9393bce1ba61d4d8289091d22d31a837966164de49816079f8d0d2645b6c0170",
+            "doc_id": "eed1445da86cb0731a91b245bd36236f1cc5652b355038d7df833abec8b022cc",
+            "section": "(正文)",
+            "start_line": 1,
+            "end_line": 1,
+            "text": "Only grant the tools necessary for the intended task.",
+            "title": "Synthetic number / 0",
+            "source": "urn:skra:boundary:v1:number:0",
+            "license": "CC0-1.0",
+            "acquired": "2026-09-09",
+            "version": "7f2cd99b0b91dbd35e767b821bb4b956e5a56ca7c8d45806ef3146ab5146e3c8",
+            "splitter": "heading-lines-v1:20",
+            "quote": "Only grant the tools necessary for the intended task.",
+            "translation": "只授予为预期任务所必需的工具。"
+          }
+        ],
+        "missing": "工具数量最多应设为几项？：资料仅给出“只授予为预期任务所必需的工具”的原则，未提供工具数量最多应设为几项的具体数字。",
+        "call_id": 24,
+        "budget": {
+          "limit_rmb": 10,
+          "spent_rmb": 0.113004,
+          "reserved_rmb": 0.0,
+          "available_rmb": 9.886996,
+          "blocked": false
+        },
+        "validation": "仅校验结构、原文匹配和显式问题覆盖记录；不保证实际语义覆盖、证据支持或翻译准确。",
+        "answer_run_id": 62
+      },
+      "status_matches": true
+    },
+    {
+      "id": "partial",
+      "question": "应如何限制工具？具体最多几项？",
+      "expected_status": "partial",
+      "human_review": [
+        "原则正常解释，数字单独说明缺失"
+      ],
+      "review_result": "pending",
+      "result": {
+        "prompt_version": "evidence-v3.3",
+        "retrieval_run_id": 63,
+        "mode": "live",
+        "versions": [
+          "7f2cd99b0b91dbd35e767b821bb4b956e5a56ca7c8d45806ef3146ab5146e3c8"
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "text": "应如何限制工具？"
+          },
+          {
+            "id": "q2",
+            "text": "具体最多几项？"
+          }
+        ],
+        "model": "deepseek-v4-flash",
+        "pricing": {
+          "input_rmb_per_million": 3,
+          "output_rmb_per_million": 9,
+          "verified_at": "2026-09-09"
+        },
+        "input_token_bound": 1048576,
+        "output_token_limit": 800,
+        "coverage": [
+          {
+            "question_id": "q1",
+            "claims": [
+              0
+            ],
+            "missing": ""
+          },
+          {
+            "question_id": "q2",
+            "claims": [],
+            "missing": "资料仅给出“只授予必要工具”的原则，未提供工具数量上限的具体数字。"
+          }
+        ],
+        "status": "partial",
+        "claims": [
+          {
+            "text": "应仅授予完成预期任务所必需的工具。",
+            "citations": [
+              "374eca13ef67895b8eaaae299479c2f34432c97f1b975431b3605dfd616fa4ff"
+            ]
+          }
+        ],
+        "citations": [
+          {
+            "id": "374eca13ef67895b8eaaae299479c2f34432c97f1b975431b3605dfd616fa4ff",
+            "doc_id": "5310db7038fb08cd7dc4dd3a90992ab826ea613c75d3c5cb8cd447d89ea750b1",
+            "section": "(正文)",
+            "start_line": 1,
+            "end_line": 1,
+            "text": "Only grant the tools necessary for the intended task.",
+            "title": "Synthetic partial / 0",
+            "source": "urn:skra:boundary:v1:partial:0",
+            "license": "CC0-1.0",
+            "acquired": "2026-09-09",
+            "version": "7f2cd99b0b91dbd35e767b821bb4b956e5a56ca7c8d45806ef3146ab5146e3c8",
+            "splitter": "heading-lines-v1:20",
+            "quote": "Only grant the tools necessary for the intended task.",
+            "translation": "只授予完成预期任务所必需的工具。"
+          }
+        ],
+        "missing": "具体最多几项？：资料仅给出“只授予必要工具”的原则，未提供工具数量上限的具体数字。",
+        "call_id": 25,
+        "budget": {
+          "limit_rmb": 10,
+          "spent_rmb": 0.118386,
+          "reserved_rmb": 0.0,
+          "available_rmb": 9.881614,
+          "blocked": false
+        },
+        "validation": "仅校验结构、原文匹配和显式问题覆盖记录；不保证实际语义覆盖、证据支持或翻译准确。",
+        "answer_run_id": 64
+      },
+      "status_matches": true
+    },
+    {
+      "id": "conditions",
+      "question": "两份结果是否说明控制措施总是有效？",
+      "expected_status": "grounded",
+      "human_review": [
+        "保留两种环境区别"
+      ],
+      "review_result": "pending",
+      "result": {
+        "prompt_version": "evidence-v3.3",
+        "retrieval_run_id": 65,
+        "mode": "live",
+        "versions": [
+          "9648aa867fb7810b96829cc4f96b538f52cc925a5752631e8809f877f03f8bff",
+          "7dfd019db62d9c88d2125f1eddfc36830f3807ecdef80e980340d1a9e70247f4"
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "text": "两份结果是否说明控制措施总是有效？"
+          }
+        ],
+        "model": "deepseek-v4-flash",
+        "pricing": {
+          "input_rmb_per_million": 3,
+          "output_rmb_per_million": 9,
+          "verified_at": "2026-09-09"
+        },
+        "input_token_bound": 1048576,
+        "output_token_limit": 800,
+        "coverage": [
+          {
+            "question_id": "q1",
+            "claims": [
+              0
+            ],
+            "missing": ""
+          }
+        ],
+        "status": "grounded",
+        "claims": [
+          {
+            "text": "两份结果并不说明控制措施总是有效：在隔离环境A中控制X阻止了攻击，但在联网环境B中控制X未能阻止攻击。",
+            "citations": [
+              "ebb2136aa1e565b7d4c89d715fa4f98e855195418f637668f5169f319e698557",
+              "0db21b61532b0147e6a3d090f4584c6cb7bbb6c28f7344baa2c3bef4682025e6"
+            ]
+          }
+        ],
+        "citations": [
+          {
+            "id": "ebb2136aa1e565b7d4c89d715fa4f98e855195418f637668f5169f319e698557",
+            "doc_id": "e6da0582bbade881c8d03f386f9f8fb48b879bee75356f34b1eceebb5e6fe9ea",
+            "section": "(正文)",
+            "start_line": 1,
+            "end_line": 1,
+            "text": "In isolated environment A, control X prevented the attack.",
+            "title": "Synthetic conditions / 0",
+            "source": "urn:skra:boundary:v1:conditions:0",
+            "license": "CC0-1.0",
+            "acquired": "2026-09-09",
+            "version": "9648aa867fb7810b96829cc4f96b538f52cc925a5752631e8809f877f03f8bff",
+            "splitter": "heading-lines-v1:20",
+            "quote": "In isolated environment A, control X prevented the attack.",
+            "translation": "在隔离环境A中，控制X阻止了攻击。"
+          },
+          {
+            "id": "0db21b61532b0147e6a3d090f4584c6cb7bbb6c28f7344baa2c3bef4682025e6",
+            "doc_id": "cca9cd3fb050c00d784b82f605bff57b5c17107614541a9e4fa62807e1954ff8",
+            "section": "(正文)",
+            "start_line": 1,
+            "end_line": 1,
+            "text": "In networked environment B, control X did not prevent the attack.",
+            "title": "Synthetic conditions / 1",
+            "source": "urn:skra:boundary:v1:conditions:1",
+            "license": "CC0-1.0",
+            "acquired": "2026-09-09",
+            "version": "7dfd019db62d9c88d2125f1eddfc36830f3807ecdef80e980340d1a9e70247f4",
+            "splitter": "heading-lines-v1:20",
+            "quote": "In networked environment B, control X did not prevent the attack.",
+            "translation": "在联网环境B中，控制X未能阻止攻击。"
+          }
+        ],
+        "missing": "",
+        "call_id": 26,
+        "budget": {
+          "limit_rmb": 10,
+          "spent_rmb": 0.125391,
+          "reserved_rmb": 0.0,
+          "available_rmb": 9.874609,
+          "blocked": false
+        },
+        "validation": "仅校验结构、原文匹配和显式问题覆盖记录；不保证实际语义覆盖、证据支持或翻译准确。",
+        "answer_run_id": 66
+      },
+      "status_matches": true
+    }
+  ],
+  "complete": true,
+  "preparation_complete": true,
+  "budget": {
+    "limit_rmb": 10,
+    "spent_rmb": 0.125391,
+    "reserved_rmb": 0.0,
+    "available_rmb": 9.874609,
+    "blocked": false
+  }
+}

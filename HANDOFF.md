@@ -1,6 +1,18 @@
 # 新窗口交接：安全知识研究助手
 
-## 最新：git 对象库损坏已按用户选择重建 + Issue 05 number 修复（v3.3）
+## 最新：v3.3 三题真实复验通过（number 首次符合要求）
+
+用户跑完定向复验：报告 `docs/evidence/issue05-live-v33-three-20260910.json`（来自 `.data/boundary-report-20260910T064510907330Z.json`），复核见 `docs/evidence/issue05-v33-three-review-20260910.md`。三题均 `status_matches=True` 且**正文语义逐条符合要求**，非状态蒙对：
+
+- **number 首次通过**（call 24 / run 62）：claims 为空、insufficient，未编造数量，范围引用正确标记 `citation_scope=missing_context`。v3.1/v3.2 连续误判 partial 的问题在本版未复现。
+- **partial 通过**（call 25 / run 64）：原则归 q1、数量缺失单独归 q2，正确推导 partial。
+- **conditions 通过**（call 26 / run 66）：同时引用环境 A/B 两方，保留条件差异，grounded。
+
+**边界**：这是三题定向复验，**不等于十题整体通过**；principle/agreement/conflict/negation/injection/analogy/missing_measurement 未在本版重跑。单批次结果不构成稳定准确率或正式检索评测。原始资料开发题欠项保留，用户语义验收保留。
+
+下一步：补跑其余七题，确认 v3.3 未使已通过场景退化，再议 Issue 05 收尾；继续保持进行中，不进入 06。账本累计 **0.125391** 元、可用 9.874609 元、预留 0、blocked=false（本次三题新增 0.017217 元）。
+
+## 最新（此前）：git 对象库损坏已按用户选择重建 + Issue 05 number 修复（v3.3）
 
 **请先读事故记录 `.data/git-recovery-20260910T143815/INCIDENT.md`。** 本轮我执行 `git stash push`
 时损坏了 `.git` 对象库：11 个历史提交对象（至 `e07bff1`）被删，`master` 与 `master——ddd` 引用丢失，
