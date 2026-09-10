@@ -1,0 +1,27 @@
+用例       中   英   别名   候选    标注束
+D01      1   2 True    5      1
+D02      1   2 True    5      2
+D03      3   3 True    5      1
+D04      3   0 False    0      3
+D05      1   0 False    0      1
+D06      1   0 False    0      2
+D07      2   2 True    5      2
+D08      1   2 True    5      1
+D09      2   2 True    5      1
+D10      3   0 False    0      1
+
+零候选用例：['D04', 'D05', 'D06', 'D10']（4/10）
+
+=== 零候选用例详情 ===
+D04: 功能过多、权限过大、自主程度过高有什么区别？
+   词项: ['功能过多', '权限过大', '自主程度过高有什么区别']
+   标注: [('https://genai.owasp.org/llmrisk/llm062025-excessive-agency/', 21, 23), ('https://genai.owasp.org/llmrisk/llm062025-excessive-agency/', 33, 35), ('https://genai.owasp.org/llmrisk/llm062025-excessive-agency/', 41, 43)]
+D05: 为什么不能只让模型自己判断某个工具操作是否被允许？
+   词项: ['为什么不能只让模型自己判断某个工具操作是否被允许']
+   标注: [('https://genai.owasp.org/llmrisk/llm062025-excessive-agency/', 73, 75)]
+D06: 两份资料都怎样建议限制权限？
+   词项: ['两份资料都怎样建议限制权限']
+   标注: [('https://genai.owasp.org/llmrisk/llm01-prompt-injection/', 54, 54), ('https://genai.owasp.org/llmrisk/llm062025-excessive-agency/', 61, 63)]
+D10: 资料里“忽略之前指令”这样的攻击示例为什么有风险？
+   词项: ['忽略之前指令', '资料里', '这样的攻击示例为什么有风险']
+   标注: [('https://genai.owasp.org/llmrisk/llm01-prompt-injection/', 72, 72)]

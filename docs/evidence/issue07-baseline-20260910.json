@@ -1,0 +1,490 @@
+{
+  "kind": "evaluation-baseline",
+  "sample": "examples\\eval-dev-cases.json",
+  "sample_kind": "development",
+  "holdout_loaded": false,
+  "holdout_path": null,
+  "freeze": {
+    "sample_hash": "b8f592e6c5379e4f793ae2f856a8a56d642b439cc1d44797304e25ce48cfa7a2",
+    "corpus_hash": "99a98b76a8656451cb627c4442c13a086bb3ee7ff63d84f013e2f8ae30d23668",
+    "splitter": "heading-lines-v1:20",
+    "encoder": "{\"dimension\": 384, \"license\": \"Apache-2.0\", \"model\": \"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2\", \"pooling\": \"mean-of-normalized-100-token-windows-v1\", \"revision\": \"e8f8c211226b894fcb81acc59f3b34ba3efd5f42\"}",
+    "documents": [
+      {
+        "id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+        "title": "OWASP LLM01:2025 Prompt Injection",
+        "hash": "679574c46aa5f1f1b617de3a4d118fff1b4de2fca9547cffabf602e23cf7dc03",
+        "splitter": "heading-lines-v1:20"
+      },
+      {
+        "id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+        "title": "OWASP LLM06:2025 Excessive Agency",
+        "hash": "04622e640483933541976c92209980a04a81d2bc96dd32878efeecffca39b333",
+        "splitter": "heading-lines-v1:20"
+      },
+      {
+        "id": "7952100613d7af06f2ba3ee8274113cae58af10b8bdc4462ab2c3797db00bb0e",
+        "title": "OWASP LLM Prompt Injection Prevention Cheat Sheet",
+        "hash": "a2c453d8d7ee492e1956e38fb09408cf48c248b1906b3135af2a2de1c1663c31",
+        "splitter": "heading-lines-v1:20"
+      },
+      {
+        "id": "85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97",
+        "title": "Security demo",
+        "hash": "27e93f6d8c3bffa48241dd58fa6d39610ae925ac64f541d9991195108527462c",
+        "splitter": "heading-lines-v1:20"
+      }
+    ]
+  },
+  "k": 5,
+  "case_count": 10,
+  "scored_cases": 10,
+  "failed_cases": [],
+  "aggregate": {
+    "recall_at_5": 0.85,
+    "mean_evidence_tokens": 1979.3,
+    "total_metadata_chunks": 0,
+    "broken_bundles": 0
+  },
+  "cases": [
+    {
+      "case_id": "D01",
+      "question": "提示注入与越狱有什么区别？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b",
+        "f407b0df0751e293b16cd7d45574cdd1b7acfe0cf70ee3d90e1455d02ab29c4c",
+        "a06df48618a25bd08385b31da58da8d14709ce4b26c0fe94cc7d61b9b0541596"
+      ],
+      "evidence_tokens": 1616,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 13,
+          "end_line": 13,
+          "required_together": true,
+          "covering_chunks": [
+            "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a"
+          ],
+          "retrieved_chunks": [
+            "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 186.2676000018837,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "D02",
+      "question": "直接提示注入与间接提示注入分别从哪里进入系统？",
+      "relevant_bundles": 2,
+      "retrieved_bundles": 2,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "4bd74e58fad53520645a2d9acc5332538b494553b7a9bcbd1af8229a8c4753b4",
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b",
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c"
+      ],
+      "evidence_tokens": 2007,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 19,
+          "end_line": 19,
+          "required_together": true,
+          "covering_chunks": [
+            "4bd74e58fad53520645a2d9acc5332538b494553b7a9bcbd1af8229a8c4753b4"
+          ],
+          "retrieved_chunks": [
+            "4bd74e58fad53520645a2d9acc5332538b494553b7a9bcbd1af8229a8c4753b4"
+          ],
+          "whole": true,
+          "broken": false
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 23,
+          "end_line": 23,
+          "required_together": true,
+          "covering_chunks": [
+            "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e"
+          ],
+          "retrieved_chunks": [
+            "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 97.81479999946896,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "D03",
+      "question": "使用 RAG 后，是否就没有提示注入风险了？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b",
+        "c71543c98acb35ec7293a744439d58504cda150a7453a890d2880a4fa13f1b25",
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c"
+      ],
+      "evidence_tokens": 1975,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 11,
+          "end_line": 11,
+          "required_together": true,
+          "covering_chunks": [
+            "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a"
+          ],
+          "retrieved_chunks": [
+            "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 79.49699999880977,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "D04",
+      "question": "功能过多、权限过大、自主程度过高有什么区别？",
+      "relevant_bundles": 3,
+      "retrieved_bundles": 0,
+      "broken_bundles": 0,
+      "recall_at_5": 0.0,
+      "retrieved_chunk_ids": [
+        "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb",
+        "2d61fd19df57160f8effc70d284a5fb9824ff6886f8ebf580556a0787774c419",
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b",
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c"
+      ],
+      "evidence_tokens": 2067,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "start_line": 21,
+          "end_line": 23,
+          "required_together": true,
+          "covering_chunks": [
+            "7385e0338357e88f32fd07f4630de1057f6481a8d2226bbec6326bc2ea57b6ee"
+          ],
+          "retrieved_chunks": [],
+          "whole": false,
+          "broken": false
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "start_line": 33,
+          "end_line": 35,
+          "required_together": true,
+          "covering_chunks": [
+            "7385e0338357e88f32fd07f4630de1057f6481a8d2226bbec6326bc2ea57b6ee"
+          ],
+          "retrieved_chunks": [],
+          "whole": false,
+          "broken": false
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "start_line": 41,
+          "end_line": 43,
+          "required_together": true,
+          "covering_chunks": [
+            "242267a0915520318f41eb1062035766fe6bda3d69cfdd259531a6f46c93b85e"
+          ],
+          "retrieved_chunks": [],
+          "whole": false,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 83.43969999987166,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "D05",
+      "question": "为什么不能只让模型自己判断某个工具操作是否被允许？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b",
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "3e71aae89bfa24dc89bb9f73e4597d067b5cd8d40435de0ace51086d2308d5a0",
+        "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282"
+      ],
+      "evidence_tokens": 2037,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "start_line": 73,
+          "end_line": 75,
+          "required_together": true,
+          "covering_chunks": [
+            "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282"
+          ],
+          "retrieved_chunks": [
+            "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 79.74670000839978,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "D06",
+      "question": "两份资料都怎样建议限制权限？",
+      "relevant_bundles": 2,
+      "retrieved_bundles": 2,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb",
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+        "7e3ff71da9ec17fc696ead54882d82cbd564162ee3e24300377be885069834ac",
+        "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282",
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b"
+      ],
+      "evidence_tokens": 2149,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 54,
+          "end_line": 54,
+          "required_together": true,
+          "covering_chunks": [
+            "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c"
+          ],
+          "retrieved_chunks": [
+            "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c"
+          ],
+          "whole": true,
+          "broken": false
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "start_line": 61,
+          "end_line": 63,
+          "required_together": true,
+          "covering_chunks": [
+            "7e3ff71da9ec17fc696ead54882d82cbd564162ee3e24300377be885069834ac"
+          ],
+          "retrieved_chunks": [
+            "7e3ff71da9ec17fc696ead54882d82cbd564162ee3e24300377be885069834ac"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 78.93430000694934,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "D07",
+      "question": "为什么既要区分资料和指令，又要限制工具权限？",
+      "relevant_bundles": 2,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 0.5,
+      "retrieved_chunk_ids": [
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+        "1500d1a3e1fa10de10fc3fb97ac470c3edd9b316d9af6c5dc28b5979e5d6ddca",
+        "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb",
+        "2d61fd19df57160f8effc70d284a5fb9824ff6886f8ebf580556a0787774c419",
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b"
+      ],
+      "evidence_tokens": 1847,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 60,
+          "end_line": 62,
+          "required_together": true,
+          "covering_chunks": [
+            "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb"
+          ],
+          "retrieved_chunks": [
+            "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb"
+          ],
+          "whole": true,
+          "broken": false
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "start_line": 51,
+          "end_line": 51,
+          "required_together": true,
+          "covering_chunks": [
+            "7e3ff71da9ec17fc696ead54882d82cbd564162ee3e24300377be885069834ac"
+          ],
+          "retrieved_chunks": [],
+          "whole": false,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 83.43900000909343,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "D08",
+      "question": "本项目已经测得的提示注入防护成功率是多少？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282",
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b",
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c"
+      ],
+      "evidence_tokens": 2406,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 11,
+          "end_line": 11,
+          "required_together": false,
+          "covering_chunks": [
+            "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a"
+          ],
+          "retrieved_chunks": [
+            "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 84.33500000683125,
+      "expected_status": "insufficient"
+    },
+    {
+      "case_id": "D09",
+      "question": "资料里的最小权限是什么意思？它在我的电脑上能降低多少百分比的风险？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+        "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb",
+        "2d61fd19df57160f8effc70d284a5fb9824ff6886f8ebf580556a0787774c419",
+        "9ebdfdd5177c55831d95006a988c3d01da6d77c8fc7207ac9a6d8f830b680abb",
+        "7e3ff71da9ec17fc696ead54882d82cbd564162ee3e24300377be885069834ac"
+      ],
+      "evidence_tokens": 1714,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "start_line": 61,
+          "end_line": 63,
+          "required_together": true,
+          "covering_chunks": [
+            "7e3ff71da9ec17fc696ead54882d82cbd564162ee3e24300377be885069834ac"
+          ],
+          "retrieved_chunks": [
+            "7e3ff71da9ec17fc696ead54882d82cbd564162ee3e24300377be885069834ac"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 83.43450000393204,
+      "expected_status": "partial"
+    },
+    {
+      "case_id": "D10",
+      "question": "资料里“忽略之前指令”这样的攻击示例为什么有风险？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "c71543c98acb35ec7293a744439d58504cda150a7453a890d2880a4fa13f1b25",
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b"
+      ],
+      "evidence_tokens": 1975,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 72,
+          "end_line": 72,
+          "required_together": true,
+          "covering_chunks": [
+            "c71543c98acb35ec7293a744439d58504cda150a7453a890d2880a4fa13f1b25"
+          ],
+          "retrieved_chunks": [
+            "c71543c98acb35ec7293a744439d58504cda150a7453a890d2880a4fa13f1b25"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 79.53119999729097,
+      "expected_status": "grounded"
+    }
+  ],
+  "elapsed_ms": 936.4676999975927,
+  "network_called": false,
+  "billed_calls": 0,
+  "cost_rmb": 0,
+  "budget_note": "本基线不联网、不记账；付费生成指标留待需要时在本机交互终端运行。",
+  "evidence_tokens_estimate_note": "证据 token 为 字符数/4 的确定性估算，不是真实分词计数；仅用于在同一把尺子下比较策略。",
+  "complete": false,
+  "not_run": [
+    "生成侧指标（引用支持率、无答案正确说明率、误拒答率）：需付费调用与人工语义复核，本任务未运行。",
+    "保留集执行：按设计延后到 Issue 12 的最终评测，本任务只用开发集。",
+    "切分对照与混合检索比较：属于 Issue 15 / 08。"
+  ],
+  "manual_review": "pending",
+  "retrieval": "vector",
+  "excluded_doc_ids": [
+    "85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97"
+  ]
+}

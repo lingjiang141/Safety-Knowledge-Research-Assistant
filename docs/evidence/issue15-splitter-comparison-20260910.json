@@ -1,0 +1,534 @@
+{
+  "kind": "splitter-comparison",
+  "sample": "examples/eval-dev-cases.json",
+  "sample_kind": "development",
+  "splitter_compared": [
+    "heading-lines-v1:20",
+    "heading-block-v2",
+    "heading-procedure-v3"
+  ],
+  "splitter_not_compared": {
+    "pdf-pages-v1": "语料中没有 PDF，且该策略按页切分、不能处理 Markdown；未纳入本次对照。"
+  },
+  "fixed_factors": {
+    "corpus": "工作库中 source 以 https:// 开头的真实资料快照（排除合成夹具）",
+    "encoder": "{\"dimension\": 384, \"license\": \"Apache-2.0\", \"model\": \"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2\", \"pooling\": \"mean-of-normalized-100-token-windows-v1\", \"revision\": \"e8f8c211226b894fcb81acc59f3b34ba3efd5f42\"}",
+    "retriever": "local exact-cosine vector search",
+    "k": 5,
+    "evidence_budget": "固定 top-k=5；证据 token 为估算，同一把尺子比较",
+    "questions": "开发集 D01–D10，标注与 07 冻结一致"
+  },
+  "corpus_freeze": "267316efd2d2ae74a2ec6ceca00d66e15a00b7181e5a7577fde08792a08bffb8",
+  "documents": [
+    {
+      "id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+      "title": "OWASP LLM01:2025 Prompt Injection",
+      "hash": "1d70b3cc8116d6b7c8ab07fea5f783ee75f4601bf2002355443e403b67efa66d",
+      "splitter": "heading-lines-v1:20"
+    },
+    {
+      "id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+      "title": "OWASP LLM06:2025 Excessive Agency",
+      "hash": "434d2d8e885c85af874b1569e60765f2b3509392c0b357f0d0ba7a32cf82770d",
+      "splitter": "heading-lines-v1:20"
+    },
+    {
+      "id": "7952100613d7af06f2ba3ee8274113cae58af10b8bdc4462ab2c3797db00bb0e",
+      "title": "OWASP LLM Prompt Injection Prevention Cheat Sheet",
+      "hash": "f7a715792e9ecd10d87d6078a48f4aefce84f08e7ed83eccc61a4f256640fdce",
+      "splitter": "heading-lines-v1:20"
+    }
+  ],
+  "strategies": [
+    {
+      "splitter": "heading-lines-v1:20",
+      "case_count": 10,
+      "scored_cases": 10,
+      "failed_cases": [],
+      "aggregate": {
+        "recall_at_5": 0.85,
+        "mean_evidence_tokens": 1979.3,
+        "total_metadata_chunks": 0,
+        "broken_bundles": 0
+      },
+      "elapsed_ms": 439.4723999866983,
+      "wall_ms": 442.0469000033336,
+      "census": [
+        {
+          "source": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html",
+          "title": "OWASP LLM Prompt Injection Prevention Cheat Sheet",
+          "splitter": "heading-lines-v1:20",
+          "chunks": 5,
+          "metadata": 0,
+          "body": 5,
+          "mean_chars": 880
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "title": "OWASP LLM01:2025 Prompt Injection",
+          "splitter": "heading-lines-v1:20",
+          "chunks": 10,
+          "metadata": 0,
+          "body": 10,
+          "mean_chars": 657
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "title": "OWASP LLM06:2025 Excessive Agency",
+          "splitter": "heading-lines-v1:20",
+          "chunks": 6,
+          "metadata": 0,
+          "body": 6,
+          "mean_chars": 1445
+        }
+      ],
+      "freeze": {
+        "sample_hash": "b8f592e6c5379e4f793ae2f856a8a56d642b439cc1d44797304e25ce48cfa7a2",
+        "corpus_hash": "267316efd2d2ae74a2ec6ceca00d66e15a00b7181e5a7577fde08792a08bffb8"
+      }
+    },
+    {
+      "splitter": "heading-block-v2",
+      "case_count": 10,
+      "scored_cases": 10,
+      "failed_cases": [],
+      "aggregate": {
+        "recall_at_5": 0.9,
+        "mean_evidence_tokens": 1920.7,
+        "total_metadata_chunks": 0,
+        "broken_bundles": 0
+      },
+      "elapsed_ms": 435.71210000663996,
+      "wall_ms": 437.89169999945443,
+      "census": [
+        {
+          "source": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html",
+          "title": "OWASP LLM Prompt Injection Prevention Cheat Sheet",
+          "splitter": "heading-block-v2",
+          "chunks": 5,
+          "metadata": 1,
+          "body": 4,
+          "mean_chars": 880
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "title": "OWASP LLM01:2025 Prompt Injection",
+          "splitter": "heading-block-v2",
+          "chunks": 11,
+          "metadata": 1,
+          "body": 10,
+          "mean_chars": 597
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "title": "OWASP LLM06:2025 Excessive Agency",
+          "splitter": "heading-block-v2",
+          "chunks": 7,
+          "metadata": 1,
+          "body": 6,
+          "mean_chars": 1239
+        }
+      ],
+      "freeze": {
+        "sample_hash": "b8f592e6c5379e4f793ae2f856a8a56d642b439cc1d44797304e25ce48cfa7a2",
+        "corpus_hash": "eeaa2fb811701f437d399b190ea4f83f7c5f3892f92d5e79f63eb14c21685ae6"
+      }
+    },
+    {
+      "splitter": "heading-procedure-v3",
+      "case_count": 10,
+      "scored_cases": 10,
+      "failed_cases": [],
+      "aggregate": {
+        "recall_at_5": 0.4,
+        "mean_evidence_tokens": 398.3,
+        "total_metadata_chunks": 0,
+        "broken_bundles": 1
+      },
+      "elapsed_ms": 521.4930000074673,
+      "wall_ms": 523.301100009121,
+      "census": [
+        {
+          "source": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html",
+          "title": "OWASP LLM Prompt Injection Prevention Cheat Sheet",
+          "splitter": "heading-procedure-v3",
+          "chunks": 13,
+          "metadata": 1,
+          "body": 12,
+          "mean_chars": 337
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "title": "OWASP LLM01:2025 Prompt Injection",
+          "splitter": "heading-procedure-v3",
+          "chunks": 27,
+          "metadata": 1,
+          "body": 26,
+          "mean_chars": 239
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "title": "OWASP LLM06:2025 Excessive Agency",
+          "splitter": "heading-procedure-v3",
+          "chunks": 37,
+          "metadata": 1,
+          "body": 36,
+          "mean_chars": 233
+        }
+      ],
+      "freeze": {
+        "sample_hash": "b8f592e6c5379e4f793ae2f856a8a56d642b439cc1d44797304e25ce48cfa7a2",
+        "corpus_hash": "1ce99c6cdf21cbb3f40f3e3065d6543893a7f11ef9dacc72122c3092115db2ec"
+      }
+    }
+  ],
+  "deltas_vs_baseline": [
+    {
+      "splitter": "heading-block-v2",
+      "vs": "heading-lines-v1:20",
+      "recall_at_5": 0.9,
+      "baseline_recall_at_5": 0.85,
+      "delta": 0.050000000000000044,
+      "mean_evidence_tokens": 1920.7,
+      "baseline_mean_evidence_tokens": 1979.3,
+      "gained_cases": [
+        "D07"
+      ],
+      "lost_cases": [],
+      "degenerate_cases": []
+    },
+    {
+      "splitter": "heading-procedure-v3",
+      "vs": "heading-lines-v1:20",
+      "recall_at_5": 0.4,
+      "baseline_recall_at_5": 0.85,
+      "delta": -0.44999999999999996,
+      "mean_evidence_tokens": 398.3,
+      "baseline_mean_evidence_tokens": 1979.3,
+      "gained_cases": [],
+      "lost_cases": [
+        "D05",
+        "D06",
+        "D07",
+        "D08",
+        "D09"
+      ],
+      "degenerate_cases": []
+    }
+  ],
+  "per_case": {
+    "D01": {
+      "case_id": "D01",
+      "question": "提示注入与越狱有什么区别？",
+      "expected_status": "grounded",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1616,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1538,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 560,
+        "metadata_chunks": 0,
+        "error": null
+      }
+    },
+    "D02": {
+      "case_id": "D02",
+      "question": "直接提示注入与间接提示注入分别从哪里进入系统？",
+      "expected_status": "grounded",
+      "annotated_bundles": 2,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 2,
+        "broken_bundles": 0,
+        "evidence_tokens": 2007,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 2,
+        "broken_bundles": 0,
+        "evidence_tokens": 1929,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 2,
+        "broken_bundles": 0,
+        "evidence_tokens": 640,
+        "metadata_chunks": 0,
+        "error": null
+      }
+    },
+    "D03": {
+      "case_id": "D03",
+      "question": "使用 RAG 后，是否就没有提示注入风险了？",
+      "expected_status": "grounded",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1975,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1897,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 613,
+        "metadata_chunks": 0,
+        "error": null
+      }
+    },
+    "D04": {
+      "case_id": "D04",
+      "question": "功能过多、权限过大、自主程度过高有什么区别？",
+      "expected_status": "grounded",
+      "annotated_bundles": 3,
+      "heading-lines-v1:20": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 2067,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-block-v2": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 1987,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 1,
+        "evidence_tokens": 97,
+        "metadata_chunks": 0,
+        "error": null
+      }
+    },
+    "D05": {
+      "case_id": "D05",
+      "question": "为什么不能只让模型自己判断某个工具操作是否被允许？",
+      "expected_status": "grounded",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 2037,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 2037,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 511,
+        "metadata_chunks": 0,
+        "error": null
+      }
+    },
+    "D06": {
+      "case_id": "D06",
+      "question": "两份资料都怎样建议限制权限？",
+      "expected_status": "grounded",
+      "annotated_bundles": 2,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 2,
+        "broken_bundles": 0,
+        "evidence_tokens": 2149,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 2,
+        "broken_bundles": 0,
+        "evidence_tokens": 2149,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 36,
+        "metadata_chunks": 0,
+        "error": null
+      }
+    },
+    "D07": {
+      "case_id": "D07",
+      "question": "为什么既要区分资料和指令，又要限制工具权限？",
+      "expected_status": "grounded",
+      "annotated_bundles": 2,
+      "heading-lines-v1:20": {
+        "recall_at_5": 0.5,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1847,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 2,
+        "broken_bundles": 0,
+        "evidence_tokens": 1838,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 531,
+        "metadata_chunks": 0,
+        "error": null
+      }
+    },
+    "D08": {
+      "case_id": "D08",
+      "question": "本项目已经测得的提示注入防护成功率是多少？",
+      "expected_status": "insufficient",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 2406,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 2328,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 437,
+        "metadata_chunks": 0,
+        "error": null
+      }
+    },
+    "D09": {
+      "case_id": "D09",
+      "question": "资料里的最小权限是什么意思？它在我的电脑上能降低多少百分比的风险？",
+      "expected_status": "partial",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1714,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1607,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 142,
+        "metadata_chunks": 0,
+        "error": null
+      }
+    },
+    "D10": {
+      "case_id": "D10",
+      "question": "资料里“忽略之前指令”这样的攻击示例为什么有风险？",
+      "expected_status": "grounded",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1975,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1897,
+        "metadata_chunks": 0,
+        "error": null
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 416,
+        "metadata_chunks": 0,
+        "error": null
+      }
+    }
+  },
+  "network_called": false,
+  "billed_calls": 0,
+  "cost_rmb": 0,
+  "complete": false,
+  "not_run": [
+    "生成侧指标（引用支持率、无答案正确说明率、误拒答率）：需付费调用与人工语义复核，本任务未运行。",
+    "保留集执行：按设计延后到 Issue 12 的最终评测，本任务只用开发集。",
+    "切分对照与混合检索比较：属于 Issue 15 / 08。",
+    "生成侧与人工语义复核：本对照只做检索结构指标，未运行付费生成。",
+    "PDF 策略对照：语料中没有 PDF，且该策略按页切分、不能处理 Markdown；未纳入本次对照。"
+  ],
+  "evidence_tokens_estimate_note": "证据 token 为 字符数/4 的确定性估算，不是真实分词计数；仅用于在同一把尺子下比较策略。",
+  "manual_review": "pending"
+}

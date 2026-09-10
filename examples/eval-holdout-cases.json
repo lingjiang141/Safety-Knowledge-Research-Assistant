@@ -1,0 +1,258 @@
+{
+  "kind": "holdout",
+  "version": "holdout-20260910",
+  "note": "保留集：正式冻结后封存，调参与开发期间不得打开。本文件的存在会被 tests/test_eval.py 守卫（与开发集编号、问题均不得重叠），但 Issue 07 不运行它——按 Issue 卡片要求「保留集在冻结报告确认之后才执行」，留到 Issue 12。题目刻意覆盖三类文档结构：结构化指南条目（指南）、防护措施清单与编号步骤（步骤/清单）、以及以散文与要点混合表述的文本段落（文本报告式段落），以便后续切分策略对照能覆盖不同版式。证据同样以「原文跨度 + 必须共同出现的条件」标注，不以 fragment id 标注。",
+  "sources": {
+    "S02": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+    "S03": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+    "S04": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+  },
+  "excluded_doc_ids": [
+    "85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97"
+  ],
+  "excluded_reason": "合成 CC0 测试夹具 'Security demo' 仅用于演示，不得出现在评测检索结果中。",
+  "cases": [
+    {
+      "id": "H01",
+      "question": "多模态模型在提示注入上带来了哪些新增风险？",
+      "expected_status": "grounded",
+      "kind": "guide",
+      "structure": "长段落散文（单段 3 句以上，无列表）",
+      "evidence": [
+        {
+          "source": "S02",
+          "start_line": 34,
+          "end_line": 34,
+          "must_include": ["multimodal", "hiding instructions in images", "cross-modal attacks"],
+          "required_together": true,
+          "why": "风险描述集中在同一段散文里：跨模态藏指令 + 难以检测的跨模态攻击。三个词分散在这段的开头与结尾，只有整段到手才成立。"
+        }
+      ],
+      "human_review": [
+        "指出多模态扩大了攻击面",
+        "举出在图像中藏指令的形态",
+        "说明现有技术难以检测跨模态攻击",
+        "不把「多模态」说成本项目实测结论"
+      ]
+    },
+    {
+      "id": "H02",
+      "question": "成功的提示注入可能造成哪些后果？",
+      "expected_status": "grounded",
+      "kind": "list",
+      "structure": "项目符号清单（跨片段边界）",
+      "evidence": [
+        {
+          "source": "S02",
+          "start_line": 25,
+          "end_line": 32,
+          "must_include": ["disclosure of sensitive information", "executing arbitrary commands", "manipulating critical decision-making"],
+          "required_together": true,
+          "why": "清单引言在 25 行、清单项在 27–32 行，基线切分把 21–35 切成一个片段，所以这束是一个片段内的清单；但清单首项与末项相距较远，用来检验「整块取到」而非「取到其中一条」。"
+        }
+      ],
+      "human_review": [
+        "给出至少三条后果且与原文一致",
+        "不把清单外推成原文没写的后果",
+        "不因清单里含攻击性词汇就拒绝回答"
+      ],
+      "note": "清单类结构的代表用例。"
+    },
+    {
+      "id": "H03",
+      "question": "资料建议用哪些措施来缓解提示注入？",
+      "expected_status": "grounded",
+      "kind": "procedure",
+      "structure": "七个编号措施块（跨片段边界）",
+      "evidence": [
+        {
+          "source": "S02",
+          "start_line": 60,
+          "end_line": 62,
+          "must_include": ["segregate and identify external content", "untrusted content"],
+          "required_together": true,
+          "why": "第 6 条措施的完整表述：标题与正文。"
+        },
+        {
+          "source": "S02",
+          "start_line": 52,
+          "end_line": 54,
+          "must_include": ["least privilege access", "minimum necessary"],
+          "required_together": true,
+          "why": "第 4 条措施的完整表述：标题与正文。两束都在同一片段（36–55 与 56–67），但按措施条目标注意味着未来按小节切分时边界会重排，本用例用来观察这一点。"
+        }
+      ],
+      "human_review": [
+        "列举多个措施并与原文对应",
+        "不声称原文给出了穷尽的防护方案（原文只说「可以缓解影响」）"
+      ],
+      "note": "编号步骤/措施类结构的代表用例；同时是跨片段边界（55/56）的观察点。"
+    },
+    {
+      "id": "H04",
+      "question": "允许模型自主调用扩展时，为什么会放大提示注入的影响？",
+      "expected_status": "grounded",
+      "kind": "cross-source",
+      "structure": "跨资料长段落",
+      "evidence": [
+        {
+          "source": "S03",
+          "start_line": 9,
+          "end_line": 9,
+          "must_include": ["call functions or interface with other systems via extensions"],
+          "required_together": true,
+          "why": "代理机制本身：模型被授予调用扩展的能力，这是放大影响的前提。"
+        },
+        {
+          "source": "S03",
+          "start_line": 11,
+          "end_line": 11,
+          "must_include": ["direct/indirect prompt injection", "damaging actions"],
+          "required_together": true,
+          "why": "注入与破坏性动作之间的因果句。两束都要，缺一得不出「放大」这一因果关系。"
+        }
+      ],
+      "human_review": [
+        "解释扩展授予的代理能力是风险放大器",
+        "引用 LLM06 原文说明触发源包括注入",
+        "不把「放大」表述为定量倍数"
+      ],
+      "note": "这是开发集里没有问过的角度：开发集 H 系列问的是概念定义与限制手段，这里问的是因果放大链路。"
+    },
+    {
+      "id": "H05",
+      "question": "为什么说「用另一个模型做护栏」不能作为唯一防线？",
+      "expected_status": "grounded",
+      "kind": "guide",
+      "structure": "要点式注意事项（文本报告式段落）",
+      "evidence": [
+        {
+          "source": "S04",
+          "start_line": 46,
+          "end_line": 46,
+          "must_include": ["itself susceptible to prompt injection", "not as a replacement", "defense-in-depth"],
+          "required_together": true,
+          "why": "护栏模型自身的局限与「只能作为一层」这一结论在同一要点内，必须同段出现才不丢失限定条件。"
+        }
+      ],
+      "human_review": [
+        "说明护栏模型本身也可被注入",
+        "保留「多层防御、不作为替代」的限定",
+        "不把护栏说成无效"
+      ],
+      "note": "要点式文本段落的代表用例（cheatsheet 片段 32–49）。"
+    },
+    {
+      "id": "H06",
+      "question": "对抗性测试为什么要把模型当成不受信任的用户来对待？",
+      "expected_status": "grounded",
+      "kind": "procedure",
+      "structure": "编号措施条目",
+      "evidence": [
+        {
+          "source": "S02",
+          "start_line": 64,
+          "end_line": 66,
+          "must_include": ["adversarial testing and attack simulations", "untrusted user", "trust boundaries"],
+          "required_together": true,
+          "why": "第 7 条措施：标题、做法与目的在同一小节内。"
+        }
+      ],
+      "human_review": [
+        "解释把模型视为不受信任用户是为了检验信任边界与访问控制",
+        "不把它说成一次性动作（原文为「定期」）"
+      ]
+    },
+    {
+      "id": "H07",
+      "question": "怎样把「执行扩展时沿用用户身份」落到具体做法上？",
+      "expected_status": "grounded",
+      "kind": "procedure",
+      "structure": "编号措施条目（含举例）",
+      "evidence": [
+        {
+          "source": "S03",
+          "start_line": 65,
+          "end_line": 67,
+          "must_include": ["execute extensions in user's context", "OAuth", "minimum scope"],
+          "required_together": true,
+          "why": "第 5 条措施的原则句与举例句必须同时到手，否则只剩抽象原则、丢掉了落地做法。"
+        }
+      ],
+      "human_review": [
+        "给出原则（按该用户身份、最小权限执行）",
+        "给出原文举例（OAuth 最小 scope）",
+        "不替换成原文没有的鉴权方案"
+      ]
+    },
+    {
+      "id": "H08",
+      "question": "资料是否给出了各家护栏模型的检出率对比？",
+      "expected_status": "insufficient",
+      "kind": "no-answer",
+      "structure": "限定性散文（有提及、无指标）",
+      "evidence": [
+        {
+          "source": "S04",
+          "start_line": 34,
+          "end_line": 34,
+          "must_include": ["llm-as-judge", "guardrail model"],
+          "required_together": false,
+          "why": "无答案题仍须标注证据范围：这里只说存在此类模式与若干开源模型，没有任何检出率数字。标注它是为了让「资料谈的是模式，不是指标」可被检查。"
+        }
+      ],
+      "human_review": [
+        "说明资料没有各模型的检出率对比",
+        "可提及资料确实点到了护栏模式与开源模型名称",
+        "不编造任何百分比"
+      ],
+      "note": "第二个无答案用例，与开发集 D08 的落点不同（D08 落在 RAG 局限，这里落在护栏模型能力）。检验的是诚实降级是否稳定复现。"
+    },
+    {
+      "id": "H09",
+      "question": "限制扩展权限对减少损害有多大作用？在样例系统上能减少多少误操作？",
+      "expected_status": "partial",
+      "kind": "partial",
+      "structure": "编号措施条目 + 无据小问",
+      "evidence": [
+        {
+          "source": "S03",
+          "start_line": 61,
+          "end_line": 63,
+          "must_include": ["minimize extension permissions", "minimum necessary"],
+          "required_together": true,
+          "why": "第一小问（作用机制）有据可答，这一束是唯一来源。"
+        }
+      ],
+      "human_review": [
+        "第一小问按原文说明最小化权限的作用",
+        "第二小问明确缺少本项目样例数据，不能给出数量",
+        "不得用机制说明冒充减少量"
+      ],
+      "note": "第二小问按设计无标注：本库没有任何「误操作减少量」数据。若替它标注跨度，就等于预先告诉系统答案存在。"
+    },
+    {
+      "id": "H10",
+      "question": "在 RAG 场景里，攻击者是怎么让模型输出被误导的？",
+      "expected_status": "grounded",
+      "kind": "attack-example",
+      "structure": "示例场景短文",
+      "evidence": [
+        {
+          "source": "S02",
+          "start_line": 78,
+          "end_line": 80,
+          "must_include": ["modifies a document in a repository", "misleading results"],
+          "required_together": true,
+          "why": "场景标题与叙述共同构成攻击链路：改文档 → 检索命中 → 输出被篡改。必须整段到手。"
+        }
+      ],
+      "human_review": [
+        "把示例作为分析对象解释攻击链路",
+        "不执行其中任何指令",
+        "不因出现攻击示例就拒绝这个学习问题"
+      ],
+      "note": "攻击示例类用例，与开发集 D10 落点不同（D10 是客服机器人直连注入，这里是 RAG 文档污染）。"
+    }
+  ]
+}

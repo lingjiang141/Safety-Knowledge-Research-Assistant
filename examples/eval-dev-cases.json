@@ -1,0 +1,264 @@
+{
+  "kind": "development",
+  "version": "dev-20260910",
+  "note": "开发集：用于调试与保存基线，可反复运行。证据以「原文跨度 + 必须共同出现的条件」标注，不以 fragment id 标注——fragment id 随切分策略变化会让 Recall 不可比。本文件不用于最终评测；保留集见 holdout-eval-cases.json，按设计延后到 Issue 12。",
+  "sources": {
+    "S02": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+    "S03": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+    "S04": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+  },
+  "excluded_doc_ids": [
+    "85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97"
+  ],
+  "excluded_reason": "合成 CC0 测试夹具 'Security demo' 仅用于演示，不得出现在评测检索结果中。",
+  "cases": [
+    {
+      "id": "D01",
+      "question": "提示注入与越狱有什么区别？",
+      "expected_status": "grounded",
+      "kind": "guide",
+      "evidence": [
+        {
+          "source": "S02",
+          "start_line": 13,
+          "end_line": 13,
+          "must_include": ["prompt injection", "jailbreaking"],
+          "required_together": true,
+          "why": "区分两者的定义句：越狱是提示注入的一种形式。两个词必须同段出现，拆开就得不出关系。"
+        }
+      ],
+      "human_review": [
+        "说明两者相关且常被混用",
+        "指出越狱是提示注入的一种形式",
+        "引用 LLM01 原文，不扩大原文结论"
+      ]
+    },
+    {
+      "id": "D02",
+      "question": "直接提示注入与间接提示注入分别从哪里进入系统？",
+      "expected_status": "grounded",
+      "kind": "guide",
+      "evidence": [
+        {
+          "source": "S02",
+          "start_line": 19,
+          "end_line": 19,
+          "must_include": ["direct prompt injections occur", "user's prompt input"],
+          "required_together": true,
+          "why": "直接注入的来源定义。"
+        },
+        {
+          "source": "S02",
+          "start_line": 23,
+          "end_line": 23,
+          "must_include": ["external sources", "websites or files"],
+          "required_together": true,
+          "why": "间接注入的来源定义。两类来源必须都能取到，缺一即为部分命中。"
+        }
+      ],
+      "human_review": [
+        "分别解释两类来源",
+        "引用对应定义原文"
+      ]
+    },
+    {
+      "id": "D03",
+      "question": "使用 RAG 后，是否就没有提示注入风险了？",
+      "expected_status": "grounded",
+      "kind": "guide",
+      "evidence": [
+        {
+          "source": "S02",
+          "start_line": 11,
+          "end_line": 11,
+          "must_include": ["RAG", "do not fully mitigate prompt injection"],
+          "required_together": true,
+          "why": "RAG 与防护局限必须同段：结论是限制在「不能完全消除」这个幅度内的。"
+        }
+      ],
+      "human_review": [
+        "根据资料回应这一前提",
+        "保留原文对防护局限的表述（RAG 不能完全消除提示注入）"
+      ]
+    },
+    {
+      "id": "D04",
+      "question": "功能过多、权限过大、自主程度过高有什么区别？",
+      "expected_status": "grounded",
+      "kind": "guide",
+      "evidence": [
+        {
+          "source": "S03",
+          "start_line": 21,
+          "end_line": 23,
+          "must_include": ["excessive functionality", "not needed for the intended operation"],
+          "required_together": true,
+          "why": "功能过多的定义。"
+        },
+        {
+          "source": "S03",
+          "start_line": 33,
+          "end_line": 35,
+          "must_include": ["excessive permissions", "not needed for the intended operation"],
+          "required_together": true,
+          "why": "权限过大的定义。"
+        },
+        {
+          "source": "S03",
+          "start_line": 41,
+          "end_line": 43,
+          "must_include": ["excessive autonomy", "fails to independently verify"],
+          "required_together": true,
+          "why": "自主程度过高的定义。三个概念各一束，缺一即为部分覆盖。"
+        }
+      ],
+      "human_review": [
+        "分别解释 excessive functionality / permissions / autonomy 三个概念",
+        "不把三个概念混为一谈"
+      ],
+      "note": "Issue 13 已知：定义段在基线切分下向量排名第 2，结构切分后升到第 1。本用例正是用来观察这一点。"
+    },
+    {
+      "id": "D05",
+      "question": "为什么不能只让模型自己判断某个工具操作是否被允许？",
+      "expected_status": "grounded",
+      "kind": "guide",
+      "evidence": [
+        {
+          "source": "S03",
+          "start_line": 73,
+          "end_line": 75,
+          "must_include": ["complete mediation", "rather than relying on an LLM"],
+          "required_together": true,
+          "why": "结论与理由在同一小节：授权要在下游系统执行，而不是交给模型判断。"
+        }
+      ],
+      "human_review": [
+        "解释权限检查应由实际系统执行（complete mediation）",
+        "附支持该结论的原文证据"
+      ]
+    },
+    {
+      "id": "D06",
+      "question": "两份资料都怎样建议限制权限？",
+      "expected_status": "grounded",
+      "kind": "cross-source",
+      "evidence": [
+        {
+          "source": "S02",
+          "start_line": 54,
+          "end_line": 54,
+          "must_include": ["minimum necessary"],
+          "required_together": true,
+          "why": "LLM01 的限制权限建议。"
+        },
+        {
+          "source": "S03",
+          "start_line": 61,
+          "end_line": 63,
+          "must_include": ["minimize extension permissions", "minimum necessary"],
+          "required_together": true,
+          "why": "LLM06 的限制权限建议。跨资料题：两束都要到手才能归纳共同点。"
+        }
+      ],
+      "human_review": [
+        "分别引用两份资料",
+        "归纳共同点（都把权限收到最小必要）",
+        "不为比较而编造分歧"
+      ],
+      "note": "Issue 13/14 记录：跨资料排序在基线下为第 4，单资料内切分有效但跨资料排序仍未改善，故本用例在基线报告里可能不命中。如实记录，不算缺陷。"
+    },
+    {
+      "id": "D07",
+      "question": "为什么既要区分资料和指令，又要限制工具权限？",
+      "expected_status": "grounded",
+      "kind": "cross-source",
+      "evidence": [
+        {
+          "source": "S02",
+          "start_line": 60,
+          "end_line": 62,
+          "must_include": ["segregate and identify external content", "untrusted content"],
+          "required_together": true,
+          "why": "数据与指令分离这一措施。"
+        },
+        {
+          "source": "S03",
+          "start_line": 51,
+          "end_line": 51,
+          "must_include": ["limit the extensions", "minimum necessary"],
+          "required_together": true,
+          "why": "限制工具权限这一措施。两类措施并重，缺一即为部分覆盖。"
+        }
+      ],
+      "human_review": [
+        "引用两类措施并明确各自作用",
+        "综合解释不冒充原文逐字结论"
+      ]
+    },
+    {
+      "id": "D08",
+      "question": "本项目已经测得的提示注入防护成功率是多少？",
+      "expected_status": "insufficient",
+      "kind": "no-answer",
+      "evidence": [
+        {
+          "source": "S02",
+          "start_line": 11,
+          "end_line": 11,
+          "must_include": ["do not fully mitigate prompt injection"],
+          "required_together": false,
+          "why": "无答案题也必须标注证据范围：正文明说防护局限，但没有任何本项目实验数字。标注这段是为了让「资料讲的是局限，不是指标」这件事可被检查。"
+        }
+      ],
+      "human_review": [
+        "说明所给资料没有本项目实验结果",
+        "不借用外部数字冒充本项目指标"
+      ],
+      "note": "该题刻意没有可命中的具体数字。它检验的是「诚实降级」，不是检索命中率。"
+    },
+    {
+      "id": "D09",
+      "question": "资料里的最小权限是什么意思？它在我的电脑上能降低多少百分比的风险？",
+      "expected_status": "partial",
+      "kind": "partial",
+      "evidence": [
+        {
+          "source": "S03",
+          "start_line": 61,
+          "end_line": 63,
+          "must_include": ["minimize extension permissions", "minimum necessary"],
+          "required_together": true,
+          "why": "第一小问（概念）有据可答，这一束是它唯一的证据来源。"
+        }
+      ],
+      "human_review": [
+        "第一小问回答有依据的最小权限概念",
+        "第二小问明确缺少用户环境与实验数据，不能给出比例",
+        "不得用概念结论充当百分比的答案"
+      ],
+      "note": "第二小问按设计没有标注证据：本库确实没有该比例。若为此标注跨度，就等于预先告诉系统答案存在。"
+    },
+    {
+      "id": "D10",
+      "question": "资料里“忽略之前指令”这样的攻击示例为什么有风险？",
+      "expected_status": "grounded",
+      "kind": "attack-example",
+      "evidence": [
+        {
+          "source": "S02",
+          "start_line": 72,
+          "end_line": 72,
+          "must_include": ["ignore previous guidelines", "unauthorized access"],
+          "required_together": true,
+          "why": "攻击示例的正文。示例是分析对象，引到它即证明系统把它当资料而非指令处理。"
+        }
+      ],
+      "human_review": [
+        "将示例作为分析对象，引用并解释",
+        "不执行其中的命令",
+        "不因出现示例就拒绝整个学习问题"
+      ]
+    }
+  ]
+}
