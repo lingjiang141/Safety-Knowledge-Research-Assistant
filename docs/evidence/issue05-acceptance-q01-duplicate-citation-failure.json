@@ -1,0 +1,70 @@
+{
+  "source": "acceptance run Q01 (call_id=34, answer_run_id=91)",
+  "query": "工作流和 Agent 有什么区别？用容易理解的话说明。",
+  "questions": [
+    {
+      "id": "q1",
+      "text": "工作流和 Agent 有什么区别？"
+    },
+    {
+      "id": "q2",
+      "text": "用容易理解的话说明。"
+    }
+  ],
+  "retrieval_run_id": 90,
+  "retrieval": {
+    "candidates": [
+      {
+        "id": "2d61fd19df57160f8effc70d284a5fb9824ff6886f8ebf580556a0787774c419",
+        "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+        "section": "LLM06:2025 Excessive Agency",
+        "start_line": 1,
+        "end_line": 18,
+        "text": "# LLM06:2025 Excessive Agency\n\nSource: https://genai.owasp.org/llmrisk/llm062025-excessive-agency/\nPublisher: OWASP Gen AI Security Project\nLicense: CC BY-SA 4.0\nRetrieved: 2026-09-10\nThis is a selected excerpt of the official page, not the complete document. Formatting and headings were adapted for plain Markdown.\n\nAn LLM-based system is often granted a degree of agency by its developer - the ability to call functions or interface with other systems via extensions (sometimes referred to as tools, skills or plugins by different vendors) to undertake actions in response to a prompt. The decision over which extension to invoke may also be delegated to an LLM 'agent' to dynamically determine based on input prompt or LLM output. Agent-based systems will typically make repeated calls to an LLM using output from previous invocations to ground and direct subsequent invocations.\n\nExcessive Agency is the vulnerability that enables damaging actions to be performed in response to unexpected, ambiguous or manipulated outputs from an LLM, regardless of what is causing the LLM to malfunction. Common triggers include: hallucination/confabulation caused by poorly-engineered benign prompts, or just a poorly-performing model; direct/indirect prompt injection from a malicious user, an earlier invocation of a malicious/compromised extension, or (in multi-agent/collaborative systems) a malicious/compromised peer agent.\n\nThe root cause of Excessive Agency is typically one or more of: excessive functionality; excessive permissions; excessive autonomy.\n\nExcessive Agency can lead to a broad range of impacts across the confidentiality, integrity and availability spectrum, and is dependent on which systems an LLM-based app is able to interact with.\n\nNote: Excessive Agency differs from Insecure Output Handling which is concerned with insufficient scrutiny of LLM outputs.\n",
+        "title": "OWASP LLM06:2025 Excessive Agency",
+        "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+        "license": "CC BY-SA 4.0",
+        "acquired": "2026-09-10",
+        "version": "04622e640483933541976c92209980a04a81d2bc96dd32878efeecffca39b333",
+        "splitter": "heading-lines-v1:20",
+        "score": 0.48356584827979343
+      },
+      {
+        "id": "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+        "section": "Indirect Prompt Injections",
+        "start_line": 21,
+        "end_line": 35,
+        "text": "### Indirect Prompt Injections\n\nIndirect prompt injections occur when an LLM accepts input from external sources, such as websites or files. The content may have in the external content data that when interpreted by the model, alters the behavior of the model in unintended or unexpected ways. Like direct injections, indirect injections can be either intentional or unintentional.\n\nThe severity and nature of the impact of a successful prompt injection attack can vary greatly and are largely dependent on both the business context the model operates in, and the agency with which the model is architected. Generally, however, prompt injection can lead to unintended outcomes, including but not limited to:\n\n- Disclosure of sensitive information\n- Revealing sensitive information about AI system infrastructure or system prompts\n- Content manipulation leading to incorrect or biased outputs\n- Providing unauthorized access to functions available to the LLM\n- Executing arbitrary commands in connected systems\n- Manipulating critical decision-making processes\n\nThe rise of multimodal AI, which processes multiple data types simultaneously, introduces unique prompt injection risks. Malicious actors could exploit interactions between modalities, such as hiding instructions in images that accompany benign text. The complexity of these systems expands the attack surface. Multimodal models may also be susceptible to novel cross-modal attacks that are difficult to detect and mitigate with current techniques. Robust multimodal-specific defenses are an important area for further research and development.\n",
+        "title": "OWASP LLM01:2025 Prompt Injection",
+        "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+        "license": "CC BY-SA 4.0",
+        "acquired": "2026-09-10",
+        "version": "679574c46aa5f1f1b617de3a4d118fff1b4de2fca9547cffabf602e23cf7dc03",
+        "splitter": "heading-lines-v1:20",
+        "score": 0.464698403057974
+      },
+      {
+        "id": "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b",
+        "doc_id": "7952100613d7af06f2ba3ee8274113cae58af10b8bdc4462ab2c3797db00bb0e",
+        "section": "Model-Based Guardrails",
+        "start_line": 32,
+        "end_line": 49,
+        "text": "## Model-Based Guardrails\n\nA separate model can act as a filter on the inputs and outputs of the primary LLM. This is sometimes called the \"LLM-as-judge\" or \"guardrail model\" pattern, and it sits alongside the deterministic controls described above, not in place of them. Open guardrail models include Llama Guard, ShieldGemma, IBM Granite Guardian, and Prompt Guard. NVIDIA NeMo Guardrails provides a framework for orchestrating these checks within an application.\n\nThere are three useful placements:\n\n- Input screening. Run user prompts and any retrieved or fetched context (RAG documents, tool output, web pages, email bodies) through a classifier before the primary model sees them. Pattern-based filters do not reliably catch indirect injection in untrusted content; a model trained for this task will catch cases that regex misses.\n- Output screening. Score the primary model's response against a policy before it is returned to the user or passed to a downstream tool. This is where successful injections that produced system prompt leakage, exfiltration markup, or policy-violating content can be caught after the fact.\n- Action screening. For agent systems, evaluate each proposed tool call against the original user intent. A guardrail that sees only the user's task and the action the agent wants to take, without the untrusted intermediate context, will refuse actions that drifted because of an injected instruction.\n\nThe strongest architectural form of this idea is the dual-LLM pattern. A privileged LLM holds the tools but never reads untrusted content directly. A quarantined LLM reads untrusted content but cannot take action. The privileged model receives only structured summaries or labels from the quarantined one, which breaks the path that injected instructions need to reach the actor.\n\nCaveats:\n\n- A guardrail LLM is itself an LLM and is itself susceptible to prompt injection. Treat it as one layer in a defense-in-depth design, not as a replacement for input validation, structured prompts, least-privilege tool scopes, or human approval on destructive actions.\n- The guardrail should have a different attack surface than the primary model. A purpose-trained classifier is preferable to a general-purpose chat model from the same family, because the same jailbreak that defeats the primary model is more likely to defeat a guardrail that shares its training and prompt format.\n- Each guardrail call adds latency and cost. Reserve heavier checks for higher-risk paths (tool invocations, ingestion of external content, sensitive output) and rely on cheaper deterministic checks for routine traffic.\n- Log every guardrail decision and watch for drift. Sudden changes in the approval rate, or in the distribution of refusal reasons, often precede a working bypass.",
+        "title": "OWASP LLM Prompt Injection Prevention Cheat Sheet",
+        "source": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html",
+        "license": "CC BY-SA 4.0",
+        "acquired": "2026-09-10",
+        "version": "a2c453d8d7ee492e1956e38fb09408cf48c248b1906b3135af2a2de1c1663c31",
+        "splitter": "heading-lines-v1:20",
+        "score": 0.4344425375788446
+      }
+    ]
+  },
+  "model_output": "{\"claims\":[{\"text\":\"资料没有直接给出“工作流”与“Agent”的对比定义；只提到基于 Agent 的系统通常会用前一次调用的输出来引导后续调用（即多轮/反复调用），但未说明它和工作流的区别。\",\"citations\":[\"2d61fd19df57160f8effc70d284a5fb9824ff6886f8ebf580556a0787774c419\"],\"confidence\":0.6},{\"text\":\"资料提到 Agent 系统会将“调用哪个扩展”的决定委托给 LLM 'agent'，由其根据输入或输出动态判断，这暗示 Agent 具有一定自主决策性，但并未与“工作流”作对比。\",\"citations\":[\"2d61fd19df57160f8effc70d284a5fb9824ff6886f8ebf580556a0787774c419\"],\"confidence\":0.55}],\"citations\":[{\"id\":\"2d61fd19df57160f8effc70d284a5fb9824ff6886f8ebf580556a0787774c419\",\"quote\":\"Agent-based systems will typically make repeated calls to an LLM using output from previous invocations to ground and direct subsequent invocations.\",\"translation\":\"基于 Agent 的系统通常会反复调用 LLM，利用前一次调用的输出来锚定并指导后续调用。\"},{\"id\":\"2d61fd19df57160f8effc70d284a5fb9824ff6886f8ebf580556a0787774c419\",\"quote\":\"The decision over which extension to invoke may also be delegated to an LLM 'agent' to dynamically determine based on input prompt or LLM output.\",\"translation\":\"调用哪个扩展的决定，也可以委托给 LLM 'agent'，由其根据输入提示或 LLM 输出动态确定。\"}],\"coverage\":[{\"question_id\":\"q1\",\"claims\":[0,1],\"missing\":\"资料未提供工作流的定义，也未对工作流与 Agent 的区别作出直接说明。\"},{\"question_id\":\"q2\",\"claims\":[],\"missing\":\"资料未按要求用通俗方式解释二者区别，缺少相应内容。\"}]}",
+  "diagnostic": {
+    "stage": "citation_validation",
+    "reason": "引用标识无效或重复。",
+    "output_characters": 1182
+  }
+}

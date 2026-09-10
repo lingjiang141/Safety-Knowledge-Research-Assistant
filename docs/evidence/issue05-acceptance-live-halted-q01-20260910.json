@@ -1,0 +1,404 @@
+{
+  "mode": "live",
+  "evidence_mode": "real-material-vector-retrieval",
+  "source_set": "development-acceptance-retrieval",
+  "excluded_doc_ids": [
+    "85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97"
+  ],
+  "human_review": "pending",
+  "cases": [
+    {
+      "id": "Q01",
+      "question": "工作流和 Agent 有什么区别？用容易理解的话说明。",
+      "expected_status": "grounded",
+      "expected_sources": [
+        "S01"
+      ],
+      "human_review": [
+        "区分固定流程与模型动态决定过程",
+        "类比若出现须明确标注",
+        "不扩大原文结论"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 67,
+      "retrieved": [
+        {
+          "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+          "section": "LLM06:2025 Excessive Agency",
+          "start_line": 1,
+          "end_line": 18,
+          "score": 0.4836
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Indirect Prompt Injections",
+          "start_line": 21,
+          "end_line": 35,
+          "score": 0.4647
+        },
+        {
+          "doc_id": "7952100613d7af06f2ba3ee8274113cae58af10b8bdc4462ab2c3797db00bb0e",
+          "section": "Model-Based Guardrails",
+          "start_line": 32,
+          "end_line": 49,
+          "score": 0.4344
+        }
+      ],
+      "retrieved_count": 3,
+      "error": "回答结构或引用校验失败：引用标识无效或重复。 已发生费用仍保留（call_id=34）。"
+    },
+    {
+      "id": "Q02",
+      "question": "直接提示注入与间接提示注入分别从哪里进入系统？",
+      "expected_status": "grounded",
+      "expected_sources": [
+        "S02"
+      ],
+      "human_review": [
+        "分别解释两类来源",
+        "引用对应定义原文"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 69,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Direct Prompt Injections",
+          "start_line": 17,
+          "end_line": 20,
+          "score": 0.5393
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Indirect Prompt Injections",
+          "start_line": 21,
+          "end_line": 35,
+          "score": 0.5159
+        },
+        {
+          "doc_id": "7952100613d7af06f2ba3ee8274113cae58af10b8bdc4462ab2c3797db00bb0e",
+          "section": "Model-Based Guardrails",
+          "start_line": 32,
+          "end_line": 49,
+          "score": 0.4782
+        }
+      ],
+      "retrieved_count": 3
+    },
+    {
+      "id": "Q03",
+      "question": "使用 RAG 后，是否就没有提示注入风险了？",
+      "expected_status": "grounded",
+      "expected_sources": [
+        "S02"
+      ],
+      "human_review": [
+        "根据资料回应这一前提",
+        "保留原文对防护局限的表述（RAG 不能完全消除提示注入）"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 71,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "LLM01:2025 Prompt Injection",
+          "start_line": 1,
+          "end_line": 14,
+          "score": 0.4931
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Indirect Prompt Injections",
+          "start_line": 21,
+          "end_line": 35,
+          "score": 0.4408
+        },
+        {
+          "doc_id": "7952100613d7af06f2ba3ee8274113cae58af10b8bdc4462ab2c3797db00bb0e",
+          "section": "Model-Based Guardrails",
+          "start_line": 32,
+          "end_line": 49,
+          "score": 0.4051
+        }
+      ],
+      "retrieved_count": 3
+    },
+    {
+      "id": "Q04",
+      "question": "功能过多、权限过大、自主程度过高有什么区别？",
+      "expected_status": "grounded",
+      "expected_sources": [
+        "S03"
+      ],
+      "human_review": [
+        "分别解释 excessive functionality / permissions / autonomy 三个概念",
+        "不把三个概念混为一谈"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 73,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 56,
+          "end_line": 67,
+          "score": 0.46
+        },
+        {
+          "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+          "section": "LLM06:2025 Excessive Agency",
+          "start_line": 1,
+          "end_line": 18,
+          "score": 0.4599
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Indirect Prompt Injections",
+          "start_line": 21,
+          "end_line": 35,
+          "score": 0.4272
+        }
+      ],
+      "retrieved_count": 3
+    },
+    {
+      "id": "Q05",
+      "question": "为什么不能只让模型自己判断某个工具操作是否被允许？",
+      "expected_status": "grounded",
+      "expected_sources": [
+        "S03"
+      ],
+      "human_review": [
+        "解释权限检查应由实际系统执行（complete mediation）",
+        "附支持该结论的原文证据"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 75,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 36,
+          "end_line": 55,
+          "score": 0.62
+        },
+        {
+          "doc_id": "7952100613d7af06f2ba3ee8274113cae58af10b8bdc4462ab2c3797db00bb0e",
+          "section": "Model-Based Guardrails",
+          "start_line": 32,
+          "end_line": 49,
+          "score": 0.591
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Indirect Prompt Injections",
+          "start_line": 21,
+          "end_line": 35,
+          "score": 0.4907
+        }
+      ],
+      "retrieved_count": 3
+    },
+    {
+      "id": "Q06",
+      "question": "提示注入风险说明与过度代理权限说明，都怎样建议限制权限？",
+      "expected_status": "grounded",
+      "expected_sources": [
+        "S02",
+        "S03"
+      ],
+      "human_review": [
+        "分别引用两份资料",
+        "归纳共同点",
+        "不为比较而编造分歧"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 77,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Indirect Prompt Injections",
+          "start_line": 21,
+          "end_line": 35,
+          "score": 0.6239
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 56,
+          "end_line": 67,
+          "score": 0.6207
+        },
+        {
+          "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+          "section": "LLM06:2025 Excessive Agency",
+          "start_line": 1,
+          "end_line": 18,
+          "score": 0.611
+        }
+      ],
+      "retrieved_count": 3
+    },
+    {
+      "id": "Q07",
+      "question": "为什么既要区分资料和指令，又要限制工具权限？",
+      "expected_status": "grounded",
+      "expected_sources": [
+        "S02",
+        "S03"
+      ],
+      "human_review": [
+        "引用两类措施并明确各自作用",
+        "综合解释不冒充原文逐字结论"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 79,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 36,
+          "end_line": 55,
+          "score": 0.6052
+        },
+        {
+          "doc_id": "7952100613d7af06f2ba3ee8274113cae58af10b8bdc4462ab2c3797db00bb0e",
+          "section": "Structured Prompts with Clear Separation",
+          "start_line": 9,
+          "end_line": 16,
+          "score": 0.5595
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 56,
+          "end_line": 67,
+          "score": 0.5421
+        }
+      ],
+      "retrieved_count": 3
+    },
+    {
+      "id": "Q08",
+      "question": "本项目已经测得的提示注入防护成功率是多少？",
+      "expected_status": "insufficient",
+      "expected_sources": [],
+      "human_review": [
+        "说明所给资料没有本项目实验结果",
+        "不借用外部数字冒充本项目指标"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 81,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "LLM01:2025 Prompt Injection",
+          "start_line": 1,
+          "end_line": 14,
+          "score": 0.5163
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Indirect Prompt Injections",
+          "start_line": 21,
+          "end_line": 35,
+          "score": 0.4939
+        },
+        {
+          "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 65,
+          "end_line": 82,
+          "score": 0.4817
+        }
+      ],
+      "retrieved_count": 3
+    },
+    {
+      "id": "Q09",
+      "question": "资料提到了最小权限。它在我的电脑上能降低多少百分比的风险？",
+      "expected_status": "partial",
+      "expected_sources": [
+        "S03"
+      ],
+      "human_review": [
+        "回答有依据的最小权限概念部分",
+        "明确缺少用户环境与实验数据，不能给出比例"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 83,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 36,
+          "end_line": 55,
+          "score": 0.4065
+        },
+        {
+          "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+          "section": "Example Attack Scenarios",
+          "start_line": 83,
+          "end_line": 85,
+          "score": 0.3906
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 56,
+          "end_line": 67,
+          "score": 0.3706
+        }
+      ],
+      "retrieved_count": 3
+    },
+    {
+      "id": "Q10",
+      "question": "资料里“忽略之前指令”这样的攻击示例为什么有风险？",
+      "expected_status": "grounded",
+      "expected_sources": [
+        "S02"
+      ],
+      "human_review": [
+        "将示例作为分析对象，引用并解释",
+        "不执行其中的命令",
+        "不因出现示例就拒绝整个学习问题"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 85,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Indirect Prompt Injections",
+          "start_line": 21,
+          "end_line": 35,
+          "score": 0.7157
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "LLM01:2025 Prompt Injection",
+          "start_line": 1,
+          "end_line": 14,
+          "score": 0.6419
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Scenario #1: Direct Injection",
+          "start_line": 70,
+          "end_line": 73,
+          "score": 0.6196
+        }
+      ],
+      "retrieved_count": 3
+    }
+  ],
+  "complete": false,
+  "preparation_complete": true,
+  "budget": {
+    "limit_rmb": 10,
+    "spent_rmb": 0.179976,
+    "reserved_rmb": 0.0,
+    "available_rmb": 9.820024,
+    "blocked": false
+  }
+}

@@ -120,8 +120,12 @@ def main():
                     row["result"] = result
                     row["status_matches"] = result["status"] == case["expected_status"]
                 except ValueError as exc:
+                    # Record the failure and keep going: one bad question must not
+                    # waste the whole paid batch. A blocked ledger still stops us.
                     row["error"] = str(exc)
-                    break
+                    if ledger.summary()["blocked"]:
+                        row["stopped"] = "账本被阻塞，停止后续调用。"
+                        break
         else:
             for row in report["cases"]:
                 row["state"] = "prepared-not-executed"
