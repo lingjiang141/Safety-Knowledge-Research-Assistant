@@ -1,6 +1,31 @@
 # 新窗口交接：安全知识研究助手
 
-## 最新：v3.3 十题受控场景全部符合要求（number 首次通过）
+## 最新：原始资料开发验收已就绪，待用户在本机付费运行
+
+按用户选择“原始资料开发题（真实资料+检索）”，已把 `docs/acceptance-draft.md` 的十题接入
+**真实知识库 + 本地向量检索**，详见 `docs/evidence/issue05-acceptance-prep-20260910.md`：
+
+- 新增用例 `examples/acceptance-cases.json` 与运行器 `scripts/check_acceptance.py`
+  （默认仅准备，不联网不付费；`--live` 才付费，密钥来自环境变量或交互隐藏输入）。
+- **关键修正**：合成 CC0 夹具 “Security demo”（`85772b00…`）原本会污染真实资料题
+  （Q07 检索把它排进第三），已在用例中列入 `excluded_doc_ids`，运行器检索时剔除；复测十题不再命中。
+- 准备报告 `docs/evidence/issue05-acceptance-prepared-20260910.json`：十题均返回 3 条真实向量候选；
+  免费 preflight（Q05）通过——请求 12870 字节、最大预留 3.152928 元、`budget_ready=true`、
+  `network_called=false`。
+- **欠项**：知识库缺 S01（What are agents?），Q01 不能据现有资料断言达标，需 S01 导入后另行复核。
+
+下一步（需用户本机交互终端执行，付费）：
+
+```bash
+.\.venv\Scripts\python.exe scripts\check_acceptance.py --live
+```
+
+运行后由助手逐题对照 `human_review` 复核正文语义，**不将 `status_matches` 等同于语义通过**。
+Issue 05 保持进行中，不进入 06。账本累计 **0.166719** 元、可用 9.833281 元、预留 0、blocked=false
+（本轮准备与 preflight 均免费）。git 分阶段提交：`659cc17`（资料）、`dcd1c72`（用例+运行器）、
+`23c88ad`（准备记录）。
+
+## 最新（此前）：v3.3 十题受控场景全部符合要求（number 首次通过）
 
 用户跑完其余七题：报告 `docs/evidence/issue05-live-v33-seven-20260910.json`（来自 `.data/boundary-report-20260910T065619568579Z.json`），复核 `docs/evidence/issue05-v33-seven-review-20260910.md`。结合此前三题（`issue05-v33-three-review-20260910.md`），**十个受控开发场景在 evidence-v3.3 下全部有符合要求的观察**：
 
