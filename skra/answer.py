@@ -259,6 +259,24 @@ def validate(data, evidence, questions=None):
             "citations": verified_list, "missing": data["missing"]}
 
 
+def revalidate(store, evidence):
+    """Re-check that every evidence chunk is still the current, active version.
+
+    PRD 4.3: if evidence is updated or deleted while an answer is being generated,
+    the stale conclusion must be blocked and the user told to query again.
+    A chunk unknown to this store is left alone: it cannot have been retired here.
+    """
+    for e in evidence:
+        try:
+            current = store.read(e["id"])
+        except ValueError as exc:
+            if "失效" in str(exc):
+                raise ValueError("检索到的证据在回答生成期间已被更新或删除；已停止返回过时结论，请重新查询。") from None
+            continue  # 片段不属于本库（例如注入的受控检索），无从判断失效
+        if current.get("version") != e.get("version"):
+            raise ValueError("证据在回答生成期间被更新为新版本；已停止返回过时结论，请重新查询。")
+
+
 def answer(store, query, ledger, config=None, key=None, send=transport, demo=False, preflight=False, search=None):
     if len(query) > 2000:
         raise ValueError("问题超过 2000 字符限制。")
@@ -363,6 +381,9 @@ def answer(store, query, ledger, config=None, key=None, send=transport, demo=Fal
                 raise ValueError(f"回答结构或引用校验失败：{reason} 已发生费用仍保留（call_id={cid}）。") from None
         output = {**meta, **result, "call_id": cid, "budget": ledger.summary(),
                   "validation": "仅校验结构、原文匹配和显式问题覆盖记录；不保证实际语义覆盖、证据支持或翻译准确。"}
+        # Guard against the evidence window: block stale answers if the source was
+        # updated or deleted after retrieval (PRD 4.3).
+        revalidate(store, evidence)
         error = None
         return output
     except ValueError as exc:

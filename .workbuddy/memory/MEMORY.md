@@ -21,11 +21,16 @@
 
 ## 当前进度快照（2026-09-10）
 
-- **Issue：01/02/04 done；03 done（2026-09-10 三类端到端验收完成，含用户账单核对+最终验收）**；
-  **05 in-progress**；06–15 open。
-- 主线：**05 → 06 → 架构检查 → 13 → 14 → 11 → 07 → 15 → 08 → 10 → 12**。不进入 06（待用户确认 05 收尾）。
+- **Issue：01/02/03/04/05/06 done**（03/05/06 均 2026-09-10 完成）；07–15 open（09 可选）。
+- 主线：**13 → 14 → 11 → 07 → 15 → 08 → 10 → 12**（+ 可选 09）。**架构检查已完成（用户裁定不重构）**，下一步 13（按 tdd）。
 - 当前提示词 **evidence-v3.5**，输出上限 **1500** token（常量 `OUTPUT_TOKEN_LIMIT`），单次最大预留 3.159228 元。
-- 本地 **31 tests 通过**。
+- 本地 **39 tests 通过**（06 新增版本一致性 6 例）。
+- **06 版本一致性（done）**：`update`/`delete` CLI 子命令；chunks 增 `version`/`active` 列；
+  更新=新版本失效旧版（PRD 4.3）；`answer.revalidate` 阻止回答期间证据失效的过时答案；
+  向量索引仅取 active。旧库自动 `ALTER TABLE` 迁移。详见 `docs/evidence/issue06-version-sync-tdd-20260910.md`。
+- **架构检查（done，用户裁定不重构）**：5 项「规则被复制」摩擦点记录于
+  `docs/evidence/architecture-review-20260910.md`（①提示词版本白名单漂移 ②切分不变量分散
+  ③answer()巨函数 ④revalidate 可注入性 ⑤两检索器规则重复），供 13 前复核。
 - 05 两条验收路径：
   1. 受控场景 `check_boundaries.py`：v3.3 下十题全部有符合要求的观察（非检索、非准确率）。
   2. 原始资料题 `check_acceptance.py`：v3.4 全跑→修 2 生成缺陷→v3.5 定向重跑 Q01/Q07/Q09 确认修复生效。
@@ -37,11 +42,14 @@
   三类代表题语义通过、新版 Q01 grounded、v3.5 全批生效；Q04/Q06 仍为检索欠项（诚实降级、无编造）。
   待办：平台账单核对 + 用户最终语义验收（03 未关单）。
 
-## 已知架构痛点（06 后、13 前检查）
+## 已知架构痛点（架构检查 2026-09-10 已记录，用户裁定暂不重构）
 
-- `skra/cli.py` replay 按提示词版本逐次维护 coverage 校验版本集合（现已到 v3.5），
-  每加一个提示词版本都要手动同步，属“同一规则在多入口漂移”。候选局部重构点。
-- 切分粒度过粗（`heading-lines-v1:20`）会稀释定义段，导致检索未命中（Q04/Q06 实证）。
+- 详见 `docs/evidence/architecture-review-20260910.md`。要点：
+  ① `cli.py` replay 白名单与 `answer.PROMPT_VERSION` 两处漂移（无测试护栏）；
+  ② 切分策略版本编码进「片段 id/文档幂等/向量指纹」三个不变量，跨 store+vector；
+  ③ `answer()` 121 行巨函数多职责；④ `revalidate` 缺可注入调用点；
+  ⑤ `store.search` 与 `vector.search` 重复 limit/active/runs/装配 4 处规则。
+  13 引入新切分/检索后端前先按 ②⑤ 评估影响面。
 
 ## 回答契约
 
@@ -58,7 +66,8 @@
 ## 工具与命令
 
 - 工作目录 `E:/DSWorking/project_01`，CLI `python -m skra`；向量功能用 `.\.venv\Scripts\python.exe -m skra`。
-- 测试：`.\.venv\Scripts\python.exe -m unittest discover -s tests -v`
+- 测试：`.\.venv\Scripts\python.exe -m unittest discover -s tests -v`（当前 39 tests）
 - 账本：`python -m skra budget`；离线重放：`python -m skra --db <db> replay <run_id>`
 - 受控边界：`python scripts/check_boundaries.py`（免费）/ `--live`（付费）
 - 原资料验收：`python scripts/check_acceptance.py`（免费）/ `--live`（付费）/ `--live --case Q01`（定向）
+- 资料版本管理（06）：`python -m skra update <file> --source <src>` / `python -m skra delete <src>`

@@ -49,9 +49,15 @@ class CLITest(unittest.TestCase):
         self.call("search", " ", ok=False)
         self.call("search", "test", "--limit", "0", ok=False)
         self.call("read", "missing", ok=False)
+
+    def test_import_same_source_new_content_becomes_update(self):
+        first = self.ingest()
         changed = Path(self.temp.name) / "changed.md"
-        changed.write_text("changed")
-        self.ingest(changed, ok=False)
+        changed.write_text("# Changed\n\nA completely different sentence.\n")
+        updated = self.ingest(changed)
+        self.assertEqual(updated["document_id"], first["document_id"])
+        self.assertEqual(updated["status"], "updated")
+        self.assertNotEqual(updated["version"], first["version"])
         self.assertEqual(len(self.call("docs")), 1)
 
 

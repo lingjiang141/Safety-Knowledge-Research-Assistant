@@ -24,6 +24,14 @@ def main(argv=None):
     for flag in ("title", "source", "license"):
         ingest.add_argument("--" + flag, required=True)
     ingest.add_argument("--acquired", default=date.today().isoformat())
+    update = commands.add_parser("update", help="以新内容更新同一来源，旧版本失效")
+    update.add_argument("file")
+    update.add_argument("--source", required=True)
+    for flag in ("title", "license"):
+        update.add_argument("--" + flag)
+    update.add_argument("--acquired", default=date.today().isoformat())
+    delete = commands.add_parser("delete", help="删除一个来源，其片段不再作为证据")
+    delete.add_argument("source")
     search = commands.add_parser("search")
     search.add_argument("query")
     search.add_argument("--limit", type=int, default=5)
@@ -69,6 +77,16 @@ def main(argv=None):
             result = vector.build()
         elif args.command == "import":
             result = store.ingest(args.file, args.title, args.source, args.license, args.acquired)
+        elif args.command == "update":
+            # Carry over title/license from the current version when omitted, so an
+            # update does not silently rename or relicense the source.
+            current = {d["source"]: d for d in store.documents()}.get(args.source.strip())
+            if current is None:
+                raise ValueError("该来源不存在，无法更新；请先用 import 导入。")
+            result = store.ingest(args.file, args.title or current["title"], args.source,
+                                  args.license or current["license"], args.acquired)
+        elif args.command == "delete":
+            result = store.delete(args.source)
         elif args.command == "search":
             result = (vector.search if vector else store.search)(args.query, args.limit)
         elif args.command == "docs":

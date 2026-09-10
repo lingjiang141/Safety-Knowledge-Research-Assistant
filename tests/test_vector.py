@@ -33,3 +33,22 @@ class VectorTest(unittest.TestCase):
                 changed=FixtureEncoder(); changed.identity='different-model'
                 with self.assertRaises(ValueError): VectorSearch(store,changed).search('猫')
             finally: store.close()
+
+    def test_vector_index_excludes_retired_chunks_after_update(self):
+        """After a source is updated, vector search must not surface the old version."""
+        with tempfile.TemporaryDirectory() as folder:
+            p = Path(folder)
+            store = Store(p / 'db')
+            try:
+                old = p / 'a.md'; old.write_text('cat alpha guidance')
+                store.ingest(old, 'doc', 'urn:x', 'CC0', '2026-09-09')
+                vector = VectorSearch(store, FixtureEncoder())
+                vector.build()
+                self.assertTrue(vector.search('猫')['candidates'])
+                new = p / 'b.md'; new.write_text('dog beta guidance')
+                store.ingest(new, 'doc', 'urn:x', 'CC0', '2026-09-09')
+                vector.build()
+                after = vector.search('猫')['candidates']
+                self.assertTrue(all('cat' not in c['text'] for c in after))
+            finally:
+                store.close()

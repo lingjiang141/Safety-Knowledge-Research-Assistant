@@ -49,7 +49,9 @@ class VectorSearch:
         ''')
 
     def corpus(self):
-        rows = self.db.execute("SELECT id,text FROM chunks ORDER BY id").fetchall()
+        # Only the current, active version of each source is indexed; retired chunks
+        # must never re-enter an answer (Issue 06).
+        rows = self.db.execute("SELECT id,text FROM chunks WHERE active=1 ORDER BY id").fetchall()
         fingerprint = digest(json.dumps([(r["id"], digest(r["text"])) for r in rows]))
         return rows, fingerprint
 
@@ -77,8 +79,11 @@ class VectorSearch:
         if meta.get("corpus") != fingerprint or meta.get("encoder") != self.encoder.identity:
             raise ValueError("向量索引缺失或资料/模型已变化，请先运行 index 重建。")
         q = self.encoder.encode([query])[0]
+        active = {r["id"] for r in self.db.execute("SELECT id FROM chunks WHERE active=1")}
         ranking = []
         for r in self.db.execute("SELECT id,embedding FROM vectors"):
+            if r["id"] not in active:
+                continue
             score = sum(a*b for a,b in zip(q,json.loads(r["embedding"]),strict=True))
             ranking.append((score,r["id"]))
         ranking.sort(key=lambda r: (-r[0],r[1]))

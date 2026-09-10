@@ -5,7 +5,8 @@
 ## 当前主线
 
 **05 → 06 → 架构检查 → 13 → 14 → 11 → 07 → 15 → 08 → 10 → 12**。09 为可选重排序实验，不阻塞主线；
-**03 三类端到端验收已于 2026-09-10 完成**（用户账单核对 + 最终语义验收达标）。
+**03、05、06 均已于 2026-09-10 完成**；**架构检查已完成（用户裁定本次不重构，见
+`docs/evidence/architecture-review-20260910.md`）**。**下一步：进入 Issue 13（按 tdd）。**
 
 优先突出文档处理：指南保留定义与条件，步骤/代码保留前提与警告，文本报告保留章节与页码。先固定检索器验证切分，再考虑混合检索。必要验证保留，不堆指标、不预设创新或提升。
 
@@ -28,8 +29,8 @@
 | [01 导入一份 Markdown 并查询原文](.scratch/security-research-assistant/issues/01-import-search.md) | M0 | AFK | 无 | done | US1, US2, US3, US7, US18, US23 |
 | [02 在预算保护下生成带引用的中文回答](.scratch/security-research-assistant/issues/02-budget-answer.md) | M0 | AFK | 01 | done | US4, US5, US6, US7, US8, US19, US20 |
 | [03 验证 DeepSeek 真实调用和三类回答](.scratch/security-research-assistant/issues/03-live-m0.md) | M0 | HITL | 02 | done | US4, US6, US7, US11, US12, US19, US20 || [04 中文问题检索多份英文资料并建立向量基线](.scratch/security-research-assistant/issues/04-vector-baseline.md) | M1 | AFK | 03 | done | US1, US3, US9, US14, US18, US21 |
-| [05 验证比较、冲突和攻击示例的回答边界](.scratch/security-research-assistant/issues/05-evidence-cases.md) | M1 | AFK | 04 | in-progress | US5, US6, US8, US9, US10, US11, US12, US13 |
-| [06 更新和删除资料后阻止旧证据进入新回答](.scratch/security-research-assistant/issues/06-version-sync.md) | M1 | AFK | 04 | open | US2, US14, US15, US16 |
+| [05 验证比较、冲突和攻击示例的回答边界](.scratch/security-research-assistant/issues/05-evidence-cases.md) | M1 | AFK | 04 | done | US5, US6, US8, US9, US10, US11, US12, US13 |
+| [06 更新和删除资料后阻止旧证据进入新回答](.scratch/security-research-assistant/issues/06-version-sync.md) | M1 | AFK | 04 | done | US2, US14, US15, US16 |
 | [13 按指南结构切分并展示完整证据](.scratch/security-research-assistant/issues/13-structured-guides.md) | M1D | AFK | 06 | open | US24, US27, US28 |
 | [14 检索操作步骤时保留前提、代码与警告](.scratch/security-research-assistant/issues/14-procedures-code.md) | M1D | AFK | 13 | open | US25, US27, US28 |
 | [11 导入文本型 PDF 并按页核对回答](.scratch/security-research-assistant/issues/11-pdf.md) | M1D | AFK | 06, 13 | open | US1, US2, US6, US7, US14, US15, US26, US27, US28 |
@@ -43,7 +44,7 @@
 ## 阶段完成标准
 
 - M0：01–03；**已完成**。01/02 的模拟通过不替代 03 三类真实验收，03 已于 2026-09-10 由真实端到端验收完成。
-- M1：04–06；已有基线和版本一致性。04 已完成；05 进行中（受控场景已达标，原始资料题 Q01 已在 v3.5 全批通过，Q04/Q06 检索未命中欠项保留）。
+- M1：04–06；**已完成**。04、05、06 均于 2026-09-10 完成（05 受控十题 v3.3 全部符合要求；原资料十题 v3.5 全批通过主要题项，Q04/Q06 检索欠项转 13/14/11；06 版本一致性按 tdd 完成）。
 - M1D：13、14、11；三类结构从导入到证据展示的完整路径。
 - 07：原文跨度标注、开发/保留集冻结与基线入口。
 - M2D：15；切分改良对照和适用范围，是项目展示重点。
@@ -55,7 +56,7 @@
 
 10 元总预算不重置；付费调用条件不具备时保留待办，不宣称完成。新切分任务目前均为 needs-triage/open；先分诊再实施。后续先读 [技能触发规则](docs/development-workflow.md)，按授权直接调用。
 
-技能时机：06/13/14/11/10 使用 TDD；04–06 后、13 前先做 improve-codebase-architecture；08 前复核是否出现新的结构问题，不机械重复重构。
+技能时机：06/13/14/11/10 使用 TDD；04–06 后、13 前先做 improve-codebase-architecture（**已完成**，2026-09-10，用户裁定保留现状，见 `docs/evidence/architecture-review-20260910.md`）；08 前复核是否出现新的结构问题，不机械重复重构。
 
 2026-09-10 再确认：上述是默认检查点，不是机械日程。当前 05 仍有原始资料题欠项（Q01 待跑、Q04/Q06 检索未命中），
 继续 diagnose；可复现程序问题先写失败回归，提示词效果用真实语义验证，不能把模拟通过称为语义修复。

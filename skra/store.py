@@ -28,32 +28,24 @@ class Store:
           splitter TEXT NOT NULL, snapshot TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS chunks (
           id TEXT PRIMARY KEY, doc_id TEXT NOT NULL, section TEXT NOT NULL,
-          start_line INTEGER NOT NULL, end_line INTEGER NOT NULL, text TEXT NOT NULL);
+          start_line INTEGER NOT NULL, end_line INTEGER NOT NULL, text TEXT NOT NULL,
+          version TEXT NOT NULL DEFAULT '', active INTEGER NOT NULL DEFAULT 1);
         CREATE TABLE IF NOT EXISTS runs (
           id INTEGER PRIMARY KEY, created TEXT, query TEXT, result TEXT, elapsed_ms REAL);
         """)
+        # Migrate pre-Issue-06 databases: chunks gained version/active columns.
+        columns = {r[1] for r in self.db.execute("PRAGMA table_info(chunks)")}
+        if "version" not in columns:
+            self.db.execute("ALTER TABLE chunks ADD COLUMN version TEXT NOT NULL DEFAULT ''")
+            self.db.execute("UPDATE chunks SET version=(SELECT hash FROM documents d WHERE d.id=chunks.doc_id)")
+        if "active" not in columns:
+            self.db.execute("ALTER TABLE chunks ADD COLUMN active INTEGER NOT NULL DEFAULT 1")
 
     def close(self):
         self.db.close()
 
-    def ingest(self, file, title, source, license_name, acquired):
-        path = Path(file)
-        if path.suffix.lower() != ".md":
-            raise ValueError("当前只支持 UTF-8 Markdown (.md)。")
-        if not all(v.strip() for v in (title, source, license_name)):
-            raise ValueError("标题、来源和许可不得为空。")
-        date.fromisoformat(acquired)
-        raw = path.read_bytes()
-        content = raw.decode("utf-8-sig")
-        if not content.strip():
-            raise ValueError("资料为空，未导入。")
-        content_hash = hashlib.sha256(raw).hexdigest()
-        doc_id = digest(source.strip())
-        existing = self.db.execute("SELECT * FROM documents WHERE id=?", (doc_id,)).fetchone()
-        if existing:
-            if existing["hash"] == content_hash and existing["splitter"] == SPLITTER:
-                return {"document_id": doc_id, "version": content_hash, "status": "unchanged"}
-            raise ValueError("该来源已存在不同内容；更新功能将在 Issue 06 实现，请勿用新来源伪装更新。")
+    def _chunk(self, doc_id, content_hash, content):
+        """Deterministic chunking shared by import and update."""
         chunks = []
         section = "(正文)"
         pending = []
@@ -64,7 +56,7 @@ class Store:
                 text = "\n".join(pending)
                 end = start + len(pending) - 1
                 cid = digest(f"{doc_id}:{content_hash}:{SPLITTER}:{start}:{end}")
-                chunks.append((cid, doc_id, section, start, end, text))
+                chunks.append((cid, doc_id, section, start, end, text, content_hash, 1))
             pending.clear()
 
         fenced = False
@@ -81,22 +73,64 @@ class Store:
             if len(pending) >= 20:
                 flush()
         flush()
+        return chunks
+
+    def ingest(self, file, title, source, license_name, acquired):
+        path = Path(file)
+        if path.suffix.lower() != ".md":
+            raise ValueError("当前只支持 UTF-8 Markdown (.md)。")
+        if not all(v.strip() for v in (title, source, license_name)):
+            raise ValueError("标题、来源和许可不得为空。")
+        date.fromisoformat(acquired)
+        raw = path.read_bytes()
+        content = raw.decode("utf-8-sig")
+        if not content.strip():
+            raise ValueError("资料为空，未导入。")
+        content_hash = hashlib.sha256(raw).hexdigest()
+        doc_id = digest(source.strip())
+        existing = self.db.execute("SELECT * FROM documents WHERE id=?", (doc_id,)).fetchone()
+        if existing and existing["hash"] == content_hash and existing["splitter"] == SPLITTER:
+            return {"document_id": doc_id, "version": content_hash, "status": "unchanged"}
+        chunks = self._chunk(doc_id, content_hash, content)
+        # Publish atomically: reader-visible tables switch to the new version in one
+        # transaction, and any previously active chunks for this source are retired,
+        # so a half-built index can never be observed.
         with self.db:
+            self.db.execute("UPDATE chunks SET active=0 WHERE doc_id=?", (doc_id,))
+            if existing:
+                self.db.execute("DELETE FROM documents WHERE id=?", (doc_id,))
             self.db.execute("INSERT INTO documents VALUES (?,?,?,?,?,?,?,?)",
                             (doc_id, title.strip(), source.strip(), license_name.strip(),
                              acquired, content_hash, SPLITTER, content))
-            self.db.executemany("INSERT INTO chunks VALUES (?,?,?,?,?,?)", chunks)
-        return {"document_id": doc_id, "version": content_hash, "status": "imported", "chunks": len(chunks)}
+            self.db.executemany("INSERT INTO chunks VALUES (?,?,?,?,?,?,?,?)", chunks)
+        return {"document_id": doc_id, "version": content_hash,
+                "status": "updated" if existing else "imported", "chunks": len(chunks)}
 
     def documents(self):
         return [dict(r) for r in self.db.execute(
             "SELECT id,title,source,license,acquired,hash,splitter FROM documents ORDER BY id")]
 
+    def delete(self, source):
+        """Retire a source: remove its document and deactivate all its chunks."""
+        if not source or not source.strip():
+            raise ValueError("来源不得为空。")
+        doc_id = digest(source.strip())
+        existing = self.db.execute("SELECT id FROM documents WHERE id=?", (doc_id,)).fetchone()
+        if not existing:
+            raise ValueError("该来源不存在，无法删除。")
+        with self.db:
+            self.db.execute("UPDATE chunks SET active=0 WHERE doc_id=?", (doc_id,))
+            self.db.execute("DELETE FROM documents WHERE id=?", (doc_id,))
+        return {"document_id": doc_id, "status": "deleted"}
+
     def read(self, cid):
         row = self.db.execute("""SELECT c.*, d.title,d.source,d.license,d.acquired,
           d.hash AS version,d.splitter FROM chunks c JOIN documents d ON c.doc_id=d.id
-          WHERE c.id=?""", (cid,)).fetchone()
+          WHERE c.id=? AND c.active=1""", (cid,)).fetchone()
         if not row:
+            retired = self.db.execute("SELECT active FROM chunks WHERE id=?", (cid,)).fetchone()
+            if retired:
+                raise ValueError("片段属于已失效的历史版本，不再作为当前证据。")
             raise ValueError("片段不存在。")
         return dict(row)
 
@@ -110,7 +144,7 @@ class Store:
                 expanded += " " + english
         terms = set(re.findall(r"[a-z0-9_]+|[\u4e00-\u9fff]+", expanded))
         ranked = []
-        for row in self.db.execute("SELECT id,text FROM chunks"):
+        for row in self.db.execute("SELECT id,text FROM chunks WHERE active=1"):
             tokens = set(re.findall(r"[a-z0-9_]+|[\u4e00-\u9fff]+", row["text"].lower()))
             score = len(terms & tokens)
             if score:
