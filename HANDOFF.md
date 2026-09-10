@@ -1,6 +1,31 @@
 # 新窗口交接：安全知识研究助手
 
-## 最新：v3.2 三题已复核，技能时机再次确认
+## 最新：git 对象库损坏已按用户选择重建 + Issue 05 number 修复（v3.3）
+
+**请先读事故记录 `.data/git-recovery-20260910T143815/INCIDENT.md`。** 本轮我执行 `git stash push`
+时损坏了 `.git` 对象库：11 个历史提交对象（至 `e07bff1`）被删，`master` 与 `master——ddd` 引用丢失，
+远端 `origin` 为空无法恢复。工作区 68 个文件、索引、分支日志、`.data/budget.sqlite3` 账本全部完好；
+本轮 number 修复代码未丢失。经用户确认，已**从完好工作区重建基提交** `a08ac81`（当前分支 `master——ddd`），
+历史 11 条提交无法逐条还原，务必知晓。
+
+> 用户提到的工作分支 `codex/issue05-continue`、恢复标签 `checkpoint-issue05-before-handoff`
+> 本机**从未存在**（`git rev-parse`/`git tag` 均查无）。本轮未创建、未移动任何此类标签，
+> 未改写 master 指向、未重置费用账本。
+
+Issue 05 number 场景已按 diagnose 完成离线诊断 + 先失败回归 + 最小修复，详见
+`docs/evidence/issue05-number-fix-v33-20260910.md`：
+
+- 复现：number 题（只问数量、证据无数字）的 coverage 把“缺数字”的原则结论关联为已答，推导 `partial`；期望 `insufficient`。
+- 修复：`apply_coverage` 引入 `answered` 标记——只写 missing、无 claims 的问题项不计为已答；
+  提示词升到 `evidence-v3.3`，明确“只索取数值的问题项不能由原则凑部分答案”；`cli.py` replay 版本集合同步加入 v3.3。
+- 结果：本地 **27 tests 全部通过**，含新增 number 回归与全部既有 v3.1/v3.2 回归。无硬编码、无付费调用。
+- 限制：程序只校验显式结构，**真实语义效果待验**，不称模型已彻底修复。
+
+下一步（不需用户重交旧报告）：定向真实复验 number/partial/conditions，确认 number 转为 insufficient，
+再补 negation/injection 等未执行场景。账本累计 0.108174 元、可用 9.891826 元、预留 0、blocked=false，本轮无新增付费调用。
+Issue 05 保持进行中，不进入 06。
+
+## 最新（历史）：v3.2 三题已复核，技能时机再次确认
 
 报告 `docs/evidence/issue05-live-v32-20260910.json`，复核 `docs/evidence/issue05-v32-review-20260910.md`。analogy 与 missing_measurement 本次符合要求；number 仍误判 partial。不要再让用户原样重跑：下一步先离线诊断直接答案/相关背景的覆盖契约混淆，建立正确回归再做最小修复。不要将不同版本的九题符合要求称为同版十题通过。05 仍进行中，原资料题验收欠项保留。
 

@@ -25,6 +25,12 @@ Source: [PRD](../../../PRD.md)
 
 ## Completion evidence
 
+2026-09-10 v3.3：number 场景按 diagnose 完成离线诊断、先失败回归、最小修复。`apply_coverage` 增加
+`answered` 标记（只写 missing、无 claims 的问题项不计为已答），提示词升 v3.3 明确“只索取数值的问题项
+不能由原则凑部分答案”。27 tests 通过；真实语义效果待定向复验。详见 docs/evidence/issue05-number-fix-v33-20260910.md。
+本轮另发生 git 对象库损坏并按用户选择从工作区重建基提交 a08ac81，见 .data/git-recovery-20260910T143815/INCIDENT.md。
+无新增付费调用，累计保守记账 0.108174 元；State 保持进行中。
+
 2026-09-10 v3.2：analogy/missing_measurement 本次符合要求；number 仍误判 partial，见 docs/evidence/issue05-v32-review-20260910.md。下一步先离线诊断覆盖契约，不重复无改动付费测试。25 个程序测试的历史结果不证明语义全部通过；State 保持进行中。累计保守记账 0.108174 元。
 
 2026-09-10 十题汇总：七题本次符合要求，number/analogy 语义未通过；missing_measurement 原程序误拒绝，已先失败测试后允许有效缺失上下文引用（claims 仍为空），25 测试通过。当前 v3.2，待上述三题真实复验，未关闭。详细证据见 docs/evidence/issue05-v31-six-review-20260910.md。累计记账 0.093489 元。
