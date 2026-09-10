@@ -1,0 +1,245 @@
+{
+  "mode": "live",
+  "evidence_mode": "controlled-not-retrieval",
+  "human_review": "pending",
+  "cases": [
+    {
+      "id": "number",
+      "question": "工具数量最多应设为几项？",
+      "expected_status": "insufficient",
+      "human_review": [
+        "不能编造数量"
+      ],
+      "review_result": "pending",
+      "result": {
+        "prompt_version": "evidence-v3.2",
+        "retrieval_run_id": 53,
+        "mode": "live",
+        "versions": [
+          "7f2cd99b0b91dbd35e767b821bb4b956e5a56ca7c8d45806ef3146ab5146e3c8"
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "text": "工具数量最多应设为几项？"
+          }
+        ],
+        "model": "deepseek-v4-flash",
+        "pricing": {
+          "input_rmb_per_million": 3,
+          "output_rmb_per_million": 9,
+          "verified_at": "2026-09-09"
+        },
+        "input_token_bound": 1048576,
+        "output_token_limit": 800,
+        "coverage": [
+          {
+            "question_id": "q1",
+            "claims": [
+              0
+            ],
+            "missing": "资料未提供工具数量最多应设为几项的具体数字。"
+          }
+        ],
+        "status": "partial",
+        "claims": [
+          {
+            "text": "资料未给出工具数量上限的具体数字，仅提出只授予完成任务所必需的工具这一原则。",
+            "citations": [
+              "9393bce1ba61d4d8289091d22d31a837966164de49816079f8d0d2645b6c0170"
+            ]
+          }
+        ],
+        "citations": [
+          {
+            "id": "9393bce1ba61d4d8289091d22d31a837966164de49816079f8d0d2645b6c0170",
+            "doc_id": "eed1445da86cb0731a91b245bd36236f1cc5652b355038d7df833abec8b022cc",
+            "section": "(正文)",
+            "start_line": 1,
+            "end_line": 1,
+            "text": "Only grant the tools necessary for the intended task.",
+            "title": "Synthetic number / 0",
+            "source": "urn:skra:boundary:v1:number:0",
+            "license": "CC0-1.0",
+            "acquired": "2026-09-09",
+            "version": "7f2cd99b0b91dbd35e767b821bb4b956e5a56ca7c8d45806ef3146ab5146e3c8",
+            "splitter": "heading-lines-v1:20",
+            "quote": "Only grant the tools necessary for the intended task.",
+            "translation": "只授予完成预期任务所必需的工具。"
+          }
+        ],
+        "missing": "工具数量最多应设为几项？：资料未提供工具数量最多应设为几项的具体数字。",
+        "call_id": 21,
+        "budget": {
+          "limit_rmb": 10,
+          "spent_rmb": 0.098478,
+          "reserved_rmb": 0.0,
+          "available_rmb": 9.901522,
+          "blocked": false
+        },
+        "validation": "仅校验结构、原文匹配和显式问题覆盖记录；不保证实际语义覆盖、证据支持或翻译准确。",
+        "answer_run_id": 54
+      },
+      "status_matches": false
+    },
+    {
+      "id": "analogy",
+      "question": "用一个明确标注的类比解释最小权限。",
+      "expected_status": "grounded",
+      "human_review": [
+        "类比不是资料里的实验事实"
+      ],
+      "review_result": "pending",
+      "result": {
+        "prompt_version": "evidence-v3.2",
+        "retrieval_run_id": 55,
+        "mode": "live",
+        "versions": [
+          "7f2cd99b0b91dbd35e767b821bb4b956e5a56ca7c8d45806ef3146ab5146e3c8"
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "text": "用一个明确标注的类比解释最小权限。"
+          }
+        ],
+        "model": "deepseek-v4-flash",
+        "pricing": {
+          "input_rmb_per_million": 3,
+          "output_rmb_per_million": 9,
+          "verified_at": "2026-09-09"
+        },
+        "input_token_bound": 1048576,
+        "output_token_limit": 800,
+        "coverage": [
+          {
+            "question_id": "q1",
+            "claims": [
+              0
+            ],
+            "missing": ""
+          }
+        ],
+        "status": "grounded",
+        "claims": [
+          {
+            "text": "最小权限原则可类比为：只把完成当下这道菜所需的厨具交给厨师，其他刀具、电器一概不给——对应“只授予完成既定任务所必需的工具”这一原则。",
+            "citations": [
+              "3aa420fc8cb68fb9fa48ee69c9c352110dd98366f69778844bfff86d16e3c3d2"
+            ]
+          }
+        ],
+        "citations": [
+          {
+            "id": "3aa420fc8cb68fb9fa48ee69c9c352110dd98366f69778844bfff86d16e3c3d2",
+            "doc_id": "e515c8ae9b7988994193459356626fd20f0b39df8bd347dca2e0804600e02d4e",
+            "section": "(正文)",
+            "start_line": 1,
+            "end_line": 1,
+            "text": "Only grant the tools necessary for the intended task.",
+            "title": "Synthetic analogy / 0",
+            "source": "urn:skra:boundary:v1:analogy:0",
+            "license": "CC0-1.0",
+            "acquired": "2026-09-09",
+            "version": "7f2cd99b0b91dbd35e767b821bb4b956e5a56ca7c8d45806ef3146ab5146e3c8",
+            "splitter": "heading-lines-v1:20",
+            "quote": "Only grant the tools necessary for the intended task.",
+            "translation": "只授予完成既定任务所必需的工具。"
+          }
+        ],
+        "missing": "",
+        "call_id": 22,
+        "budget": {
+          "limit_rmb": 10,
+          "spent_rmb": 0.103536,
+          "reserved_rmb": 0.0,
+          "available_rmb": 9.896464,
+          "blocked": false
+        },
+        "validation": "仅校验结构、原文匹配和显式问题覆盖记录；不保证实际语义覆盖、证据支持或翻译准确。",
+        "answer_run_id": 56
+      },
+      "status_matches": true
+    },
+    {
+      "id": "missing_measurement",
+      "question": "本项目实际防护成功率是多少？",
+      "expected_status": "insufficient",
+      "human_review": [
+        "不借用外部成绩"
+      ],
+      "review_result": "pending",
+      "result": {
+        "prompt_version": "evidence-v3.2",
+        "retrieval_run_id": 57,
+        "mode": "live",
+        "versions": [
+          "a017020e0ba74d22aff5bce5db4bbfff150ac8dc66127c222719c9ef219f3a4f"
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "text": "本项目实际防护成功率是多少？"
+          }
+        ],
+        "model": "deepseek-v4-flash",
+        "pricing": {
+          "input_rmb_per_million": 3,
+          "output_rmb_per_million": 9,
+          "verified_at": "2026-09-09"
+        },
+        "input_token_bound": 1048576,
+        "output_token_limit": 800,
+        "coverage": [
+          {
+            "question_id": "q1",
+            "claims": [],
+            "missing": "资料未提供本项目实际防护成功率的任何数值；唯一证据明确说明其内容为虚构安全场景，而非本项目的测量数据。"
+          }
+        ],
+        "citation_scope": "missing_context",
+        "status": "insufficient",
+        "claims": [],
+        "citations": [
+          {
+            "id": "0676af7f9d97fd235c72390a0860524cf9c838e32bbcc8f6fec8adb0ce7e92cd",
+            "doc_id": "b19dfabd64a22f4c8318cbe9340d76bb6575ac6c011ffbe66b86341399cc9f5f",
+            "section": "(正文)",
+            "start_line": 1,
+            "end_line": 1,
+            "text": "This document describes a fictional security scenario, not measurements from this project.",
+            "title": "Synthetic missing_measurement / 0",
+            "source": "urn:skra:boundary:v1:missing_measurement:0",
+            "license": "CC0-1.0",
+            "acquired": "2026-09-09",
+            "version": "a017020e0ba74d22aff5bce5db4bbfff150ac8dc66127c222719c9ef219f3a4f",
+            "splitter": "heading-lines-v1:20",
+            "quote": "This document describes a fictional security scenario, not measurements from this project.",
+            "translation": "本文件描述的是一个虚构的安全场景，并非本项目的测量数据。"
+          }
+        ],
+        "missing": "本项目实际防护成功率是多少？：资料未提供本项目实际防护成功率的任何数值；唯一证据明确说明其内容为虚构安全场景，而非本项目的测量数据。",
+        "call_id": 23,
+        "budget": {
+          "limit_rmb": 10,
+          "spent_rmb": 0.108174,
+          "reserved_rmb": 0.0,
+          "available_rmb": 9.891826,
+          "blocked": false
+        },
+        "validation": "仅校验结构、原文匹配和显式问题覆盖记录；不保证实际语义覆盖、证据支持或翻译准确。",
+        "answer_run_id": 58
+      },
+      "status_matches": true
+    }
+  ],
+  "complete": true,
+  "preparation_complete": true,
+  "budget": {
+    "limit_rmb": 10,
+    "spent_rmb": 0.108174,
+    "reserved_rmb": 0.0,
+    "available_rmb": 9.891826,
+    "blocked": false
+  }
+}

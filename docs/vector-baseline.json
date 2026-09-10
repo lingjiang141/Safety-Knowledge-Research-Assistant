@@ -1,0 +1,195 @@
+{
+  "kind": "development-smoke-not-held-out",
+  "generation": "not-run",
+  "paid_calls": 0,
+  "build": {
+    "chunks": 4,
+    "corpus": "e72b9be408cd35a2ef005f48c768806a288838a46350e964967c26eeaa63272e",
+    "encoder": "{\"dimension\": 384, \"license\": \"Apache-2.0\", \"model\": \"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2\", \"pooling\": \"mean-of-normalized-100-token-windows-v1\", \"revision\": \"e8f8c211226b894fcb81acc59f3b34ba3efd5f42\"}",
+    "elapsed_ms": 272.79750001616776
+  },
+  "documents": [
+    {
+      "id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+      "title": "OWASP Prompt Injection excerpt",
+      "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+      "license": "CC BY-SA 4.0",
+      "acquired": "2026-09-09",
+      "hash": "7047a50cd0f5eb0115e10e468053e3cb77fd37c670f96a5fde4da1350d98254e",
+      "splitter": "heading-lines-v1:20"
+    },
+    {
+      "id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+      "title": "OWASP Excessive Agency excerpt",
+      "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+      "license": "CC BY-SA 4.0",
+      "acquired": "2026-09-09",
+      "hash": "1adb3e345c6c0720bfe93ee9146d11dd4bd20a6cee8dfbb5f5f99126b2695c05",
+      "splitter": "heading-lines-v1:20"
+    }
+  ],
+  "cases": [
+    {
+      "question": "从网页或文件进入模型的恶意指令属于哪种注入？",
+      "expected_section": "Indirect Prompt Injections",
+      "relevant_ids": [
+        "0bc79608d06b8311812bae2e611363417283ba574d0d370e7b813b33b8743a86"
+      ],
+      "recall_at_5": 1.0,
+      "result": {
+        "mode": "vector",
+        "query": "从网页或文件进入模型的恶意指令属于哪种注入？",
+        "corpus": "e72b9be408cd35a2ef005f48c768806a288838a46350e964967c26eeaa63272e",
+        "encoder": "{\"dimension\": 384, \"license\": \"Apache-2.0\", \"model\": \"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2\", \"pooling\": \"mean-of-normalized-100-token-windows-v1\", \"revision\": \"e8f8c211226b894fcb81acc59f3b34ba3efd5f42\"}",
+        "metric": "cosine",
+        "limit": 5,
+        "candidates": [
+          {
+            "id": "6d607de666c0ba358c433456110fbb3611fd04f7663c26c874bdce4378186b36",
+            "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+            "section": "OWASP LLM01:2025 Prompt Injection — excerpt",
+            "start_line": 1,
+            "end_line": 8,
+            "text": "# OWASP LLM01:2025 Prompt Injection — excerpt\n\nSource: https://genai.owasp.org/llmrisk/llm01-prompt-injection/\nPublisher: OWASP Gen AI Security Project\nLicense: CC BY-SA 4.0\nRetrieved: 2026-09-09\nThis is a selected excerpt, not the complete document. Formatting and title were adapted.\n",
+            "title": "OWASP Prompt Injection excerpt",
+            "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-09",
+            "version": "7047a50cd0f5eb0115e10e468053e3cb77fd37c670f96a5fde4da1350d98254e",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.5406890527309786
+          },
+          {
+            "id": "0bc79608d06b8311812bae2e611363417283ba574d0d370e7b813b33b8743a86",
+            "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+            "section": "Indirect Prompt Injections",
+            "start_line": 9,
+            "end_line": 11,
+            "text": "## Indirect Prompt Injections\n\nIndirect prompt injections occur when an LLM accepts input from external sources, such as websites or files.",
+            "title": "OWASP Prompt Injection excerpt",
+            "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-09",
+            "version": "7047a50cd0f5eb0115e10e468053e3cb77fd37c670f96a5fde4da1350d98254e",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.5227548930698741
+          },
+          {
+            "id": "9fb2c9cbe75830139052ac679eaef2ff470363465d7d45331012e80b3352547e",
+            "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+            "section": "OWASP LLM06:2025 Excessive Agency — excerpt",
+            "start_line": 1,
+            "end_line": 8,
+            "text": "# OWASP LLM06:2025 Excessive Agency — excerpt\n\nSource: https://genai.owasp.org/llmrisk/llm062025-excessive-agency/\nPublisher: OWASP Gen AI Security Project\nLicense: CC BY-SA 4.0\nRetrieved: 2026-09-09\nThis is a selected excerpt, not the complete document. Formatting and title were adapted.\n",
+            "title": "OWASP Excessive Agency excerpt",
+            "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-09",
+            "version": "1adb3e345c6c0720bfe93ee9146d11dd4bd20a6cee8dfbb5f5f99126b2695c05",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.44367471241110884
+          },
+          {
+            "id": "d0a9a29ceb23cbf147980997ba9b26890135080f3c292ba3fd4c0049dd13dd74",
+            "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+            "section": "Minimize extensions",
+            "start_line": 9,
+            "end_line": 11,
+            "text": "## Minimize extensions\n\nLimit the extensions that LLM agents are allowed to call to only the minimum necessary.",
+            "title": "OWASP Excessive Agency excerpt",
+            "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-09",
+            "version": "1adb3e345c6c0720bfe93ee9146d11dd4bd20a6cee8dfbb5f5f99126b2695c05",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.2559790632777508
+          }
+        ],
+        "elapsed_ms": 21.59900002880022,
+        "note": "纯向量基线，无关键词扩展；相似度不等于答案有依据。",
+        "run_id": 5
+      }
+    },
+    {
+      "question": "应该给智能助手配备多少工具？",
+      "expected_section": "Minimize extensions",
+      "relevant_ids": [
+        "d0a9a29ceb23cbf147980997ba9b26890135080f3c292ba3fd4c0049dd13dd74"
+      ],
+      "recall_at_5": 1.0,
+      "result": {
+        "mode": "vector",
+        "query": "应该给智能助手配备多少工具？",
+        "corpus": "e72b9be408cd35a2ef005f48c768806a288838a46350e964967c26eeaa63272e",
+        "encoder": "{\"dimension\": 384, \"license\": \"Apache-2.0\", \"model\": \"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2\", \"pooling\": \"mean-of-normalized-100-token-windows-v1\", \"revision\": \"e8f8c211226b894fcb81acc59f3b34ba3efd5f42\"}",
+        "metric": "cosine",
+        "limit": 5,
+        "candidates": [
+          {
+            "id": "9fb2c9cbe75830139052ac679eaef2ff470363465d7d45331012e80b3352547e",
+            "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+            "section": "OWASP LLM06:2025 Excessive Agency — excerpt",
+            "start_line": 1,
+            "end_line": 8,
+            "text": "# OWASP LLM06:2025 Excessive Agency — excerpt\n\nSource: https://genai.owasp.org/llmrisk/llm062025-excessive-agency/\nPublisher: OWASP Gen AI Security Project\nLicense: CC BY-SA 4.0\nRetrieved: 2026-09-09\nThis is a selected excerpt, not the complete document. Formatting and title were adapted.\n",
+            "title": "OWASP Excessive Agency excerpt",
+            "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-09",
+            "version": "1adb3e345c6c0720bfe93ee9146d11dd4bd20a6cee8dfbb5f5f99126b2695c05",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.27778059700978186
+          },
+          {
+            "id": "6d607de666c0ba358c433456110fbb3611fd04f7663c26c874bdce4378186b36",
+            "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+            "section": "OWASP LLM01:2025 Prompt Injection — excerpt",
+            "start_line": 1,
+            "end_line": 8,
+            "text": "# OWASP LLM01:2025 Prompt Injection — excerpt\n\nSource: https://genai.owasp.org/llmrisk/llm01-prompt-injection/\nPublisher: OWASP Gen AI Security Project\nLicense: CC BY-SA 4.0\nRetrieved: 2026-09-09\nThis is a selected excerpt, not the complete document. Formatting and title were adapted.\n",
+            "title": "OWASP Prompt Injection excerpt",
+            "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-09",
+            "version": "7047a50cd0f5eb0115e10e468053e3cb77fd37c670f96a5fde4da1350d98254e",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.19032630205774734
+          },
+          {
+            "id": "d0a9a29ceb23cbf147980997ba9b26890135080f3c292ba3fd4c0049dd13dd74",
+            "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+            "section": "Minimize extensions",
+            "start_line": 9,
+            "end_line": 11,
+            "text": "## Minimize extensions\n\nLimit the extensions that LLM agents are allowed to call to only the minimum necessary.",
+            "title": "OWASP Excessive Agency excerpt",
+            "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-09",
+            "version": "1adb3e345c6c0720bfe93ee9146d11dd4bd20a6cee8dfbb5f5f99126b2695c05",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.18239073501377542
+          },
+          {
+            "id": "0bc79608d06b8311812bae2e611363417283ba574d0d370e7b813b33b8743a86",
+            "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+            "section": "Indirect Prompt Injections",
+            "start_line": 9,
+            "end_line": 11,
+            "text": "## Indirect Prompt Injections\n\nIndirect prompt injections occur when an LLM accepts input from external sources, such as websites or files.",
+            "title": "OWASP Prompt Injection excerpt",
+            "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-09",
+            "version": "7047a50cd0f5eb0115e10e468053e3cb77fd37c670f96a5fde4da1350d98254e",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.1477563627650159
+          }
+        ],
+        "elapsed_ms": 18.806999956723303,
+        "note": "纯向量基线，无关键词扩展；相似度不等于答案有依据。",
+        "run_id": 6
+      }
+    }
+  ]
+}

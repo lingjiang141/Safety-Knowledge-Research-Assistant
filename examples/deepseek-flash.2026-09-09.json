@@ -1,0 +1,11 @@
+{
+  "model": "deepseek-v4-flash",
+  "verified": true,
+  "verified_at": "2026-09-09",
+  "input_bound_strategy": "context-window",
+  "context_token_upper_bound": 1048576,
+  "input_rmb_per_million": 3,
+  "output_rmb_per_million": 9,
+  "source": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/",
+  "notes": "Peak cache-miss pricing; reserve full 1M context with binary ceiling. Conservative accounting, not actual invoice."
+}

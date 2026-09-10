@@ -1,0 +1,57 @@
+{
+  "database": "boundaries.sqlite3",
+  "run_id": 26,
+  "query": "如何限制智能助手可调用的工具数量？",
+  "record": {
+    "prompt_version": "evidence-v3",
+    "retrieval_run_id": 25,
+    "mode": "live",
+    "versions": [
+      "7f2cd99b0b91dbd35e767b821bb4b956e5a56ca7c8d45806ef3146ab5146e3c8"
+    ],
+    "questions": [
+      {
+        "id": "q1",
+        "text": "如何限制智能助手可调用的工具数量？"
+      }
+    ],
+    "model": "deepseek-v4-flash",
+    "pricing": {
+      "input_rmb_per_million": 3,
+      "output_rmb_per_million": 9,
+      "verified_at": "2026-09-09"
+    },
+    "input_token_bound": 1048576,
+    "output_token_limit": 800,
+    "call_id": 10,
+    "error": "回答结构或引用校验失败：结论必须有有效引用。 已发生费用仍保留（call_id=10）。",
+    "diagnostic": {
+      "stage": "citation_validation",
+      "reason": "结论必须有有效引用。",
+      "output_characters": 524
+    },
+    "model_output": "{\"claims\":[{\"text\":\"限制智能助手可调用的工具数量，应遵循“仅授予完成预期任务所必需的工具”这一原则。\",\"citations\":[{\"id\":\"a902d2b97b357be2d4a07cb090be1c90c83b84e1cc4714a1447be96fffc7284b\",\"quote\":\"Only grant the tools necessary for the intended task.\",\"translation\":\"仅授予完成预期任务所必需的工具。\"}]}],\"citations\":[{\"id\":\"a902d2b97b357be2d4a07cb090be1c90c83b84e1cc4714a1447be96fffc7284b\",\"quote\":\"Only grant the tools necessary for the intended task.\",\"translation\":\"仅授予完成预期任务所必需的工具。\"}],\"coverage\":[{\"question_id\":\"q1\",\"claims\":[0],\"missing\":\"资料仅给出原则，未提供具体如何确定或限制工具数量的操作细节。\"}]}"
+  },
+  "retrieval": {
+    "mode": "controlled-evidence-not-retrieval",
+    "query": "如何限制智能助手可调用的工具数量？",
+    "candidates": [
+      {
+        "id": "a902d2b97b357be2d4a07cb090be1c90c83b84e1cc4714a1447be96fffc7284b",
+        "doc_id": "bf3c1ad53485460e456acfaac7bdcd1a57b1e0c717d493471881fb7d2ac6ea9a",
+        "section": "(正文)",
+        "start_line": 1,
+        "end_line": 1,
+        "text": "Only grant the tools necessary for the intended task.",
+        "title": "Synthetic principle / 0",
+        "source": "urn:skra:boundary:v1:principle:0",
+        "license": "CC0-1.0",
+        "acquired": "2026-09-09",
+        "version": "7f2cd99b0b91dbd35e767b821bb4b956e5a56ca7c8d45806ef3146ab5146e3c8",
+        "splitter": "heading-lines-v1:20"
+      }
+    ],
+    "case_id": "principle",
+    "elapsed_ms": 0
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "mode": "live",
+  "evidence_mode": "controlled-not-retrieval",
+  "human_review": "pending",
+  "cases": [
+    {
+      "id": "principle",
+      "question": "如何限制智能助手可调用的工具数量？",
+      "expected_status": "grounded",
+      "human_review": [
+        "不因为未问的数量而判 partial"
+      ],
+      "review_result": "pending",
+      "error": "回答结构或引用校验失败：结论必须有有效引用。 已发生费用仍保留（call_id=10）。"
+    }
+  ],
+  "complete": false,
+  "preparation_complete": true,
+  "budget": {
+    "limit_rmb": 10,
+    "spent_rmb": 0.042213,
+    "reserved_rmb": 0.0,
+    "available_rmb": 9.957787,
+    "blocked": false
+  }
+}

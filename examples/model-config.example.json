@@ -1,0 +1,9 @@
+{
+  "model": "REPLACE_WITH_VERIFIED_MODEL",
+  "verified": false,
+  "verified_at": "",
+  "input_bound_strategy": "context-window",
+  "context_token_upper_bound": null,
+  "input_rmb_per_million": null,
+  "output_rmb_per_million": null
+}

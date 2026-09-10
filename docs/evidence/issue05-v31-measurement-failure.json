@@ -1,0 +1,57 @@
+{
+  "database": "boundaries.sqlite3",
+  "run_id": 50,
+  "query": "本项目实际防护成功率是多少？",
+  "record": {
+    "prompt_version": "evidence-v3.1",
+    "retrieval_run_id": 49,
+    "mode": "live",
+    "versions": [
+      "a017020e0ba74d22aff5bce5db4bbfff150ac8dc66127c222719c9ef219f3a4f"
+    ],
+    "questions": [
+      {
+        "id": "q1",
+        "text": "本项目实际防护成功率是多少？"
+      }
+    ],
+    "model": "deepseek-v4-flash",
+    "pricing": {
+      "input_rmb_per_million": 3,
+      "output_rmb_per_million": 9,
+      "verified_at": "2026-09-09"
+    },
+    "input_token_bound": 1048576,
+    "output_token_limit": 800,
+    "call_id": 20,
+    "error": "回答结构或引用校验失败：证据不足状态不一致。 已发生费用仍保留（call_id=20）。",
+    "diagnostic": {
+      "stage": "citation_validation",
+      "reason": "证据不足状态不一致。",
+      "output_characters": 341
+    },
+    "model_output": "{\"claims\":[],\"citations\":[{\"id\":\"0676af7f9d97fd235c72390a0860524cf9c838e32bbcc8f6fec8adb0ce7e92cd\",\"quote\":\"This document describes a fictional security scenario, not measurements from this project.\",\"translation\":\"本文件描述的是一个虚构的安全场景，并非本项目的实测数据。\"}],\"coverage\":[{\"question_id\":\"q1\",\"claims\":[],\"missing\":\"资料中缺少本项目实际防护成功率的数值，且明确说明文档非本项目实测数据。\"}]}"
+  },
+  "retrieval": {
+    "mode": "controlled-evidence-not-retrieval",
+    "query": "本项目实际防护成功率是多少？",
+    "candidates": [
+      {
+        "id": "0676af7f9d97fd235c72390a0860524cf9c838e32bbcc8f6fec8adb0ce7e92cd",
+        "doc_id": "b19dfabd64a22f4c8318cbe9340d76bb6575ac6c011ffbe66b86341399cc9f5f",
+        "section": "(正文)",
+        "start_line": 1,
+        "end_line": 1,
+        "text": "This document describes a fictional security scenario, not measurements from this project.",
+        "title": "Synthetic missing_measurement / 0",
+        "source": "urn:skra:boundary:v1:missing_measurement:0",
+        "license": "CC0-1.0",
+        "acquired": "2026-09-09",
+        "version": "a017020e0ba74d22aff5bce5db4bbfff150ac8dc66127c222719c9ef219f3a4f",
+        "splitter": "heading-lines-v1:20"
+      }
+    ],
+    "case_id": "missing_measurement",
+    "elapsed_ms": 0
+  }
+}

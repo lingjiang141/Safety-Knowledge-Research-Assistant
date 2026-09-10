@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "safety-knowledge-research-assistant"
+version = "0.1.0"
+description = "Local, evidence-first security knowledge research assistant"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+vector = ["sentence-transformers==5.1.0"]
+
+[project.scripts]
+skra = "skra.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["skra*"]

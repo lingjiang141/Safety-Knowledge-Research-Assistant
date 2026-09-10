@@ -1,0 +1,65 @@
+{
+  "database": "boundaries.sqlite3",
+  "run_id": 14,
+  "record": {
+    "prompt_version": "evidence-v2",
+    "retrieval_run_id": 13,
+    "mode": "live",
+    "versions": [
+      "9648aa867fb7810b96829cc4f96b538f52cc925a5752631e8809f877f03f8bff",
+      "7dfd019db62d9c88d2125f1eddfc36830f3807ecdef80e980340d1a9e70247f4"
+    ],
+    "model": "deepseek-v4-flash",
+    "pricing": {
+      "input_rmb_per_million": 3,
+      "output_rmb_per_million": 9,
+      "verified_at": "2026-09-09"
+    },
+    "input_token_bound": 1048576,
+    "output_token_limit": 800,
+    "call_id": 9,
+    "error": "回答结构或引用校验失败：部分回答必须说明缺失。 已发生费用仍保留（call_id=9）。",
+    "diagnostic": {
+      "stage": "citation_validation",
+      "reason": "部分回答必须说明缺失。",
+      "output_characters": 755
+    },
+    "model_output": "{\n  \"status\": \"partial\",\n  \"claims\": [\n    {\n      \"text\": \"在隔离环境A中，控制措施X防止了攻击；但在网络环境B中，控制措施X未能防止攻击，因此控制措施并非总是有效。\",\n      \"citations\": [\"ebb2136aa1e565b7d4c89d715fa4f98e855195418f637668f5169f319e698557\", \"0db21b61532b0147e6a3d090f4584c6cb7bbb6c28f7344baa2c3bef4682025e6\"]\n    }\n  ],\n  \"citations\": [\n    {\n      \"id\": \"ebb2136aa1e565b7d4c89d715fa4f98e855195418f637668f5169f319e698557\",\n      \"quote\": \"In isolated environment A, control X prevented the attack.\",\n      \"translation\": \"在隔离环境A中，控制措施X防止了攻击。\"\n    },\n    {\n      \"id\": \"0db21b61532b0147e6a3d090f4584c6cb7bbb6c28f7344baa2c3bef4682025e6\",\n      \"quote\": \"In networked environment B, control X did not prevent the attack.\",\n      \"translation\": \"在网络环境B中，控制措施X未能防止攻击。\"\n    }\n  ],\n  \"missing\": \"\"\n}"
+  },
+  "retrieval": {
+    "mode": "controlled-evidence-not-retrieval",
+    "query": "两份结果是否说明控制措施总是有效？",
+    "candidates": [
+      {
+        "id": "ebb2136aa1e565b7d4c89d715fa4f98e855195418f637668f5169f319e698557",
+        "doc_id": "e6da0582bbade881c8d03f386f9f8fb48b879bee75356f34b1eceebb5e6fe9ea",
+        "section": "(正文)",
+        "start_line": 1,
+        "end_line": 1,
+        "text": "In isolated environment A, control X prevented the attack.",
+        "title": "Synthetic conditions / 0",
+        "source": "urn:skra:boundary:v1:conditions:0",
+        "license": "CC0-1.0",
+        "acquired": "2026-09-09",
+        "version": "9648aa867fb7810b96829cc4f96b538f52cc925a5752631e8809f877f03f8bff",
+        "splitter": "heading-lines-v1:20"
+      },
+      {
+        "id": "0db21b61532b0147e6a3d090f4584c6cb7bbb6c28f7344baa2c3bef4682025e6",
+        "doc_id": "cca9cd3fb050c00d784b82f605bff57b5c17107614541a9e4fa62807e1954ff8",
+        "section": "(正文)",
+        "start_line": 1,
+        "end_line": 1,
+        "text": "In networked environment B, control X did not prevent the attack.",
+        "title": "Synthetic conditions / 1",
+        "source": "urn:skra:boundary:v1:conditions:1",
+        "license": "CC0-1.0",
+        "acquired": "2026-09-09",
+        "version": "7dfd019db62d9c88d2125f1eddfc36830f3807ecdef80e980340d1a9e70247f4",
+        "splitter": "heading-lines-v1:20"
+      }
+    ],
+    "case_id": "conditions",
+    "elapsed_ms": 0
+  }
+}
