@@ -26,3 +26,6 @@
 - 回答状态由 `apply_coverage` 从 coverage 记录汇总，不信任模型顶层 status。
 - 状态推导：`missing and answered` → partial；全部有结论无缺失 → grounded；
   无真实结论只有缺失 → insufficient。问题项只写 missing、无 claims 时**不计为已答**。
+- **程序只校验显式结构，不校验语义**：若模型仍把 `claims:[0]`(原则结论) 关联到纯数量问题项，
+  程序会如实推导 `partial`，不会也无法自动改写。纠正“用原则冒充数量答案”靠提示词（evidence-v3.3），
+  必须用**定向真实复验**确认，本地测试通过 ≠ 语义已修复。
