@@ -1,0 +1,317 @@
+{
+  "kind": "splitter-comparison-holdout",
+  "sample": "examples/eval-holdout-cases.json",
+  "sample_kind": "holdout",
+  "splitter_compared": [
+    "heading-lines-v1:20",
+    "heading-block-v2",
+    "heading-procedure-v3"
+  ],
+  "fixed_factors": {
+    "corpus": "工作库中 source 以 https:// 开头的真实资料快照（排除合成夹具）",
+    "encoder": "{\"dimension\": 384, \"license\": \"Apache-2.0\", \"model\": \"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2\", \"pooling\": \"mean-of-normalized-100-token-windows-v1\", \"revision\": \"e8f8c211226b894fcb81acc59f3b34ba3efd5f42\"}",
+    "retriever": "local exact-cosine vector search",
+    "k": 5,
+    "questions": "保留集 H01–H10（07 冻结、12 首次开封）"
+  },
+  "honesty": "基线 recall_at_5=0.75 是保留集首次开封的「密封独立成绩」；本对照是开封后的切分取舍比较，不是第二个独立成绩，两者并列、不互相替换。",
+  "strategies": [
+    {
+      "splitter": "heading-lines-v1:20",
+      "aggregate": {
+        "recall_at_5": 0.75,
+        "mean_evidence_tokens": 1663.0,
+        "total_metadata_chunks": 0,
+        "broken_bundles": 0
+      },
+      "wall_ms": 386.84599999396596
+    },
+    {
+      "splitter": "heading-block-v2",
+      "aggregate": {
+        "recall_at_5": 0.75,
+        "mean_evidence_tokens": 1600.6,
+        "total_metadata_chunks": 0,
+        "broken_bundles": 0
+      },
+      "wall_ms": 388.04659999732394
+    },
+    {
+      "splitter": "heading-procedure-v3",
+      "aggregate": {
+        "recall_at_5": 0.6,
+        "mean_evidence_tokens": 460.3,
+        "total_metadata_chunks": 0,
+        "broken_bundles": 1
+      },
+      "wall_ms": 489.3263999983901
+    }
+  ],
+  "deltas_vs_baseline": [
+    {
+      "splitter": "heading-block-v2",
+      "vs": "heading-lines-v1:20",
+      "recall_at_5": 0.75,
+      "baseline_recall_at_5": 0.75,
+      "delta": 0.0,
+      "gained_cases": [],
+      "lost_cases": []
+    },
+    {
+      "splitter": "heading-procedure-v3",
+      "vs": "heading-lines-v1:20",
+      "recall_at_5": 0.6,
+      "baseline_recall_at_5": 0.75,
+      "delta": -0.15000000000000002,
+      "gained_cases": [],
+      "lost_cases": [
+        "H02",
+        "H03"
+      ]
+    }
+  ],
+  "per_case": {
+    "H01": {
+      "case_id": "H01",
+      "question": "多模态模型在提示注入上带来了哪些新增风险？",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1295
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1217
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 393
+      }
+    },
+    "H02": {
+      "case_id": "H02",
+      "question": "成功的提示注入可能造成哪些后果？",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1497
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1419
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 1,
+        "evidence_tokens": 268
+      }
+    },
+    "H03": {
+      "case_id": "H03",
+      "question": "资料建议用哪些措施来缓解提示注入？",
+      "annotated_bundles": 2,
+      "heading-lines-v1:20": {
+        "recall_at_5": 0.5,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 2406
+      },
+      "heading-block-v2": {
+        "recall_at_5": 0.5,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 2328
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 624
+      }
+    },
+    "H04": {
+      "case_id": "H04",
+      "question": "允许模型自主调用扩展时，为什么会放大提示注入的影响？",
+      "annotated_bundles": 2,
+      "heading-lines-v1:20": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 1381
+      },
+      "heading-block-v2": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 1303
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 348
+      }
+    },
+    "H05": {
+      "case_id": "H05",
+      "question": "为什么说「用另一个模型做护栏」不能作为唯一防线？",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 2038
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1960
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 603
+      }
+    },
+    "H06": {
+      "case_id": "H06",
+      "question": "对抗性测试为什么要把模型当成不受信任的用户来对待？",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1669
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1669
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 466
+      }
+    },
+    "H07": {
+      "case_id": "H07",
+      "question": "怎样把「执行扩展时沿用用户身份」落到具体做法上？",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1402
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 1402
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 346
+      }
+    },
+    "H08": {
+      "case_id": "H08",
+      "question": "资料是否给出了各家护栏模型的检出率对比？",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 2129
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 2051
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 635
+      }
+    },
+    "H09": {
+      "case_id": "H09",
+      "question": "限制扩展权限对减少损害有多大作用？在样例系统上能减少多少误操作？",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 1833
+      },
+      "heading-block-v2": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 1755
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 0.0,
+        "retrieved_bundles": 0,
+        "broken_bundles": 0,
+        "evidence_tokens": 516
+      }
+    },
+    "H10": {
+      "case_id": "H10",
+      "question": "在 RAG 场景里，攻击者是怎么让模型输出被误导的？",
+      "annotated_bundles": 1,
+      "heading-lines-v1:20": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 980
+      },
+      "heading-block-v2": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 902
+      },
+      "heading-procedure-v3": {
+        "recall_at_5": 1.0,
+        "retrieved_bundles": 1,
+        "broken_bundles": 0,
+        "evidence_tokens": 404
+      }
+    }
+  },
+  "network_called": false,
+  "billed_calls": 0,
+  "cost_rmb": 0,
+  "complete": false,
+  "not_run": [
+    "生成侧指标（引用支持率、无答案正确说明率、误拒答率）：需付费调用与人工语义复核，本任务未运行。",
+    "保留集执行：按设计延后到 Issue 12 的最终评测，本任务只用开发集。",
+    "切分对照与混合检索比较：属于 Issue 15 / 08。",
+    "生成侧与人工语义复核：本对照只做检索结构指标。"
+  ],
+  "evidence_tokens_estimate_note": "证据 token 为 字符数/4 的确定性估算，不是真实分词计数；仅用于在同一把尺子下比较策略。",
+  "manual_review": "pending"
+}

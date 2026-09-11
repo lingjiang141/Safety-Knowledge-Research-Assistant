@@ -1,0 +1,852 @@
+{
+  "kind": "supplement-comparison",
+  "sample": "examples/eval-dev-cases.json",
+  "sample_kind": "development",
+  "holdout_loaded": false,
+  "modes_compared": [
+    "supplement-off",
+    "supplement-on",
+    "supplement-widening"
+  ],
+  "max_supplementary_rounds": 2,
+  "fixed_factors": {
+    "corpus": "工作库中 source 以 https:// 开头的真实资料快照（排除合成夹具）",
+    "splitter": "heading-lines-v1:20",
+    "k": 5,
+    "questions": "开发集 D01–D10，标注与 07 冻结一致",
+    "generation": "未运行：本对照只测检索侧到达的证据，不产生付费回答",
+    "changed_factor": "补充检索轮数：关闭 / 初次之外最多两轮；另含“逐轮放宽 k”的加宽臂以触发生效路径"
+  },
+  "corpus_hash": "267316efd2d2ae74a2ec6ceca00d66e15a00b7181e5a7577fde08792a08bffb8",
+  "documents": [
+    {
+      "id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+      "title": "OWASP LLM01:2025 Prompt Injection",
+      "hash": "1d70b3cc8116d6b7c8ab07fea5f783ee75f4601bf2002355443e403b67efa66d",
+      "splitter": "heading-lines-v1:20"
+    },
+    {
+      "id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+      "title": "OWASP LLM06:2025 Excessive Agency",
+      "hash": "434d2d8e885c85af874b1569e60765f2b3509392c0b357f0d0ba7a32cf82770d",
+      "splitter": "heading-lines-v1:20"
+    },
+    {
+      "id": "7952100613d7af06f2ba3ee8274113cae58af10b8bdc4462ab2c3797db00bb0e",
+      "title": "OWASP LLM Prompt Injection Prevention Cheat Sheet",
+      "hash": "f7a715792e9ecd10d87d6078a48f4aefce84f08e7ed83eccc61a4f256640fdce",
+      "splitter": "heading-lines-v1:20"
+    }
+  ],
+  "modes": [
+    {
+      "mode": "supplement-off",
+      "case_count": 10,
+      "elapsed_ms": 400.63329999975394
+    },
+    {
+      "mode": "supplement-on",
+      "case_count": 10,
+      "elapsed_ms": 755.5112999980338
+    },
+    {
+      "mode": "supplement-widening",
+      "case_count": 10,
+      "elapsed_ms": 1261.6373999917414
+    }
+  ],
+  "on_stop_reasons": {
+    "no_new_evidence": 10
+  },
+  "on_supplementary_rounds": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "widening_stop_reasons": {
+    "round_limit": 10
+  },
+  "widening_supplementary_rounds": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+  ],
+  "delta": {
+    "gained_cases": [],
+    "lost_cases": [],
+    "unchanged_cases": [
+      "D01",
+      "D02",
+      "D03",
+      "D04",
+      "D05",
+      "D06",
+      "D07",
+      "D08",
+      "D09",
+      "D10"
+    ],
+    "note": "补充检索只能向累积证据里增加片段，不会移除初次已有的片段；因此 lost_cases 恒为空是结构性质，不是效果证据。"
+  },
+  "widening_delta": {
+    "gained_cases": [
+      "D01",
+      "D02",
+      "D03",
+      "D04",
+      "D05",
+      "D06",
+      "D07",
+      "D08",
+      "D09",
+      "D10"
+    ],
+    "lost_cases": [],
+    "note": "加宽臂逐轮放宽 k，用于让补充轮真正带来新证据并触发两轮上限；它验证的是停止规则与累积语义，不是检索质量提升。"
+  },
+  "per_case": {
+    "D01": {
+      "case_id": "D01",
+      "question": "提示注入与越狱有什么区别？",
+      "expected_status": "grounded",
+      "annotated_bundles": 1,
+      "supplement-off": {
+        "annotated_covering_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "reached_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "1976056c88cd41be66405a6b376d3666379a01382251b1edf2011f5e9c2d401f",
+          "1ddb05458f9ad2bf1c6696a6f27970c1caee031ce9a467e9f509c397a2b68e66"
+        ],
+        "covering_chunks_reached": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": null,
+        "supplementary_rounds": 0
+      },
+      "supplement-on": {
+        "annotated_covering_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "reached_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "1976056c88cd41be66405a6b376d3666379a01382251b1edf2011f5e9c2d401f",
+          "1ddb05458f9ad2bf1c6696a6f27970c1caee031ce9a467e9f509c397a2b68e66"
+        ],
+        "covering_chunks_reached": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "no_new_evidence",
+        "supplementary_rounds": 1
+      },
+      "supplement-widening": {
+        "annotated_covering_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "reached_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "1976056c88cd41be66405a6b376d3666379a01382251b1edf2011f5e9c2d401f",
+          "1ddb05458f9ad2bf1c6696a6f27970c1caee031ce9a467e9f509c397a2b68e66",
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b",
+          "3e3b902fc223d92cc526aba4ad85057855b62c8519f1cd6112fdc09c1334676b",
+          "04bb61710850e48417ea76bdc40b12c090c2ed3375e2b754e1594adcd5bea362",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "a73d28603b6a5825495f7d0a7e43476ba2d065f09af345eeb88a4c22e758c2b8",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "6a53778a5f247035c8291421afdee6a96aab536596f77953edad1149af63222d",
+          "ac4a46abeb67e5e072aaf39df462f15d0bb2645e223cdeeffa2bb482fbbb80af"
+        ],
+        "covering_chunks_reached": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "round_limit",
+        "supplementary_rounds": 2
+      }
+    },
+    "D02": {
+      "case_id": "D02",
+      "question": "直接提示注入与间接提示注入分别从哪里进入系统？",
+      "expected_status": "grounded",
+      "annotated_bundles": 2,
+      "supplement-off": {
+        "annotated_covering_chunk_ids": [
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "3e3b902fc223d92cc526aba4ad85057855b62c8519f1cd6112fdc09c1334676b"
+        ],
+        "reached_chunk_ids": [
+          "3e3b902fc223d92cc526aba4ad85057855b62c8519f1cd6112fdc09c1334676b",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "covering_chunks_reached": [
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "3e3b902fc223d92cc526aba4ad85057855b62c8519f1cd6112fdc09c1334676b"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": null,
+        "supplementary_rounds": 0
+      },
+      "supplement-on": {
+        "annotated_covering_chunk_ids": [
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "3e3b902fc223d92cc526aba4ad85057855b62c8519f1cd6112fdc09c1334676b"
+        ],
+        "reached_chunk_ids": [
+          "3e3b902fc223d92cc526aba4ad85057855b62c8519f1cd6112fdc09c1334676b",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "covering_chunks_reached": [
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "3e3b902fc223d92cc526aba4ad85057855b62c8519f1cd6112fdc09c1334676b"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "no_new_evidence",
+        "supplementary_rounds": 1
+      },
+      "supplement-widening": {
+        "annotated_covering_chunk_ids": [
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "3e3b902fc223d92cc526aba4ad85057855b62c8519f1cd6112fdc09c1334676b"
+        ],
+        "reached_chunk_ids": [
+          "3e3b902fc223d92cc526aba4ad85057855b62c8519f1cd6112fdc09c1334676b",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b",
+          "043689a4f9721c0a75cfaed1f0bd3780b538ab2010c7ddc272c7e6a8221930ed",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "6e26af204a72902353b69d534ecb1bed9a0a7a62ea9f54b0895e4f831cf8d342",
+          "a73d28603b6a5825495f7d0a7e43476ba2d065f09af345eeb88a4c22e758c2b8",
+          "1976056c88cd41be66405a6b376d3666379a01382251b1edf2011f5e9c2d401f",
+          "04bb61710850e48417ea76bdc40b12c090c2ed3375e2b754e1594adcd5bea362",
+          "ac4a46abeb67e5e072aaf39df462f15d0bb2645e223cdeeffa2bb482fbbb80af"
+        ],
+        "covering_chunks_reached": [
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "3e3b902fc223d92cc526aba4ad85057855b62c8519f1cd6112fdc09c1334676b"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "round_limit",
+        "supplementary_rounds": 2
+      }
+    },
+    "D03": {
+      "case_id": "D03",
+      "question": "使用 RAG 后，是否就没有提示注入风险了？",
+      "expected_status": "grounded",
+      "annotated_bundles": 1,
+      "supplement-off": {
+        "annotated_covering_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "reached_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "covering_chunks_reached": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": null,
+        "supplementary_rounds": 0
+      },
+      "supplement-on": {
+        "annotated_covering_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "reached_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "covering_chunks_reached": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "no_new_evidence",
+        "supplementary_rounds": 1
+      },
+      "supplement-widening": {
+        "annotated_covering_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "reached_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "04bb61710850e48417ea76bdc40b12c090c2ed3375e2b754e1594adcd5bea362",
+          "1976056c88cd41be66405a6b376d3666379a01382251b1edf2011f5e9c2d401f",
+          "1ddb05458f9ad2bf1c6696a6f27970c1caee031ce9a467e9f509c397a2b68e66",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "6e26af204a72902353b69d534ecb1bed9a0a7a62ea9f54b0895e4f831cf8d342",
+          "ac4a46abeb67e5e072aaf39df462f15d0bb2645e223cdeeffa2bb482fbbb80af",
+          "f23ef23f88a8aafccc48fac1a405ac5f2bb832ae05a59f30a3d163bcdfd43650",
+          "a73d28603b6a5825495f7d0a7e43476ba2d065f09af345eeb88a4c22e758c2b8"
+        ],
+        "covering_chunks_reached": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "round_limit",
+        "supplementary_rounds": 2
+      }
+    },
+    "D04": {
+      "case_id": "D04",
+      "question": "功能过多、权限过大、自主程度过高有什么区别？",
+      "expected_status": "grounded",
+      "annotated_bundles": 3,
+      "supplement-off": {
+        "annotated_covering_chunk_ids": [
+          "6a53778a5f247035c8291421afdee6a96aab536596f77953edad1149af63222d",
+          "ea1e9f7162d4408badd7efe34b024b5775dbe19184634bd2f95b7dea25a34972"
+        ],
+        "reached_chunk_ids": [
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "covering_chunks_reached": [],
+        "all_bundles_reached": false,
+        "stop_reason": null,
+        "supplementary_rounds": 0
+      },
+      "supplement-on": {
+        "annotated_covering_chunk_ids": [
+          "6a53778a5f247035c8291421afdee6a96aab536596f77953edad1149af63222d",
+          "ea1e9f7162d4408badd7efe34b024b5775dbe19184634bd2f95b7dea25a34972"
+        ],
+        "reached_chunk_ids": [
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "covering_chunks_reached": [],
+        "all_bundles_reached": false,
+        "stop_reason": "no_new_evidence",
+        "supplementary_rounds": 1
+      },
+      "supplement-widening": {
+        "annotated_covering_chunk_ids": [
+          "6a53778a5f247035c8291421afdee6a96aab536596f77953edad1149af63222d",
+          "ea1e9f7162d4408badd7efe34b024b5775dbe19184634bd2f95b7dea25a34972"
+        ],
+        "reached_chunk_ids": [
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "6a53778a5f247035c8291421afdee6a96aab536596f77953edad1149af63222d",
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "043689a4f9721c0a75cfaed1f0bd3780b538ab2010c7ddc272c7e6a8221930ed",
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "ea1e9f7162d4408badd7efe34b024b5775dbe19184634bd2f95b7dea25a34972",
+          "f23ef23f88a8aafccc48fac1a405ac5f2bb832ae05a59f30a3d163bcdfd43650",
+          "6e26af204a72902353b69d534ecb1bed9a0a7a62ea9f54b0895e4f831cf8d342",
+          "1976056c88cd41be66405a6b376d3666379a01382251b1edf2011f5e9c2d401f",
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b"
+        ],
+        "covering_chunks_reached": [
+          "6a53778a5f247035c8291421afdee6a96aab536596f77953edad1149af63222d",
+          "ea1e9f7162d4408badd7efe34b024b5775dbe19184634bd2f95b7dea25a34972"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "round_limit",
+        "supplementary_rounds": 2
+      }
+    },
+    "D05": {
+      "case_id": "D05",
+      "question": "为什么不能只让模型自己判断某个工具操作是否被允许？",
+      "expected_status": "grounded",
+      "annotated_bundles": 1,
+      "supplement-off": {
+        "annotated_covering_chunk_ids": [
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8"
+        ],
+        "reached_chunk_ids": [
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "f23ef23f88a8aafccc48fac1a405ac5f2bb832ae05a59f30a3d163bcdfd43650",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8"
+        ],
+        "covering_chunks_reached": [
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": null,
+        "supplementary_rounds": 0
+      },
+      "supplement-on": {
+        "annotated_covering_chunk_ids": [
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8"
+        ],
+        "reached_chunk_ids": [
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "f23ef23f88a8aafccc48fac1a405ac5f2bb832ae05a59f30a3d163bcdfd43650",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8"
+        ],
+        "covering_chunks_reached": [
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "no_new_evidence",
+        "supplementary_rounds": 1
+      },
+      "supplement-widening": {
+        "annotated_covering_chunk_ids": [
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8"
+        ],
+        "reached_chunk_ids": [
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "f23ef23f88a8aafccc48fac1a405ac5f2bb832ae05a59f30a3d163bcdfd43650",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "043689a4f9721c0a75cfaed1f0bd3780b538ab2010c7ddc272c7e6a8221930ed",
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "6a53778a5f247035c8291421afdee6a96aab536596f77953edad1149af63222d",
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "1976056c88cd41be66405a6b376d3666379a01382251b1edf2011f5e9c2d401f",
+          "ea1e9f7162d4408badd7efe34b024b5775dbe19184634bd2f95b7dea25a34972",
+          "3e3b902fc223d92cc526aba4ad85057855b62c8519f1cd6112fdc09c1334676b",
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b"
+        ],
+        "covering_chunks_reached": [
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "round_limit",
+        "supplementary_rounds": 2
+      }
+    },
+    "D06": {
+      "case_id": "D06",
+      "question": "两份资料都怎样建议限制权限？",
+      "expected_status": "grounded",
+      "annotated_bundles": 2,
+      "supplement-off": {
+        "annotated_covering_chunk_ids": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "reached_chunk_ids": [
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a"
+        ],
+        "covering_chunks_reached": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": null,
+        "supplementary_rounds": 0
+      },
+      "supplement-on": {
+        "annotated_covering_chunk_ids": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "reached_chunk_ids": [
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a"
+        ],
+        "covering_chunks_reached": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "no_new_evidence",
+        "supplementary_rounds": 1
+      },
+      "supplement-widening": {
+        "annotated_covering_chunk_ids": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "reached_chunk_ids": [
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "043689a4f9721c0a75cfaed1f0bd3780b538ab2010c7ddc272c7e6a8221930ed",
+          "6a53778a5f247035c8291421afdee6a96aab536596f77953edad1149af63222d",
+          "e9312b2a9826e16091254b78d5bfcb360981d14c978518ab0f0432582d35d499",
+          "f23ef23f88a8aafccc48fac1a405ac5f2bb832ae05a59f30a3d163bcdfd43650",
+          "6e26af204a72902353b69d534ecb1bed9a0a7a62ea9f54b0895e4f831cf8d342",
+          "ac4a46abeb67e5e072aaf39df462f15d0bb2645e223cdeeffa2bb482fbbb80af",
+          "ea1e9f7162d4408badd7efe34b024b5775dbe19184634bd2f95b7dea25a34972"
+        ],
+        "covering_chunks_reached": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "round_limit",
+        "supplementary_rounds": 2
+      }
+    },
+    "D07": {
+      "case_id": "D07",
+      "question": "为什么既要区分资料和指令，又要限制工具权限？",
+      "expected_status": "grounded",
+      "annotated_bundles": 2,
+      "supplement-off": {
+        "annotated_covering_chunk_ids": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b"
+        ],
+        "reached_chunk_ids": [
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "043689a4f9721c0a75cfaed1f0bd3780b538ab2010c7ddc272c7e6a8221930ed",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a"
+        ],
+        "covering_chunks_reached": [
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b"
+        ],
+        "all_bundles_reached": false,
+        "stop_reason": null,
+        "supplementary_rounds": 0
+      },
+      "supplement-on": {
+        "annotated_covering_chunk_ids": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b"
+        ],
+        "reached_chunk_ids": [
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "043689a4f9721c0a75cfaed1f0bd3780b538ab2010c7ddc272c7e6a8221930ed",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a"
+        ],
+        "covering_chunks_reached": [
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b"
+        ],
+        "all_bundles_reached": false,
+        "stop_reason": "no_new_evidence",
+        "supplementary_rounds": 1
+      },
+      "supplement-widening": {
+        "annotated_covering_chunk_ids": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b"
+        ],
+        "reached_chunk_ids": [
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "043689a4f9721c0a75cfaed1f0bd3780b538ab2010c7ddc272c7e6a8221930ed",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "f23ef23f88a8aafccc48fac1a405ac5f2bb832ae05a59f30a3d163bcdfd43650",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "6a53778a5f247035c8291421afdee6a96aab536596f77953edad1149af63222d",
+          "e9312b2a9826e16091254b78d5bfcb360981d14c978518ab0f0432582d35d499",
+          "ea1e9f7162d4408badd7efe34b024b5775dbe19184634bd2f95b7dea25a34972",
+          "6e26af204a72902353b69d534ecb1bed9a0a7a62ea9f54b0895e4f831cf8d342",
+          "ac4a46abeb67e5e072aaf39df462f15d0bb2645e223cdeeffa2bb482fbbb80af"
+        ],
+        "covering_chunks_reached": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "round_limit",
+        "supplementary_rounds": 2
+      }
+    },
+    "D08": {
+      "case_id": "D08",
+      "question": "本项目已经测得的提示注入防护成功率是多少？",
+      "expected_status": "insufficient",
+      "annotated_bundles": 1,
+      "supplement-off": {
+        "annotated_covering_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "reached_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "covering_chunks_reached": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": null,
+        "supplementary_rounds": 0
+      },
+      "supplement-on": {
+        "annotated_covering_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "reached_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c"
+        ],
+        "covering_chunks_reached": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "no_new_evidence",
+        "supplementary_rounds": 1
+      },
+      "supplement-widening": {
+        "annotated_covering_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "reached_chunk_ids": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "04bb61710850e48417ea76bdc40b12c090c2ed3375e2b754e1594adcd5bea362",
+          "1ddb05458f9ad2bf1c6696a6f27970c1caee031ce9a467e9f509c397a2b68e66",
+          "1976056c88cd41be66405a6b376d3666379a01382251b1edf2011f5e9c2d401f",
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b",
+          "ac4a46abeb67e5e072aaf39df462f15d0bb2645e223cdeeffa2bb482fbbb80af",
+          "f23ef23f88a8aafccc48fac1a405ac5f2bb832ae05a59f30a3d163bcdfd43650",
+          "6a53778a5f247035c8291421afdee6a96aab536596f77953edad1149af63222d",
+          "6e26af204a72902353b69d534ecb1bed9a0a7a62ea9f54b0895e4f831cf8d342"
+        ],
+        "covering_chunks_reached": [
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "round_limit",
+        "supplementary_rounds": 2
+      }
+    },
+    "D09": {
+      "case_id": "D09",
+      "question": "资料里的最小权限是什么意思？它在我的电脑上能降低多少百分比的风险？",
+      "expected_status": "partial",
+      "annotated_bundles": 1,
+      "supplement-off": {
+        "annotated_covering_chunk_ids": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29"
+        ],
+        "reached_chunk_ids": [
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "6e26af204a72902353b69d534ecb1bed9a0a7a62ea9f54b0895e4f831cf8d342",
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29"
+        ],
+        "covering_chunks_reached": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": null,
+        "supplementary_rounds": 0
+      },
+      "supplement-on": {
+        "annotated_covering_chunk_ids": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29"
+        ],
+        "reached_chunk_ids": [
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "6e26af204a72902353b69d534ecb1bed9a0a7a62ea9f54b0895e4f831cf8d342",
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29"
+        ],
+        "covering_chunks_reached": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "no_new_evidence",
+        "supplementary_rounds": 1
+      },
+      "supplement-widening": {
+        "annotated_covering_chunk_ids": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29"
+        ],
+        "reached_chunk_ids": [
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "6e26af204a72902353b69d534ecb1bed9a0a7a62ea9f54b0895e4f831cf8d342",
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29",
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "e9312b2a9826e16091254b78d5bfcb360981d14c978518ab0f0432582d35d499",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b",
+          "1976056c88cd41be66405a6b376d3666379a01382251b1edf2011f5e9c2d401f",
+          "043689a4f9721c0a75cfaed1f0bd3780b538ab2010c7ddc272c7e6a8221930ed",
+          "f23ef23f88a8aafccc48fac1a405ac5f2bb832ae05a59f30a3d163bcdfd43650",
+          "ea1e9f7162d4408badd7efe34b024b5775dbe19184634bd2f95b7dea25a34972"
+        ],
+        "covering_chunks_reached": [
+          "1e8bc8281e2b5c0467d940717c249b1761e7dc6747d1ee50482fb88b94346f29"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "round_limit",
+        "supplementary_rounds": 2
+      }
+    },
+    "D10": {
+      "case_id": "D10",
+      "question": "资料里“忽略之前指令”这样的攻击示例为什么有风险？",
+      "expected_status": "grounded",
+      "annotated_bundles": 1,
+      "supplement-off": {
+        "annotated_covering_chunk_ids": [
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b"
+        ],
+        "reached_chunk_ids": [
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a"
+        ],
+        "covering_chunks_reached": [
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": null,
+        "supplementary_rounds": 0
+      },
+      "supplement-on": {
+        "annotated_covering_chunk_ids": [
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b"
+        ],
+        "reached_chunk_ids": [
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a"
+        ],
+        "covering_chunks_reached": [
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "no_new_evidence",
+        "supplementary_rounds": 1
+      },
+      "supplement-widening": {
+        "annotated_covering_chunk_ids": [
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b"
+        ],
+        "reached_chunk_ids": [
+          "0403665ffe6dda7692283ee9610e5c8c70af5d1614b0a0bae0edf08a024e26af",
+          "1912b7406fa05bf838735e68c9a3518f44d2664203cfc9801e0fcca7a1692dd8",
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b",
+          "62c9f0dcfb85a41f90e485c95f301b9657eda7e790087cd1792d70470a1baf8c",
+          "ad208b7ea253b1c48abf9b80001537bc7b596c333ea082f1649e8604976d430a",
+          "1ddb05458f9ad2bf1c6696a6f27970c1caee031ce9a467e9f509c397a2b68e66",
+          "783ef78cda5da90c1a143f6ce4f3ab29b29875a64aaa8a6d99463379ea2888d8",
+          "dcf1b8ffeb427e09bcab649fb4ac194a5a4029d20fd85a7ec68032ea305ee09f",
+          "e2f519d32d0a0c10a35b68300cf21a5d69aaa8b1267ea699c6344eb2565aa51b",
+          "6e26af204a72902353b69d534ecb1bed9a0a7a62ea9f54b0895e4f831cf8d342",
+          "1976056c88cd41be66405a6b376d3666379a01382251b1edf2011f5e9c2d401f",
+          "04bb61710850e48417ea76bdc40b12c090c2ed3375e2b754e1594adcd5bea362",
+          "ac4a46abeb67e5e072aaf39df462f15d0bb2645e223cdeeffa2bb482fbbb80af",
+          "f23ef23f88a8aafccc48fac1a405ac5f2bb832ae05a59f30a3d163bcdfd43650",
+          "043689a4f9721c0a75cfaed1f0bd3780b538ab2010c7ddc272c7e6a8221930ed"
+        ],
+        "covering_chunks_reached": [
+          "4e032664a98028311b9bcff6ecce1d6a094044b2202e3b272f9ad8da6bc7231b"
+        ],
+        "all_bundles_reached": true,
+        "stop_reason": "round_limit",
+        "supplementary_rounds": 2
+      }
+    }
+  },
+  "network_called": false,
+  "billed_calls": 0,
+  "cost_rmb": 0,
+  "complete": false,
+  "not_run": [
+    "生成侧指标（引用支持率、无答案正确说明率、误拒答率）：需付费调用与人工语义复核，本任务未运行。",
+    "保留集执行：按设计延后到 Issue 12 的最终评测，本任务只用开发集。",
+    "切分对照与混合检索比较：属于 Issue 15 / 08。",
+    "生成侧语义效果（补充证据是否让回答更好）：需付费调用与人工复核，本任务未运行。",
+    "保留集执行：按设计封存至 Issue 12。"
+  ],
+  "evidence_tokens_estimate_note": "证据 token 为 字符数/4 的确定性估算，不是真实分词计数；仅用于在同一把尺子下比较策略。",
+  "manual_review": "pending"
+}

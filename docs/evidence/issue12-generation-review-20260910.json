@@ -1,0 +1,646 @@
+{
+  "mode": "live",
+  "evidence_mode": "real-material-vector-retrieval",
+  "source_set": "development-acceptance-retrieval",
+  "excluded_doc_ids": [
+    "85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97"
+  ],
+  "human_review": "pending",
+  "cases": [
+    {
+      "id": "Q05",
+      "question": "为什么不能只让模型自己判断某个工具操作是否被允许？",
+      "expected_status": "grounded",
+      "expected_sources": [
+        "S03"
+      ],
+      "human_review": [
+        "解释权限检查应由实际系统执行（complete mediation）",
+        "附支持该结论的原文证据"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 452,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 36,
+          "end_line": 55,
+          "score": 0.62
+        },
+        {
+          "doc_id": "7952100613d7af06f2ba3ee8274113cae58af10b8bdc4462ab2c3797db00bb0e",
+          "section": "Model-Based Guardrails",
+          "start_line": 32,
+          "end_line": 49,
+          "score": 0.591
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Indirect Prompt Injections",
+          "start_line": 21,
+          "end_line": 35,
+          "score": 0.4907
+        }
+      ],
+      "retrieved_count": 3,
+      "result": {
+        "prompt_version": "evidence-v3.5",
+        "retrieval_run_id": 463,
+        "mode": "live",
+        "versions": [
+          "",
+          "",
+          ""
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "text": "为什么不能只让模型自己判断某个工具操作是否被允许？"
+          }
+        ],
+        "model": "deepseek-v4-flash",
+        "pricing": {
+          "input_rmb_per_million": 3,
+          "output_rmb_per_million": 9,
+          "verified_at": "2026-09-09"
+        },
+        "input_token_bound": 1048576,
+        "output_token_limit": 1500,
+        "coverage": [
+          {
+            "question_id": "q1",
+            "claims": [
+              0,
+              1,
+              2
+            ],
+            "missing": ""
+          }
+        ],
+        "status": "grounded",
+        "claims": [
+          {
+            "text": "模型本身可能被提示注入影响，因此不宜只依赖模型自行判断工具操作是否被允许。",
+            "citations": [
+              "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b"
+            ]
+          },
+          {
+            "text": "工具调用若完全交由模型决定，可能使模型获得对可用功能的未授权访问或执行任意命令的风险。",
+            "citations": [
+              "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e"
+            ]
+          },
+          {
+            "text": "应将扩展功能放在代码中处理，并限制模型访问权限到最少必要范围，而不是只让模型判断。",
+            "citations": [
+              "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c"
+            ]
+          }
+        ],
+        "citations": [
+          {
+            "id": "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b",
+            "doc_id": "7952100613d7af06f2ba3ee8274113cae58af10b8bdc4462ab2c3797db00bb0e",
+            "section": "Model-Based Guardrails",
+            "start_line": 32,
+            "end_line": 49,
+            "text": "## Model-Based Guardrails\n\nA separate model can act as a filter on the inputs and outputs of the primary LLM. This is sometimes called the \"LLM-as-judge\" or \"guardrail model\" pattern, and it sits alongside the deterministic controls described above, not in place of them. Open guardrail models include Llama Guard, ShieldGemma, IBM Granite Guardian, and Prompt Guard. NVIDIA NeMo Guardrails provides a framework for orchestrating these checks within an application.\n\nThere are three useful placements:\n\n- Input screening. Run user prompts and any retrieved or fetched context (RAG documents, tool output, web pages, email bodies) through a classifier before the primary model sees them. Pattern-based filters do not reliably catch indirect injection in untrusted content; a model trained for this task will catch cases that regex misses.\n- Output screening. Score the primary model's response against a policy before it is returned to the user or passed to a downstream tool. This is where successful injections that produced system prompt leakage, exfiltration markup, or policy-violating content can be caught after the fact.\n- Action screening. For agent systems, evaluate each proposed tool call against the original user intent. A guardrail that sees only the user's task and the action the agent wants to take, without the untrusted intermediate context, will refuse actions that drifted because of an injected instruction.\n\nThe strongest architectural form of this idea is the dual-LLM pattern. A privileged LLM holds the tools but never reads untrusted content directly. A quarantined LLM reads untrusted content but cannot take action. The privileged model receives only structured summaries or labels from the quarantined one, which breaks the path that injected instructions need to reach the actor.\n\nCaveats:\n\n- A guardrail LLM is itself an LLM and is itself susceptible to prompt injection. Treat it as one layer in a defense-in-depth design, not as a replacement for input validation, structured prompts, least-privilege tool scopes, or human approval on destructive actions.\n- The guardrail should have a different attack surface than the primary model. A purpose-trained classifier is preferable to a general-purpose chat model from the same family, because the same jailbreak that defeats the primary model is more likely to defeat a guardrail that shares its training and prompt format.\n- Each guardrail call adds latency and cost. Reserve heavier checks for higher-risk paths (tool invocations, ingestion of external content, sensitive output) and rely on cheaper deterministic checks for routine traffic.\n- Log every guardrail decision and watch for drift. Sudden changes in the approval rate, or in the distribution of refusal reasons, often precede a working bypass.",
+            "version": "",
+            "active": 1,
+            "kind": "body",
+            "page": null,
+            "title": "OWASP LLM Prompt Injection Prevention Cheat Sheet",
+            "source": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-10",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.5909701894696282,
+            "quote": "A guardrail LLM is itself an LLM and is itself susceptible to prompt injection.",
+            "translation": "作为护栏的 LLM 本身也是 LLM，本身也容易受到提示注入。"
+          },
+          {
+            "id": "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+            "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+            "section": "Indirect Prompt Injections",
+            "start_line": 21,
+            "end_line": 35,
+            "text": "### Indirect Prompt Injections\n\nIndirect prompt injections occur when an LLM accepts input from external sources, such as websites or files. The content may have in the external content data that when interpreted by the model, alters the behavior of the model in unintended or unexpected ways. Like direct injections, indirect injections can be either intentional or unintentional.\n\nThe severity and nature of the impact of a successful prompt injection attack can vary greatly and are largely dependent on both the business context the model operates in, and the agency with which the model is architected. Generally, however, prompt injection can lead to unintended outcomes, including but not limited to:\n\n- Disclosure of sensitive information\n- Revealing sensitive information about AI system infrastructure or system prompts\n- Content manipulation leading to incorrect or biased outputs\n- Providing unauthorized access to functions available to the LLM\n- Executing arbitrary commands in connected systems\n- Manipulating critical decision-making processes\n\nThe rise of multimodal AI, which processes multiple data types simultaneously, introduces unique prompt injection risks. Malicious actors could exploit interactions between modalities, such as hiding instructions in images that accompany benign text. The complexity of these systems expands the attack surface. Multimodal models may also be susceptible to novel cross-modal attacks that are difficult to detect and mitigate with current techniques. Robust multimodal-specific defenses are an important area for further research and development.\n",
+            "version": "",
+            "active": 1,
+            "kind": "body",
+            "page": null,
+            "title": "OWASP LLM01:2025 Prompt Injection",
+            "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-10",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.49065024673062835,
+            "quote": "Providing unauthorized access to functions available to the LLM",
+            "translation": "提供对 LLM 可用功能的未授权访问"
+          },
+          {
+            "id": "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+            "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+            "section": "Indirect Prompt Injections",
+            "start_line": 21,
+            "end_line": 35,
+            "text": "### Indirect Prompt Injections\n\nIndirect prompt injections occur when an LLM accepts input from external sources, such as websites or files. The content may have in the external content data that when interpreted by the model, alters the behavior of the model in unintended or unexpected ways. Like direct injections, indirect injections can be either intentional or unintentional.\n\nThe severity and nature of the impact of a successful prompt injection attack can vary greatly and are largely dependent on both the business context the model operates in, and the agency with which the model is architected. Generally, however, prompt injection can lead to unintended outcomes, including but not limited to:\n\n- Disclosure of sensitive information\n- Revealing sensitive information about AI system infrastructure or system prompts\n- Content manipulation leading to incorrect or biased outputs\n- Providing unauthorized access to functions available to the LLM\n- Executing arbitrary commands in connected systems\n- Manipulating critical decision-making processes\n\nThe rise of multimodal AI, which processes multiple data types simultaneously, introduces unique prompt injection risks. Malicious actors could exploit interactions between modalities, such as hiding instructions in images that accompany benign text. The complexity of these systems expands the attack surface. Multimodal models may also be susceptible to novel cross-modal attacks that are difficult to detect and mitigate with current techniques. Robust multimodal-specific defenses are an important area for further research and development.\n",
+            "version": "",
+            "active": 1,
+            "kind": "body",
+            "page": null,
+            "title": "OWASP LLM01:2025 Prompt Injection",
+            "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-10",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.49065024673062835,
+            "quote": "Executing arbitrary commands in connected systems",
+            "translation": "在连接系统中执行任意命令"
+          },
+          {
+            "id": "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+            "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+            "section": "Prevention and Mitigation Strategies",
+            "start_line": 36,
+            "end_line": 55,
+            "text": "## Prevention and Mitigation Strategies\n\nPrompt injection vulnerabilities are possible due to the nature of generative AI. Given the stochastic influence at the heart of the way models work, it is unclear if there are fool-proof methods of prevention for prompt injection. However, the following measures can mitigate the impact of prompt injections:\n\n1. Constrain model behavior\n\nProvide specific instructions about the model's role, capabilities, and limitations within the system prompt. Enforce strict context adherence, limit responses to specific tasks or topics, and instruct the model to ignore attempts to modify core instructions.\n\n2. Define and validate expected output formats\n\nSpecify clear output formats, request detailed reasoning and source citations, and use deterministic code to validate adherence to these formats.\n\n3. Implement input and output filtering\n\nDefine sensitive categories and construct rules for identifying and handling such content. Apply semantic filters and use string-checking to scan for non-allowed content. Evaluate responses using the RAG Triad: Assess context relevance, groundedness, and question/answer relevance to identify potentially malicious outputs.\n\n4. Enforce privilege control and least privilege access\n\nProvide the application with its own API tokens for extensible functionality, and handle these functions in code rather than providing them to the model. Restrict the model's access privileges to the minimum necessary for its intended operations.\n",
+            "version": "",
+            "active": 1,
+            "kind": "body",
+            "page": null,
+            "title": "OWASP LLM01:2025 Prompt Injection",
+            "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-10",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.6200216690123663,
+            "quote": "handle these functions in code rather than providing them to the model",
+            "translation": "在代码中处理这些功能，而不是把它们提供给模型"
+          },
+          {
+            "id": "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+            "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+            "section": "Prevention and Mitigation Strategies",
+            "start_line": 36,
+            "end_line": 55,
+            "text": "## Prevention and Mitigation Strategies\n\nPrompt injection vulnerabilities are possible due to the nature of generative AI. Given the stochastic influence at the heart of the way models work, it is unclear if there are fool-proof methods of prevention for prompt injection. However, the following measures can mitigate the impact of prompt injections:\n\n1. Constrain model behavior\n\nProvide specific instructions about the model's role, capabilities, and limitations within the system prompt. Enforce strict context adherence, limit responses to specific tasks or topics, and instruct the model to ignore attempts to modify core instructions.\n\n2. Define and validate expected output formats\n\nSpecify clear output formats, request detailed reasoning and source citations, and use deterministic code to validate adherence to these formats.\n\n3. Implement input and output filtering\n\nDefine sensitive categories and construct rules for identifying and handling such content. Apply semantic filters and use string-checking to scan for non-allowed content. Evaluate responses using the RAG Triad: Assess context relevance, groundedness, and question/answer relevance to identify potentially malicious outputs.\n\n4. Enforce privilege control and least privilege access\n\nProvide the application with its own API tokens for extensible functionality, and handle these functions in code rather than providing them to the model. Restrict the model's access privileges to the minimum necessary for its intended operations.\n",
+            "version": "",
+            "active": 1,
+            "kind": "body",
+            "page": null,
+            "title": "OWASP LLM01:2025 Prompt Injection",
+            "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-10",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.6200216690123663,
+            "quote": "Restrict the model's access privileges to the minimum necessary for its intended operations.",
+            "translation": "将模型的访问权限限制在其预期操作所需的最小必要范围内。"
+          }
+        ],
+        "missing": "",
+        "call_id": 58,
+        "budget": {
+          "limit_rmb": 10,
+          "spent_rmb": 0.485406,
+          "reserved_rmb": 0.0,
+          "available_rmb": 9.514594,
+          "blocked": false
+        },
+        "validation": "仅校验结构、原文匹配和显式问题覆盖记录；不保证实际语义覆盖、证据支持或翻译准确。",
+        "answer_run_id": 464
+      },
+      "status_matches": true
+    },
+    {
+      "id": "Q06",
+      "question": "提示注入风险说明与过度代理权限说明，都怎样建议限制权限？",
+      "expected_status": "grounded",
+      "expected_sources": [
+        "S02",
+        "S03"
+      ],
+      "human_review": [
+        "分别引用两份资料",
+        "归纳共同点",
+        "不为比较而编造分歧"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 454,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Indirect Prompt Injections",
+          "start_line": 21,
+          "end_line": 35,
+          "score": 0.6239
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 56,
+          "end_line": 67,
+          "score": 0.6207
+        },
+        {
+          "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+          "section": "LLM06:2025 Excessive Agency",
+          "start_line": 1,
+          "end_line": 18,
+          "score": 0.611
+        }
+      ],
+      "retrieved_count": 3,
+      "result": {
+        "prompt_version": "evidence-v3.5",
+        "retrieval_run_id": 466,
+        "mode": "live",
+        "versions": [
+          "",
+          "",
+          ""
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "text": "提示注入风险说明与过度代理权限说明，都怎样建议限制权限？"
+          }
+        ],
+        "model": "deepseek-v4-flash",
+        "pricing": {
+          "input_rmb_per_million": 3,
+          "output_rmb_per_million": 9,
+          "verified_at": "2026-09-09"
+        },
+        "input_token_bound": 1048576,
+        "output_token_limit": 1500,
+        "coverage": [
+          {
+            "question_id": "q1",
+            "claims": [
+              0,
+              1,
+              2
+            ],
+            "missing": "两文均未给出针对“限制权限”的统一操作步骤或具体权限上限；提示注入风险说明只给出高风险操作需人类审批、隔离外部内容等原则，过度代理权限说明只指出过度权限是根因之一，未展开限制权限的具体方法。"
+          }
+        ],
+        "status": "partial",
+        "claims": [
+          {
+            "text": "提示注入风险说明建议对高风险操作要求人类审批，实现人在回路控制，以防止未授权操作。",
+            "citations": [
+              "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb"
+            ]
+          },
+          {
+            "text": "提示注入风险说明建议隔离并标识外部内容，以限制其对用户提示的影响。",
+            "citations": [
+              "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb"
+            ]
+          },
+          {
+            "text": "过度代理权限说明指出，过度代理的根因通常包括过度功能、过度权限或过度自主。",
+            "citations": [
+              "2d61fd19df57160f8effc70d284a5fb9824ff6886f8ebf580556a0787774c419"
+            ]
+          }
+        ],
+        "citations": [
+          {
+            "id": "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb",
+            "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+            "section": "Prevention and Mitigation Strategies",
+            "start_line": 56,
+            "end_line": 67,
+            "text": "5. Require human approval for high-risk actions\n\nImplement human-in-the-loop controls for privileged operations to prevent unauthorized actions.\n\n6. Segregate and identify external content\n\nSeparate and clearly denote untrusted content to limit its influence on user prompts.\n\n7. Conduct adversarial testing and attack simulations\n\nPerform regular penetration testing and breach simulations, treating the model as an untrusted user to test the effectiveness of trust boundaries and access controls.\n",
+            "version": "",
+            "active": 1,
+            "kind": "body",
+            "page": null,
+            "title": "OWASP LLM01:2025 Prompt Injection",
+            "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-10",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.6206571924629677,
+            "quote": "5. Require human approval for high-risk actions",
+            "translation": "5. 对高风险操作要求人类审批"
+          },
+          {
+            "id": "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb",
+            "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+            "section": "Prevention and Mitigation Strategies",
+            "start_line": 56,
+            "end_line": 67,
+            "text": "5. Require human approval for high-risk actions\n\nImplement human-in-the-loop controls for privileged operations to prevent unauthorized actions.\n\n6. Segregate and identify external content\n\nSeparate and clearly denote untrusted content to limit its influence on user prompts.\n\n7. Conduct adversarial testing and attack simulations\n\nPerform regular penetration testing and breach simulations, treating the model as an untrusted user to test the effectiveness of trust boundaries and access controls.\n",
+            "version": "",
+            "active": 1,
+            "kind": "body",
+            "page": null,
+            "title": "OWASP LLM01:2025 Prompt Injection",
+            "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-10",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.6206571924629677,
+            "quote": "6. Segregate and identify external content",
+            "translation": "6. 隔离并标识外部内容"
+          },
+          {
+            "id": "2d61fd19df57160f8effc70d284a5fb9824ff6886f8ebf580556a0787774c419",
+            "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+            "section": "LLM06:2025 Excessive Agency",
+            "start_line": 1,
+            "end_line": 18,
+            "text": "# LLM06:2025 Excessive Agency\n\nSource: https://genai.owasp.org/llmrisk/llm062025-excessive-agency/\nPublisher: OWASP Gen AI Security Project\nLicense: CC BY-SA 4.0\nRetrieved: 2026-09-10\nThis is a selected excerpt of the official page, not the complete document. Formatting and headings were adapted for plain Markdown.\n\nAn LLM-based system is often granted a degree of agency by its developer - the ability to call functions or interface with other systems via extensions (sometimes referred to as tools, skills or plugins by different vendors) to undertake actions in response to a prompt. The decision over which extension to invoke may also be delegated to an LLM 'agent' to dynamically determine based on input prompt or LLM output. Agent-based systems will typically make repeated calls to an LLM using output from previous invocations to ground and direct subsequent invocations.\n\nExcessive Agency is the vulnerability that enables damaging actions to be performed in response to unexpected, ambiguous or manipulated outputs from an LLM, regardless of what is causing the LLM to malfunction. Common triggers include: hallucination/confabulation caused by poorly-engineered benign prompts, or just a poorly-performing model; direct/indirect prompt injection from a malicious user, an earlier invocation of a malicious/compromised extension, or (in multi-agent/collaborative systems) a malicious/compromised peer agent.\n\nThe root cause of Excessive Agency is typically one or more of: excessive functionality; excessive permissions; excessive autonomy.\n\nExcessive Agency can lead to a broad range of impacts across the confidentiality, integrity and availability spectrum, and is dependent on which systems an LLM-based app is able to interact with.\n\nNote: Excessive Agency differs from Insecure Output Handling which is concerned with insufficient scrutiny of LLM outputs.\n",
+            "version": "",
+            "active": 1,
+            "kind": "body",
+            "page": null,
+            "title": "OWASP LLM06:2025 Excessive Agency",
+            "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-10",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.6110486681952315,
+            "quote": "The root cause of Excessive Agency is typically one or more of: excessive functionality; excessive permissions; excessive autonomy.",
+            "translation": "过度代理的根因通常是以下一项或多项：过度功能；过度权限；过度自主。"
+          }
+        ],
+        "missing": "提示注入风险说明与过度代理权限说明，都怎样建议限制权限？：两文均未给出针对“限制权限”的统一操作步骤或具体权限上限；提示注入风险说明只给出高风险操作需人类审批、隔离外部内容等原则，过度代理权限说明只指出过度权限是根因之一，未展开限制权限的具体方法。",
+        "call_id": 59,
+        "budget": {
+          "limit_rmb": 10,
+          "spent_rmb": 0.497796,
+          "reserved_rmb": 0.0,
+          "available_rmb": 9.502204,
+          "blocked": false
+        },
+        "validation": "仅校验结构、原文匹配和显式问题覆盖记录；不保证实际语义覆盖、证据支持或翻译准确。",
+        "answer_run_id": 467
+      },
+      "status_matches": false
+    },
+    {
+      "id": "Q08",
+      "question": "本项目已经测得的提示注入防护成功率是多少？",
+      "expected_status": "insufficient",
+      "expected_sources": [],
+      "human_review": [
+        "说明所给资料没有本项目实验结果",
+        "不借用外部数字冒充本项目指标"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 456,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "LLM01:2025 Prompt Injection",
+          "start_line": 1,
+          "end_line": 14,
+          "score": 0.5163
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Indirect Prompt Injections",
+          "start_line": 21,
+          "end_line": 35,
+          "score": 0.4939
+        },
+        {
+          "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 65,
+          "end_line": 82,
+          "score": 0.4817
+        }
+      ],
+      "retrieved_count": 3,
+      "result": {
+        "prompt_version": "evidence-v3.5",
+        "retrieval_run_id": 469,
+        "mode": "live",
+        "versions": [
+          "",
+          "",
+          ""
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "text": "本项目已经测得的提示注入防护成功率是多少？"
+          }
+        ],
+        "model": "deepseek-v4-flash",
+        "pricing": {
+          "input_rmb_per_million": 3,
+          "output_rmb_per_million": 9,
+          "verified_at": "2026-09-09"
+        },
+        "input_token_bound": 1048576,
+        "output_token_limit": 1500,
+        "coverage": [
+          {
+            "question_id": "q1",
+            "claims": [],
+            "missing": "资料未提供任何关于本项目已测得的提示注入防护成功率的具体数值，仅涉及提示注入的一般性防护与缓解原则。"
+          }
+        ],
+        "citation_scope": "missing_context",
+        "status": "insufficient",
+        "claims": [],
+        "citations": [
+          {
+            "id": "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+            "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+            "section": "LLM01:2025 Prompt Injection",
+            "start_line": 1,
+            "end_line": 14,
+            "text": "# LLM01:2025 Prompt Injection\n\nSource: https://genai.owasp.org/llmrisk/llm01-prompt-injection/\nPublisher: OWASP Gen AI Security Project\nLicense: CC BY-SA 4.0\nRetrieved: 2026-09-10\nThis is a selected excerpt of the official page, not the complete document. Formatting and headings were adapted for plain Markdown.\n\nA Prompt Injection Vulnerability occurs when user prompts alter the LLM's behavior or output in unintended ways. These inputs can affect the model even if they are imperceptible to humans, therefore prompt injections do not need to be human-visible/readable, as long as the content is parsed by the model.\n\nPrompt Injection vulnerabilities exist in how models process prompts, and how input may force the model to incorrectly pass prompt data to other parts of the model, potentially causing them to violate guidelines, generate harmful content, enable unauthorized access, or influence critical decisions. While techniques like Retrieval Augmented Generation (RAG) and fine-tuning aim to make LLM outputs more relevant and accurate, research shows that they do not fully mitigate prompt injection vulnerabilities.\n\nWhile prompt injection and jailbreaking are related concepts in LLM security, they are often used interchangeably. Prompt injection involves manipulating model responses through specific inputs to alter its behavior, which can include bypassing safety measures. Jailbreaking is a form of prompt injection where the attacker provides inputs that cause the model to disregard its safety protocols entirely. Developers can build safeguards into system prompts and input handling to help mitigate prompt injection attacks, but effective prevention of jailbreaking requires ongoing updates to the model's training and safety mechanisms.\n",
+            "version": "",
+            "active": 1,
+            "kind": "body",
+            "page": null,
+            "title": "OWASP LLM01:2025 Prompt Injection",
+            "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-10",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.5162911557392246,
+            "quote": "research shows that they do not fully mitigate prompt injection vulnerabilities",
+            "translation": "研究表明，它们不能完全缓解提示注入漏洞"
+          },
+          {
+            "id": "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282",
+            "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+            "section": "Prevention and Mitigation Strategies",
+            "start_line": 65,
+            "end_line": 82,
+            "text": "5. Execute extensions in user's context\n\nTrack user authorization and security scope to ensure actions taken on behalf of a user are executed on downstream systems in the context of that specific user, and with the minimum privileges necessary. For example, an LLM extension that reads a user's code repo should require the user to authenticate via OAuth and with the minimum scope required.\n\n6. Require user approval\n\nUtilise human-in-the-loop control to require a human to approve high-impact actions before they are taken. This may be implemented in a downstream system (outside the scope of the LLM application) or within the LLM extension itself. For example, an LLM-based app that creates and posts social media content on behalf of a user should include a user approval routine within the extension that implements the 'post' operation.\n\n7. Complete mediation\n\nImplement authorization in downstream systems rather than relying on an LLM to decide if an action is allowed or not. Enforce the complete mediation principle so that all requests made to downstream systems via extensions are validated against security policies.\n\n8. Sanitise LLM inputs and outputs\n\nFollow secure coding best practice, such as applying OWASP's recommendations in ASVS (Application Security Verification Standard), with a particularly strong focus on input sanitisation. Use Static Application Security Testing (SAST) and Dynamic and Interactive application testing (DAST, IAST) in development pipelines.\n\nThe following options will not prevent Excessive Agency, but can limit the level of damage caused: log and monitor the activity of LLM extensions and downstream systems to identify where undesirable actions are taking place, and respond accordingly; implement rate-limiting to reduce the number of undesirable actions that can take place within a given time period, increasing the opportunity to discover undesirable actions through monitoring before significant damage can occur.\n",
+            "version": "",
+            "active": 1,
+            "kind": "body",
+            "page": null,
+            "title": "OWASP LLM06:2025 Excessive Agency",
+            "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-10",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.4817147027987213,
+            "quote": "Sanitise LLM inputs and outputs",
+            "translation": "对LLM的输入和输出进行净化"
+          }
+        ],
+        "missing": "本项目已经测得的提示注入防护成功率是多少？：资料未提供任何关于本项目已测得的提示注入防护成功率的具体数值，仅涉及提示注入的一般性防护与缓解原则。",
+        "call_id": 60,
+        "budget": {
+          "limit_rmb": 10,
+          "spent_rmb": 0.507927,
+          "reserved_rmb": 0.0,
+          "available_rmb": 9.492073,
+          "blocked": false
+        },
+        "validation": "仅校验结构、原文匹配和显式问题覆盖记录；不保证实际语义覆盖、证据支持或翻译准确。",
+        "answer_run_id": 470
+      },
+      "status_matches": true
+    },
+    {
+      "id": "Q09",
+      "question": "资料里的最小权限是什么意思？它在我的电脑上能降低多少百分比的风险？",
+      "expected_status": "partial",
+      "expected_sources": [
+        "S03"
+      ],
+      "human_review": [
+        "第一小问回答有依据的最小权限概念部分（引用原文）",
+        "第二小问明确缺少用户环境与实验数据，不能给出比例",
+        "不得用概念结论充当百分比的答案"
+      ],
+      "review_result": "pending",
+      "retrieval_run_id": 458,
+      "retrieved": [
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 36,
+          "end_line": 55,
+          "score": 0.4562
+        },
+        {
+          "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+          "section": "Prevention and Mitigation Strategies",
+          "start_line": 56,
+          "end_line": 67,
+          "score": 0.4526
+        },
+        {
+          "doc_id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+          "section": "LLM06:2025 Excessive Agency",
+          "start_line": 1,
+          "end_line": 18,
+          "score": 0.4303
+        }
+      ],
+      "retrieved_count": 3,
+      "result": {
+        "prompt_version": "evidence-v3.5",
+        "retrieval_run_id": 472,
+        "mode": "live",
+        "versions": [
+          "",
+          "",
+          ""
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "text": "资料里的最小权限是什么意思？"
+          },
+          {
+            "id": "q2",
+            "text": "它在我的电脑上能降低多少百分比的风险？"
+          }
+        ],
+        "model": "deepseek-v4-flash",
+        "pricing": {
+          "input_rmb_per_million": 3,
+          "output_rmb_per_million": 9,
+          "verified_at": "2026-09-09"
+        },
+        "input_token_bound": 1048576,
+        "output_token_limit": 1500,
+        "coverage": [
+          {
+            "question_id": "q1",
+            "claims": [
+              0
+            ],
+            "missing": ""
+          },
+          {
+            "question_id": "q2",
+            "claims": [],
+            "missing": "资料未提供在任何电脑上降低风险的具体百分比数值。"
+          }
+        ],
+        "status": "partial",
+        "claims": [
+          {
+            "text": "资料中的“最小权限”指将模型的访问权限限制到其预期操作所需的最低必要范围。",
+            "citations": [
+              "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c"
+            ]
+          }
+        ],
+        "citations": [
+          {
+            "id": "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+            "doc_id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+            "section": "Prevention and Mitigation Strategies",
+            "start_line": 36,
+            "end_line": 55,
+            "text": "## Prevention and Mitigation Strategies\n\nPrompt injection vulnerabilities are possible due to the nature of generative AI. Given the stochastic influence at the heart of the way models work, it is unclear if there are fool-proof methods of prevention for prompt injection. However, the following measures can mitigate the impact of prompt injections:\n\n1. Constrain model behavior\n\nProvide specific instructions about the model's role, capabilities, and limitations within the system prompt. Enforce strict context adherence, limit responses to specific tasks or topics, and instruct the model to ignore attempts to modify core instructions.\n\n2. Define and validate expected output formats\n\nSpecify clear output formats, request detailed reasoning and source citations, and use deterministic code to validate adherence to these formats.\n\n3. Implement input and output filtering\n\nDefine sensitive categories and construct rules for identifying and handling such content. Apply semantic filters and use string-checking to scan for non-allowed content. Evaluate responses using the RAG Triad: Assess context relevance, groundedness, and question/answer relevance to identify potentially malicious outputs.\n\n4. Enforce privilege control and least privilege access\n\nProvide the application with its own API tokens for extensible functionality, and handle these functions in code rather than providing them to the model. Restrict the model's access privileges to the minimum necessary for its intended operations.\n",
+            "version": "",
+            "active": 1,
+            "kind": "body",
+            "page": null,
+            "title": "OWASP LLM01:2025 Prompt Injection",
+            "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+            "license": "CC BY-SA 4.0",
+            "acquired": "2026-09-10",
+            "splitter": "heading-lines-v1:20",
+            "score": 0.45622294069095526,
+            "quote": "Restrict the model's access privileges to the minimum necessary for its intended operations.",
+            "translation": "将模型的访问权限限制到其预期操作所需的最低必要程度。"
+          }
+        ],
+        "missing": "它在我的电脑上能降低多少百分比的风险？：资料未提供在任何电脑上降低风险的具体百分比数值。",
+        "call_id": 61,
+        "budget": {
+          "limit_rmb": 10,
+          "spent_rmb": 0.5175,
+          "reserved_rmb": 0.0,
+          "available_rmb": 9.4825,
+          "blocked": false
+        },
+        "validation": "仅校验结构、原文匹配和显式问题覆盖记录；不保证实际语义覆盖、证据支持或翻译准确。",
+        "answer_run_id": 473
+      },
+      "status_matches": true
+    }
+  ],
+  "complete": true,
+  "preparation_complete": true,
+  "budget": {
+    "limit_rmb": 10,
+    "spent_rmb": 0.5175,
+    "reserved_rmb": 0.0,
+    "available_rmb": 9.4825,
+    "blocked": false
+  }
+}
