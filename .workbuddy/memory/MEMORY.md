@@ -27,13 +27,52 @@
 - **依赖声明改动前先核验真实依赖**：本次给 `pypdf` 编了 `pycryptodome` 依赖是错的（pypdf 无运行时依赖）。
   加依赖前用 `importlib.metadata.distribution(x).requires` 查实际 Requires-Dist，不要凭印象写锁文件。
 
-## 当前进度快照（2026-09-10，Issue 08 后）
+## 当前进度快照（2026-09-10，Issue 12 done，主线全部收口）
 
-- **Issue：01/02/03/04/05/06/07/08/11/13/14/15 done**（03/05/06/07/08/13/14/11/15 均 2026-09-10 完成）；10/12 open（09 可选）。
-- 主线：**10 → 12**（+ 可选 09）。01–08 + 架构检查 + 13/14/11 + 15 全部收口，
-  **M0/M1/M1D 已完成，M2D 完成（15），M2 完成（08）**。
+- **Issue：01/02/03/04/05/06/07/08/10/11/12/13/14/15 全部 done**（均 2026-09-10）；09 可选、未采用。
+- 主线全部完成。**M0/M1/M1D/M2D/M2/M3 里程碑全部完成**。
 - 当前提示词 **evidence-v3.5**，输出上限 **1500** token（常量 `OUTPUT_TOKEN_LIMIT`），单次最大预留 3.159228 元。
-- 本地 **118 tests 通过**（08 新增 BM25 7 例 + RRF 8 例 + 共享规则守卫 5 例）。
+- 本地 **148 tests 通过**。
+- **账本（保守记账，最终）**：`0.5175` 元已用、可用 `9.4825`、预留 0、blocked=false（12 新增 0.046104，4 次生成调用）。
+- **12 保留评测与演示（done）**：
+  - **先修真实缺陷**：`run_baseline(..., holdout=...)` 加载保留集却**只评 dev**、`sample_kind` 硬编码
+    `"development"` → 会把 dev 分数挂在保留集标题下。TDD：先写 `FinalHoldoutEvaluationTest`（4 例，3 红）
+    → 最小修复（`kind` 推导/校验、`cases = loaded.holdout if kind=="holdout"`、报告 `sample_kind`/
+    `evaluated_case_ids`、过滤过时 `not_run`）→ CLI 传 `kind`。
+  - **保留集首次开封**：`docs/evidence/issue12-holdout-baseline-20260910.json`，`sample_kind="holdout"`、
+    `evaluated_case_ids=[H01…H10]`、**`recall_at_5=0.75`**（dev 0.85）、`broken_bundles=0`。
+    **未因结果改代码或提示词。**
+  - **四例检索缺口 = "排序未进前 5"**（覆盖块存在，非"资料没有"），根因 `heading-lines-v1:20` 的 18–20 行粗块：
+    保留集 H03 0.50 / H04 0.00 / H09 0.00 + 生成侧 Q06 partial（含「最小权限」的块 `L36-55` 在 Q06 下排第 5、
+    `k=3` 门外）。**交接 13/14/11 结构适配，不改固定检索器、不放宽预期。**
+  - **切分取舍已定（免费离线）**：保留集三策略对照 `scripts/compare_splitters_holdout.py`，
+    基线 0.750 / `heading-block-v2` 0.750（+0.000）/ `heading-procedure-v3` 0.600（−0.150，退化 H02/H03）。
+    **无一优于基线 → 维持 `heading-lines-v1:20` 默认**；四例缺口的答案是「段落内部短句 / 清单单条」，
+    现有切分无法在不伤其他题的前提下救回 → **当前切分能力的真实边界，记为已知局限**。
+  - **演示 `scripts/demo.py`**（约三分钟，免费离线；`--live` 才付费）：切分预览 / 同题前后证据 / 失败复盘 /
+    边界 / 生成回执。踩坑：`answer(preflight=True)` 密钥检查在预留分支之前 → 须传已核实 config（可不传 key）；
+    中文问句对英文语料 `store.search` 零命中 → 生成步骤用英文问题；③ 措辞「未命中」→「未取全」并逐例打印 `recall_at_5`。
+  - **生成侧复核（② 用户裁定通过）**：4 题 Q05/Q06/Q08/Q09（grounded/partial/insufficient/partial）。
+    Q05 ✅、Q08 ✅（0 结论无数字）、Q09 ✅；Q06 partial ❌ 归因检索缺口（非生成缺陷）。样本 4 题**不构成指标**。
+  - **关键区分（用户主张并确认）**：**行为 vs 度量两条轴**。取到部分时系统照常返回部分答案（`status=partial`）；
+    `recall_at_5` 衡量「检索有没有取全」，非「系统有没有作答」。**不在已开封保留集上放宽规则。**
+  - **⑤ 三态**：已完成 / 故意可选（09、结构适配移交、正式指标以 4 题行为复核代替）/ **预算所致未完成：无**。
+  - 证据：`docs/evidence/issue12-holdout-and-failures-20260910.md`、`issue12-generation-review-20260910.{md,json}`。
+- **10 有界补充检索（done，TDD + 对照型）**：
+  - 前置针对架构发现 ③④ 局部复核，`answer()` 实测 **120 行**；**结论=新增窄接口 `skra/orchestrate.py`，不重写 `answer()`**。
+  - `MAX_SUPPLEMENTARY_ROUNDS = 2`（初次不计）；`StopReason` 六值
+    `sufficient`/`no_new_evidence`/`round_limit`/`timeout`/`error`/`budget`。
+  - `Orchestrator` 只做迭代与停止判定：`answer_once(evidence, round_no)` 回调 + `is_sufficient` 谓词解耦，
+    `last_result` 保存最近回调产物；不生成回答。
+  - **参数边界复用 `check_search_args`（不制造第四份守卫，发现 ⑤）**；`_vet_candidates` 拒绝带
+    `tool`/`tool_call`/`function_call`/`arguments` 的候选与无 `id` 候选；无联网/写入参数（未知 kwarg → `TypeError`）。
+  - `bounded_answer()`（`skra/answer.py`）每轮以**累积证据**作答；`store.amend_run()` 把 supplement 写入
+    **答案自己的 run**（不追加新行）。**注意：`answer_run_id` 不写入自身 run 记录（既有行为，`record_run`
+    在 id 赋值前序列化），测试按真实行为断言。**
+  - **开发集开关对照**（`scripts/compare_supplement.py`，免费离线）：`off` 单次 top-k；
+    `on` 同查询静态语料 → **10 题全 `no_new_evidence`、无增益（正确行为：不会凭空造证据）**；
+    `widening` 逐轮放宽 k → **10 题全 `round_limit`（两轮上限确实 bind）**；两臂 `lost_cases` 恒空
+    （**结构性质，非效果证据**）。生成侧效果**未测**。详见 `docs/evidence/issue10-bounded-search-20260910.md`。
 - **08 检索对照（done，TDD + 对照型）**：`scripts/compare_retrievers.py`（免费离线）。
   **一次只改检索器**，三路跑同一 DB、同一份片段。**结果（束级 Recall@5，开发集 D01–D10）**：
   `vector` 0.850 / `bm25` **0.400（−0.450）** / `hybrid-rrf` **0.750（−0.100）**。**有利案例为无。**
@@ -157,7 +196,7 @@
 ## 工具与命令
 
 - 工作目录 `E:/DSWorking/project_01`，CLI `python -m skra`；向量功能用 `.\.venv\Scripts\python.exe -m skra`。
-- 测试：`.\.venv\Scripts\python.exe -m unittest discover -s tests -v`（当前 **118 tests**）
+- 测试：`.\.venv\Scripts\python.exe -m unittest discover -s tests -v`（当前 **144 tests**）
 - 账本：`python -m skra budget`；离线重放：`python -m skra --db <db> replay <run_id>`
 - 受控边界：`python scripts/check_boundaries.py`（免费）/ `--live`（付费）
 - 原资料验收：`python scripts/check_acceptance.py`（免费）/ `--live`（付费）/ `--live --case Q01`（定向）
@@ -177,4 +216,11 @@
   `./.venv/Scripts/python.exe scripts/compare_retrievers.py --out <报告>`
   选项：`--mode`（可重复；`vector`/`bm25`/`hybrid-rrf`，默认三种）、`--k`（默认 5）、`--splitter`、`--json`
   中英错配量化：`python scripts/measure_term_mismatch.py`（免费）
+- **补充检索开关对照（10，免费离线，不记账）**：
+  `./.venv/Scripts/python.exe scripts/compare_supplement.py --out <报告>`
+  三臂 `supplement-off` / `supplement-on`（同查询静态语料）/ `supplement-widening`（逐轮放宽 k）；
+  选项：`--k`（默认 5）、`--splitter`、`--json`
+- **编排模块（10）**：`skra/orchestrate.py` 的 `Orchestrator(search, answer_once, is_sufficient=, budget_guard=, deadline=)`；
+  `execute(query, required_ids=(), limit=5)` 返回 `stop_reason`/`stop_detail`/`supplementary_rounds`/`evidence`/`trace`/`elapsed_ms`。
+  集成入口 `skra.answer.bounded_answer(...)`；持久化 `skra.store.amend_run(db, run_id, extra)`
 - **BM25 参数**：`k1=1.5`、`b=0.75`（`store.BM25_K1`/`BM25_B`）；**RRF**：`K=60` 等权（`store.RRF_K`）

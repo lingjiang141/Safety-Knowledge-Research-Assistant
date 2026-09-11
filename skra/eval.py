@@ -316,14 +316,27 @@ def freeze_sample(cases, store, encoder=None):
     }
 
 
-def run_baseline(store, sample_path, search, k=5, encoder=None, holdout=None):
-    """Run the development sample through one retriever and build a reviewable report.
+def run_baseline(store, sample_path, search, k=5, encoder=None, holdout=None,
+                 kind=None):
+    """Run one case set through one retriever and build a reviewable report.
 
     `sample_path` is the development set. The holdout is loaded only when its path
     is passed explicitly, so an ordinary baseline run cannot see holdout answers.
+
+    Passing a holdout path IS the deliberate final-evaluation entry (Issue 12):
+    `kind` then defaults to "holdout", so the run scores the holdout cases and
+    labels the report accordingly. The explicit `kind` exists only to be
+    overridden deliberately (e.g. loading both sets to record both freezes while
+    still scoring development); defaulting from the argument makes the common call
+    say what it means instead of relying on the caller to remember a second flag.
     """
+    kind = kind or ("holdout" if holdout is not None else "development")
+    if kind not in ("development", "holdout"):
+        raise EvalError(f"未知的评测集类型：{kind}。")
     loaded = load_sample(sample_path, holdout=holdout)
-    cases = loaded.cases
+    if kind == "holdout" and not loaded.holdout_loaded:
+        raise EvalError("请求评测保留集，但未显式打开保留集文件；请提供 holdout 路径。")
+    cases = loaded.holdout if kind == "holdout" else loaded.cases
     rows = []
     started = time.perf_counter()
     for case in cases:
@@ -349,7 +362,8 @@ def run_baseline(store, sample_path, search, k=5, encoder=None, holdout=None):
     return {
         "kind": "evaluation-baseline",
         "sample": str(Path(sample_path)),
-        "sample_kind": "development",
+        "sample_kind": kind,
+        "evaluated_case_ids": [c.id for c in cases],
         "holdout_loaded": loaded.holdout_loaded,
         "holdout_path": loaded.holdout_path,
         "freeze": freeze_sample(cases, store, encoder),
@@ -372,7 +386,10 @@ def run_baseline(store, sample_path, search, k=5, encoder=None, holdout=None):
         "budget_note": "本基线不联网、不记账；付费生成指标留待需要时在本机交互终端运行。",
         "evidence_tokens_estimate_note": TOKEN_ESTIMATE_NOTE,
         "complete": False,
-        "not_run": list(NOT_RUN),
+        # A holdout run IS the holdout execution, so it must not also list it as
+        # deferred; the other not-run items still apply to it unchanged.
+        "not_run": [item for item in NOT_RUN
+                    if not (kind == "holdout" and "保留集执行" in item)],
         "manual_review": "pending",
     }
 

@@ -2,6 +2,100 @@
 
 > 本文件倒序记录，旧段落会出现过时状态；以最新节、ROADMAP.md 任务 State 与 HANDOFF.md 为准。
 
+## 2026-09-10 Issue 12 完成（done）—— 主线全部收口
+
+- **五项验收全满足、无预算耗尽 → Issue 12 关闭**。用户「全部接受」：引文与释义一致、Q06 归因接受、
+  Q08 行为通过、`0.75` 与四例缺口作为最终交付接受。
+- **最终交付（诚实版）**：保留集检索 `recall_at_5=0.75`（dev 0.85）；生成侧**行为正确**
+  （不编造、如实降级、释义准确、不编造分歧）；**能力缺口四例**（H03 0.50 / H04 0.00 / H09 0.00 + Q06 partial）
+  均已定位（根因 `heading-lines-v1:20` 粗块 → 排序掉出预算），**移交 13/14/11 结构适配，不改固定检索器**。
+- **⑤ 三态**：已完成（评测/演示/复盘/4 题行为复核/`run_baseline` 缺陷修复）；故意可选（09、结构适配修复、
+  生成侧正式指标以 4 题行为复核代替）；**预算所致未完成：无**（可用 9.4825 元）。
+- **主线 01–08、10、11、13、14、15、12 全部 done；09 可选未采用；M0–M3 全完成。**
+- 费用：本任务付费 **0.046104 元**（账本 0.471396 → **0.5175**，可用 9.4825，预留 0，blocked=false）。
+- 148 tests 全绿。证据：`docs/evidence/issue12-holdout-and-failures-20260910.md`、
+  `issue12-generation-review-20260910.md`、`issue12-holdout-baseline-20260910.json`。
+
+## 2026-09-10 Issue 12 进行中 —— 保留集首次开封评测 `recall@5=0.75`（修缺陷后）、演示脚本跑通、三例真实失败复盘
+
+- **本轮先修一个真实评测缺陷（先于评测）**：`run_baseline(..., holdout=...)` 会加载保留集却**只评 dev**，
+  且把 `sample_kind` **硬编码 `"development"`** —— 会让"保留集最终评测"把 **dev 分数挂在保留集标题下**。
+  按 tdd 先写失败测试 `tests/test_eval.py::FinalHoldoutEvaluationTest`（4 例，3 红）→ 最小修复
+  （`kind` 推导/校验、评 `loaded.holdout`、正确标注、剔除过时 `not_run`）→ CLI 接线。
+- **保留集首次开封评测（07 起封存，12 首次开封）**：报告
+  `docs/evidence/issue12-holdout-baseline-20260910.json`，`sample_kind="holdout"`、
+  `evaluated_case_ids=[H01…H10]`、**`recall_at_5=0.75`**（dev 0.85）、`broken_bundles=0`、
+  `failed_cases=[]`、`complete=false`（生成侧与人工复核未跑）。逐例：H03 0.50、H04 0.00、H09 0.00，其余 1.00。
+  **未因结果改任何代码或提示词。**
+- **三例真实失败（均已定位，未修，交接 13/14/11）**，共同根因 `heading-lines-v1:20` 把标题+来源+出版者+导语
+  压进 18–20 行块、答案被埋、嵌入被稀释 → **覆盖片段存在，是"排序未进前 5"，不是"资料没有"**：
+  - **H04 0.00**：覆盖块 `2d61fd19df57` L1–18（整个文档头），top-5 之外（独立复现第 7 名）→ 两 bundle 全未命中。
+  - **H09 0.00**：覆盖块 `7e3ff71da9ec` L45–64（"预防与缓解"整节）未进前 5。
+  - **H03 0.50**：两 bundle 只中一个（`45f7c6e76593` L60–62 未中 / `a0636ee4f451` L52–54 中）→
+    bundle 规则要求**全部**覆盖片段进前 5，partial 计未命中（**故意设计**，不因单例放宽）。
+- **演示脚本 `scripts/demo.py` 跑通**（约三分钟，免费离线；`--live` 才付费）：① 切分预览 ② 同题前后证据
+  ③ 失败复盘 ④ 边界（无证据→`insufficient`、0 结论）⑤ 生成回执（`request_bytes=13078`、
+  单次最大预留 `3.159228` 元、`available=9.528604`、`blocked=False`、`network_called=False`）。
+  展示重点按卡片：**切分预览 / 同题前后 / 失败复盘为主，指标仅作支撑**；区分工程改良与学术创新。
+  调试中修 2 处：`preflight` 需传入已核实 config（密钥检查在预留分支之前）；
+  中文问句对英文语料关键词检索零命中 → 生成步骤改用可命中英文问题。
+- **验收项状态**：①②③④ 完成；**⑤（最终判定）与平台账单核对待完成，故 12 不关闭**。
+  证据文档 `docs/evidence/issue12-holdout-and-failures-20260910.md`（含 §5 逐项核对、§7 HITL 待办）。
+- **测试**：148 tests 全绿（144 → 148）。**费用 0 元**；账本 `0.471396 / 9.528604 / 预留 0 / blocked=false` 未变。
+
+### 追加：生成侧复核（验收项 ②）→ 用户裁定通过
+
+- 用户跑 `scripts/check_acceptance.py --live --case Q05 --case Q06 --case Q08 --case Q09`：
+  **3/4 通过**——Q05 grounded ✅ / Q08 insufficient ✅（检索到证据却答不了，**0 结论、无任何数字**）/
+  Q09 partial ✅（概念按原文、百分比单列）；**Q06 partial ❌**（期望 grounded）。
+- **Q06 根因已查实**：含「最小权限」（LLM01 措施 4）的块 `L36-55` 在 Q06 查询下排**第 5 名**，
+  验收运行器内部 `k=3` → 门外 → 模型拿不到措施 4 → **如实**判 partial。
+  属 **Issue 03 已记录的已知检索欠项**，与 H03/H09 同源，**非生成缺陷**。
+- 用户逐题裁定：引文与释义**一致**、Q06 归因**接受**、Q08 行为**算通过** → **② 通过**。
+  证据 `docs/evidence/issue12-generation-review-20260910.{md,json}`。
+- **费用 0.471396 → 0.5175 元（新增 0.046104）**；可用 9.4825、预留 0、blocked=false。
+- **诚实边界**：样本仅 4 题，**不构成指标、不宣称整体准确率**；② 通过的是**行为正确性**，非检索能力充分。
+
+## 2026-09-10 Issue 10 完成 —— 有界补充检索（最多两轮 + 停止原因轨迹，开发集对照如实记录无增益）
+
+- **Issue 10 完成（done）**：让回答在证据不足时于导入资料内**最多补充检索两轮**，输出**停止原因与可复查轨迹**。
+  **前置针对架构发现 ③④ 做局部复核**（`answer()` 实测 120 行），结论：**新增窄接口 `skra/orchestrate.py`，
+  不重写 `answer()`**。
+- **TDD 落地**：`MAX_SUPPLEMENTARY_ROUNDS = 2`（初次不计）；`StopReason` 六值
+  `sufficient` / `no_new_evidence` / `round_limit` / `timeout` / `error` / `budget`；
+  `Orchestrator` 只做迭代与停止判定——`answer_once(evidence, round_no)` 回调 + `is_sufficient` 谓词解耦，
+  不生成回答，可用假检索器/假回调独立验证。
+- **参数与工具边界（程序校验）**：复用 08 收敛的 `check_search_args`（**不制造第四份守卫**）；
+  `_vet_candidates` 拒绝带 `tool`/`tool_call`/`function_call`/`arguments` 的候选与无 `id` 候选；
+  `Orchestrator` 无任何联网/写入参数（传入未知 kwarg 会 `TypeError`）；每轮经真实 `answer()` 走**同一账本**。
+- **轨迹（无思维链）**：每轮记 `round`/`query`/`returned`/`new_ids`/`mode`/`run_id`；
+  回调返回值**从不写入 trace**（测试断言不含 `reasoning`）；轨迹随答案**持久化到同一条 run**
+  （新增 `store.amend_run`，补写在答案自己的记录上，不追加新行）。
+- **集成**：`skra/answer.py` 新增 `bounded_answer()`（`answer()` 本身未改）——每轮以**累积证据**作答，
+  补充是扩宽证据而非替换。
+- **开发集开关对照（`scripts/compare_supplement.py`，免费离线；固定语料/切分/k/问题/标注，
+  唯一变量=补充轮数）**：
+
+  | 臂 | 检索方式 | 10 题停止原因 | 到达证据 |
+  | --- | --- | --- | --- |
+  | `supplement-off` | 单次 top-k=5 | — | 每题 5 片段 |
+  | `supplement-on` | 同查询、静态语料 | **`no_new_evidence`×10**，1 补充轮 | 每题 5 片段，与 off 一致 |
+  | `supplement-widening` | 逐轮放宽 k | **`round_limit`×10**，恰 2 补充轮 | 每题 15 片段，0 题退化 |
+
+- **结论（如实、不夸大）**：① 同查询静态语料下补充检索**无增益且这是正确行为**——重问同一问题仍返回同一
+  top-k，累积集不增长即停止，**有界循环不会凭空造证据**（安全性证据，非效果提升）；② 加宽臂证明
+  **两轮上限确实 bind**；③ 两臂 `lost_cases` 恒为空是**结构性质**，不作为效果证据；
+  ④ **生成侧效果未测**（需付费 + 人工语义复核），报告 `not_run` 已列明。**结构状态命中 ≠ 语义通过。**
+- **测试**：**144 tests 通过**（118 → 144；新增 `tests/test_orchestrate.py` 19 例、
+  `tests/test_bounded_answer.py` 7 例）。
+- **交付**：`skra/orchestrate.py`、`skra/answer.py`（+`bounded_answer`）、`skra/store.py`（+`amend_run`）、
+  `scripts/compare_supplement.py`、`docs/evidence/issue10-bounded-search-20260910.md`、
+  `issue10-supplement.json`、`issue10-precheck-orchestration-20260910.md`。
+- 本轮**无付费调用**；账本保持 **0.471396** 元 / 可用 9.528604 / 预留 0 / blocked=false。
+  **保留集未打开**（`holdout_loaded=false`）。
+- **里程碑/主线**：**01–08、10、11、13、14、15 done；12 open**（09 可选）。**下一步 Issue 12（最终保留评测与演示）**，
+  其依赖 10/11/15 均已满足。
+
 ## 2026-09-10 Issue 08 完成 —— 向量 / BM25 / RRF 三路检索对照（**无净提升，如实负面结果**）
 
 - **Issue 08 完成（done）**：在已有问答与评测路径增加 **BM25** 与 **RRF 融合**，保持纯向量模式可选。

@@ -166,6 +166,28 @@ def record_run(db, query, result, elapsed_ms, created=None, sqlite_clock=False):
     return cursor.lastrowid
 
 
+def amend_run(db, run_id, extra):
+    """Merge fields into an existing run's stored result, keeping its identity.
+
+    A bounded answer is still one run: the supplementary trace belongs to the
+    answer it produced, so it amends that row rather than appending a second.
+    Appending would leave the answer's own run without its stop reason, and
+    reading either row alone would tell an incomplete story. `extra` wins on
+    conflict; the id's existence is required so a typo cannot silently no-op.
+    """
+    row = db.execute("SELECT result FROM runs WHERE id=?", (run_id,)).fetchone()
+    if row is None:
+        raise ValueError("运行记录不存在，无法追加补充记录。")
+    stored = json.loads(row["result"])
+    if not isinstance(stored, dict):
+        raise ValueError("运行记录结构无效，无法追加补充记录。")
+    merged = {**stored, **extra}
+    with db:
+        db.execute("UPDATE runs SET result=? WHERE id=?",
+                   (json.dumps(merged, ensure_ascii=False), run_id))
+    return merged
+
+
 class Store:
     def __init__(self, path):
         Path(path).parent.mkdir(parents=True, exist_ok=True)

@@ -1,14 +1,17 @@
 # 安全知识研究助手
 
-开发每个 Issue 前阅读 [技能触发规则](docs/development-workflow.md)。已授权 TDD 的阶段：06/13/14/11/07/15/08 均已完成，
-后续 10 开始时按 TDD 推进；04–06 后、13 前的架构检查已完成（用户裁定不重构），13/14 后就切分规则的
+开发每个 Issue 前阅读 [技能触发规则](docs/development-workflow.md)。已授权 TDD 的阶段：06/13/14/11/07/15/08/10 均已完成，
+10 开始前就回答编排（发现 ③④）做了针对性局部复核，结论为新增窄接口 `skra/orchestrate.py` 而非重构 `answer()`；
+04–06 后、13 前的架构检查已完成（用户裁定不重构），13/14 后就切分规则的
 元数据剥离做了一次局部收敛，08 前就检索规则重复（发现 ⑤）做了第二次刻意最小收敛（等价性逐字节证明）。
 
-**当前进度（2026-09-10）：Issue 01–08、11、13、14、15 已完成**（M0 / M1 / M1D 里程碑均完成，M2D 的 15 与 M2 的 08 完成），
-下一步 Issue 10（有限补充检索）。整条主线见 [ROADMAP](ROADMAP.md)。
+**当前进度（2026-09-10）：Issue 01–08、10、11、13、14、15 已完成**（M0 / M1 / M1D 里程碑均完成，M2D 的 15 与 M2 的 08、10 完成），
+下一步 Issue 12（最终保留评测与演示）。整条主线见 [ROADMAP](ROADMAP.md)。
 当前支持：Markdown / 文本型 PDF 导入、四种切分策略、关键词 / 本地向量 / **BM25 / RRF 混合检索**、
-DeepSeek 真实调用（含预算保护）、资料更新删除、逐字引用校验、开发集检索基线（`skra eval`，免费离线）、
-切分策略对照（`scripts/compare_splitters.py`）与检索方式对照（`scripts/compare_retrievers.py`，均免费离线）。
+**有界补充检索（最多两轮 + 停止原因与可复查轨迹）**、DeepSeek 真实调用（含预算保护）、
+资料更新删除、逐字引用校验、开发集检索基线（`skra eval`，免费离线）、
+切分策略对照（`scripts/compare_splitters.py`）、检索方式对照（`scripts/compare_retrievers.py`）
+与补充检索开关对照（`scripts/compare_supplement.py`，均免费离线）。
 真实模型效果已在 Issue 03/05 做过端到端验收，**但样本小、不代表稳定准确率**；
 未做 OCR、复杂表格与双栏重建。
 
@@ -63,7 +66,28 @@ Markdown 默认切分器为按标题及最多 20 行（`heading-lines-v1:20`）�
 `--exclude` 剔除的 doc_id 会写入报告（否则基线不可复现）。`Recall@5` 的分母是**标注的证据束数**，
 不随切分策略改变；`required_together` 的束被切开时记 `broken`，不算命中。
 `evidence_tokens` 是字符数/4 的**估算，不是真实分词计数**，仅用于在同一把尺子下比较策略。
-`examples/eval-holdout-cases.json` 为保留集，封存至最终评测，**不要在调参期间打开**。
+`examples/eval-holdout-cases.json` 为保留集，**只在最终评测时用 `--holdout` 显式打开**（Issue 12 已执行），
+报告会记 `sample_kind: holdout` 与 `evaluated_case_ids`；普通运行不打开它。**不得在保留结果上调参后仍称独立成绩。**
+
+```powershell
+# 最终保留评测（免费离线；--holdout 显式打开保留集，报告标记 sample_kind=holdout）
+./.venv/Scripts/python.exe -m skra eval --holdout examples/eval-holdout-cases.json `
+  --exclude 85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97 `
+  --out docs/evidence/issue12-holdout-baseline-20260910.json
+```
+
+## 约三分钟演示（免费、离线，Issue 12）
+
+一条命令走完交付重点：**切分预览 → 同题前后证据 → 失败复盘 → 边界 → 生成回执**。
+
+```powershell
+./.venv/Scripts/python.exe scripts/demo.py            # 免费离线：无网络、不计费
+./.venv/Scripts/python.exe scripts/demo.py --live     # 才做付费生成（需本机密钥）
+```
+
+- 依赖仅标准库 + `.venv` 本地向量模型；**不加 `--live` 全程不联网、不记账**。
+- 失败路径与成功路径都展示：无证据问题如实降级 `insufficient`；未加 `--live` 只出预留回执。
+- 保留集在该演示中**只用于展示未命中原因**（三例：H03/H04/H09，原因均为"覆盖块存在但排序未进前 5"）。
 
 ## 切分策略对照（免费、离线）
 
@@ -93,11 +117,29 @@ RRF **只读各路的排名，不合并余弦与 BM25 两种尺度的分数**；
 且融合会放大「词面相似但跨度错误」的候选；**如实记录为负面结果，未做参数拟合**。
 详见 `docs/evidence/issue08-retriever-comparison-20260910.md`。
 
+### 有界补充检索（Issue 10）
+
+回答证据不足时，可在导入资料内**最多补充检索两轮**（初次不计），每轮以**累积证据**重新作答。
+停止原因是一等输出：`sufficient` / `no_new_evidence` / `round_limit` / `timeout` / `error` / `budget`；
+每轮轨迹记录查询、候选、新片段、外部状态与错误，**不含思维链**，并随答案持久化到同一条 run。
+参数与工具由**程序校验**（复用 `check_search_args`；拒绝要求工具或无标识的候选），
+**不联网、不写入**，每个模型请求进入同一预算账本。编排在 `skra/orchestrate.py`，`answer()` 契约未改。
+
+```powershell
+# 开发集开关对照（免费离线；off / on / widening 三臂）
+./.venv/Scripts/python.exe scripts/compare_supplement.py --out docs/evidence/issue10-supplement.json
+```
+
+**实测结论（如实）**：同查询、静态语料下补充检索 **10 题全部 `no_new_evidence`、无增益**——
+重问同一问题仍返回同一 top-k，累积集不增长即停止，**有界循环不会凭空造证据**（安全性证据，非效果提升）；
+逐轮放宽 k 的加宽臂 **10 题全部 `round_limit`**，证明**两轮上限确实 bind**。生成侧效果未测。
+详见 `docs/evidence/issue10-bounded-search-20260910.md`。
+
 可选安装命令：`python -m pip install -e .`，之后使用 `skra` 命令；构建需要 setuptools，离线环境可直接使用上述模块入口。
 
 ## 开发路线
 
-见 [PRD](PRD.md) 和 [ROADMAP](ROADMAP.md)。已完成 01–08、11、13、14、15；**下一步 Issue 10**（有限补充检索）。
+见 [PRD](PRD.md) 和 [ROADMAP](ROADMAP.md)。已完成 01–08、10、11、13、14、15；**下一步 Issue 12**（最终保留评测与演示）。
 不要提交密钥、数据库或个人配置。
 
 ## 测试回答路径（免费）

@@ -110,7 +110,8 @@ def main(argv=None):
                 search = base_search
             result = run_baseline(store, Path(args.sample), search, k=args.k,
                                   encoder=vector.encoder if vector else None,
-                                  holdout=Path(args.holdout) if args.holdout else None)
+                                  holdout=Path(args.holdout) if args.holdout else None,
+                                  kind="holdout" if args.holdout else "development")
             result["retrieval"] = args.retrieval
             result["excluded_doc_ids"] = sorted(excluded)
             if args.out:

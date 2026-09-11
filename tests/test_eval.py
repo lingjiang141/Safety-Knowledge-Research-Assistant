@@ -402,6 +402,76 @@ class BaselineReportTest(unittest.TestCase):
         self.assertIsNone(report["aggregate"]["recall_at_5"])
 
 
+class FinalHoldoutEvaluationTest(unittest.TestCase):
+    """Issue 12: a deliberate final run must actually score the *holdout* cases.
+
+    `run_baseline(..., holdout=...)` used to load the holdout and then still score
+    only the development cases, while labelling the report `sample_kind:
+    "development"`. That is worse than useless: the final evaluation would report
+    development numbers under a holdout heading. These tests pin the contract --
+    the scored rows are the holdout cases and the report says so.
+    """
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.store = Store(self.root / "test.sqlite3")
+        self.addCleanup(self.store.close)
+        body = "\n".join([
+            "# Permissions",
+            "Minimize extension permissions so a compromised tool cannot act widely.",
+            "Complete mediation means the system, not the model, checks each call.",
+        ])
+        self.md = self.root / "guide.md"
+        self.md.write_text(body, encoding="utf-8")
+        self.store.ingest(self.md, "Guide", "urn:test:guide", "CC0-1.0", "2026-09-10")
+        self.dev = write_cases(self.root / "dev.json", [{
+            "id": "D01", "question": "开发题",
+            "expected_status": "grounded",
+            "evidence": [{"source": "urn:test:guide", "start_line": 2, "end_line": 2,
+                          "must_include": ["minimize extension permissions"]}],
+        }], kind="development")
+        self.holdout = write_cases(self.root / "holdout.json", [{
+            "id": "H01", "question": "保留题",
+            "expected_status": "grounded",
+            "evidence": [{"source": "urn:test:guide", "start_line": 3, "end_line": 3,
+                          "must_include": ["complete mediation"]}],
+        }], kind="holdout")
+
+    def _search(self):
+        def selected(query, limit=5):
+            return {"candidates": [dict(r) for r in self.store.db.execute(
+                "SELECT * FROM chunks WHERE active=1 ORDER BY start_line")][:limit]}
+        return selected
+
+    def test_a_deliberate_holdout_run_scores_the_holdout_cases(self):
+        report = run_baseline(self.store, self.dev, search=self._search(),
+                              holdout=self.holdout)
+        self.assertTrue(report["holdout_loaded"])
+        self.assertEqual([c["case_id"] for c in report["cases"]], ["H01"])
+        self.assertEqual(report["case_count"], 1)
+        self.assertNotIn("D01", [c["case_id"] for c in report["cases"]])
+
+    def test_the_holdout_report_is_labelled_as_the_final_evaluation(self):
+        report = run_baseline(self.store, self.dev, search=self._search(),
+                              holdout=self.holdout)
+        self.assertEqual(report["sample_kind"], "holdout")
+        self.assertEqual(report["evaluated_case_ids"], ["H01"])
+
+    def test_an_ordinary_run_still_scores_only_the_development_cases(self):
+        report = run_baseline(self.store, self.dev, search=self._search())
+        self.assertEqual(report["sample_kind"], "development")
+        self.assertEqual([c["case_id"] for c in report["cases"]], ["D01"])
+
+    def test_the_final_report_does_not_claim_the_holdout_is_still_sealed(self):
+        # The "holdout execution deferred to Issue 12" line belongs only to a
+        # non-holdout report; a final run must not contradict itself.
+        report = run_baseline(self.store, self.dev, search=self._search(),
+                              holdout=self.holdout)
+        self.assertFalse(any("保留集执行" in item for item in report["not_run"]))
+
+
 class ShippedSampleTest(unittest.TestCase):
     """The shipped samples must stay valid against the real corpus annotations."""
 

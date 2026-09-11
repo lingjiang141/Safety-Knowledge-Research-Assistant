@@ -5,8 +5,11 @@
 ## 当前主线
 
 **05 → 06 → 架构检查 → 13 → 14 → 11 → 07 → 15 → 08 → 10 → 12**。09 为可选重排序实验，不阻塞主线；
-**03、05、06、13、14、11、07、15、08 均已于 2026-09-10 完成**；**架构检查已完成（用户裁定本次不重构，见
-`docs/evidence/architecture-review-20260910.md`）**。**下一步：进入 Issue 10（有限补充检索）。**
+**03、05、06、13、14、11、07、15、08、10 均已于 2026-09-10 完成**；**架构检查已完成（用户裁定本次不重构，见
+`docs/evidence/architecture-review-20260910.md`）**。**12 已完成（done）**：保留集首次开封评测 `recall_at_5=0.75`（dev 0.85），
+演示脚本跑通，三例真实失败（+ Q06）已定位；**生成侧 4 题经用户逐题裁定通过**；
+五项验收全部满足，**无预算耗尽**。证据见 `docs/evidence/issue12-holdout-and-failures-20260910.md`
+与 `issue12-generation-review-20260910.md`。**主线 12 条 Issue 全部完成（09 为可选，未采用）。**
 
 优先突出文档处理：指南保留定义与条件，步骤/代码保留前提与警告，文本报告保留章节与页码。先固定检索器验证切分，再考虑混合检索。必要验证保留，不堆指标、不预设创新或提升。
 
@@ -39,8 +42,8 @@
 | [15 用实际问题验证文档切分改良](.scratch/security-research-assistant/issues/15-chunking-comparison.md) | M2D | HITL | 07 | done | US24, US25, US26, US27, US28, US29 |
 | [08 用混合检索回答同一批问题并比较基线](.scratch/security-research-assistant/issues/08-hybrid.md) | M2 | AFK | 15 | done | US3, US9, US18, US21 |
 | [09 评估重排序是否值得加入回答流程](.scratch/security-research-assistant/issues/09-rerank.md) | M2 | AFK | 08 | open | US18, US19, US21 |
-| [10 证据不足时最多补充检索两轮](.scratch/security-research-assistant/issues/10-bounded-search.md) | M3 | AFK | 08 | open | US11, US12, US13, US17, US18, US19, US20 |
-| [12 运行保留评测并交付演示与失败复盘](.scratch/security-research-assistant/issues/12-final-eval-demo.md) | M3 | HITL | 10, 11, 15 | open | US18, US19, US21, US22, US23 |
+| [10 证据不足时最多补充检索两轮](.scratch/security-research-assistant/issues/10-bounded-search.md) | M3 | AFK | 08 | done | US11, US12, US13, US17, US18, US19, US20 |
+| [12 运行保留评测并交付演示与失败复盘](.scratch/security-research-assistant/issues/12-final-eval-demo.md) | M3 | HITL | 10, 11, 15 | done | US18, US19, US21, US22, US23 |
 
 ## 阶段完成标准
 
@@ -62,18 +65,26 @@
   `heading-block-v2` recall@5 0.850 → 0.900（提升 D07，无退化）；`heading-procedure-v3` 0.850 → 0.400
   （退化 D05–D09，粒度过碎）；`pdf-pages-v1` 未对照（语料无 PDF）。修复 procedure 元数据误标缺陷。
   证据：`docs/evidence/issue15-splitter-comparison-20260910.md`。
-- M2：**08（已完成）**——在可用问答与评测路径增加 BM25 与 RRF，保持纯向量模式可选，
+- M2：**08、10（均已完成）**——08 在可用问答与评测路径增加 BM25 与 RRF，保持纯向量模式可选，
   对固定开发集比较效果。**结果：无净提升**——BM25 recall@5 0.850 → 0.400（−0.450，4/10 用例中英词项错配零候选），
   RRF 融合 0.850 → 0.750（−0.100，修回 BM25 的 D05/D06/D10，但 D09 被「词面相似但跨度错误」的片段挤掉）。
   如实记录为负面结果，未做参数拟合。09 可选重排序实验。
-  M3：10、12，最终保留评测与演示。08 的证据表明：**瓶颈在切分粒度与跨资料排序（D04/D07），
-  不在检索路数**，10 设计补充检索时应纳入考虑。
+  10 有界补充检索（最多两轮 + 六种停止原因）——开发集开关对照：同查询静态语料下 10 题全
+  `no_new_evidence`、无增益（**正确行为：不会凭空造证据**）；加宽臂 10 题全 `round_limit`
+  （**两轮上限确实 bind**）；两臂 `lost_cases` 恒空为结构性质。生成侧效果未测。
+  证据：`docs/evidence/issue10-bounded-search-20260910.md`、`issue10-supplement.json`。
+  M3：12，最终保留评测与演示。08 的证据表明：**瓶颈在切分粒度与跨资料排序（D04/D07），
+  不在检索路数**；10 的对照进一步表明补充检索亦非本语料的增益来源。
+  **12 已完成**：修复 `run_baseline` 保留集误评缺陷后，保留集首次评测 `recall_at_5=0.75`（dev 0.85）、
+  `broken=0`；四例检索未取全（H03/H04/H09 + Q06）均为"覆盖块存在但排序未进前 5"，交接 13/14/11 结构适配；
+  演示脚本跑通；生成侧 4 题经用户裁定通过；五项验收全满足、无预算耗尽。
+  证据 `docs/evidence/issue12-holdout-and-failures-20260910.md`、`issue12-generation-review-20260910.md`。
 
 ## 执行约定
 
 每项完成需有演示、测试、版本和费用证据。AFK 表示常规实现可自主推进；HITL 表示需要人工核查。03 三类真实验收已于 2026-09-10 完成（含用户账单核对与最终验收）；不能以模拟通过替代真实验收，此原则继续适用于后续任务。
 
-10 元总预算不重置；付费调用条件不具备时保留待办，不宣称完成。**07、15、08 已完成；09/10/12 仍为 open/needs-triage**（09 可选）；开始前先分诊再实施。后续先读 [技能触发规则](docs/development-workflow.md)，按授权直接调用。
+10 元总预算不重置；付费调用条件不具备时保留待办，不宣称完成。**01–08、10、11、13、14、15 及 12 全部 done；09 为可选、未采用**。后续先读 [技能触发规则](docs/development-workflow.md)，按授权直接调用。
 
 技能时机：TDD 阶段为 06/13/14/11/07/15/10（**06/13/14/11/07/15 已完成，均按 tdd**；10 继续按 tdd）；04–06 后、13 前先做 improve-codebase-architecture（**已完成**，2026-09-10，用户裁定保留现状，见 `docs/evidence/architecture-review-20260910.md`）；**13/14 后已做一次局部收敛**（②切分不变量中的元数据剥离抽为共享纯函数 `peel_metadata`，见 `docs/evidence/issue14-followup-peel-metadata-20260910.md`），**08 前就 ⑤ 做了第二次刻意最小收敛**（共享检索规则 `check_search_args`/`active_chunk_ids`/`record_run`/`search_terms` 收进 `store.py`，等价性逐字节证明，见 `docs/evidence/issue08-retriever-comparison-20260910.md`）；③巨函数仍保留；**10 前按新增证据复核，不机械重复重构**。
 **15 已验证 ② 的价值**：`_chunk_procedure` 的元数据误标正是两条各自演化的标注/合并规则所致（指南策略有
@@ -93,7 +104,11 @@ PDF 的页面装饰行成为常规 `metadata` 片段后更容易触发这个差�
 **08 已完成**（2026-09-10）：架构发现 ⑤ 复核后做刻意最小收敛（共享检索规则，等价性逐字节证明）；
   新增 BM25 与 RRF 融合，三路对照**无净提升**（BM25 −0.450、RRF −0.100），如实记录为负面结果。
   证据：`docs/evidence/issue08-retriever-comparison-20260910.md`。
-  **下一步进入 10**（有限补充检索）；10 仍需在实际开始时按「一个外部行为测试→最小实现→回归」的 TDD 节奏推进。
+**10 已完成**（2026-09-10）：前置针对发现 ③④ 的局部复核，结论为新增窄接口 `skra/orchestrate.py`
+  （`MAX_SUPPLEMENTARY_ROUNDS=2` + `StopReason` 六值），**不重写 `answer()`**；复用 `check_search_args`
+  不制造第四份参数守卫（发现 ⑤）。开发集开关对照如实记录同查询无增益、加宽臂两轮上限 bind。
+  证据：`docs/evidence/issue10-bounded-search-20260910.md`、`issue10-precheck-orchestration-20260910.md`。
+  **下一步进入 12**（最终保留评测与演示）；12 依赖 10/11/15，**均已 done**。
 
 架构检查默认仍在 06 后、13 前；若修复已出现缺乏可测接口、职责耦合导致反复跨文件改动、版本规则在多个入口漂移，则提前做局部 improve-codebase-architecture 检查，不必等编号。检查不等于重构，无实际痛点时保留现状。08/10 前按新增证据复核。常规时机调整自主执行并记录依据，无需重复询问技能授权；不借此改变产品范围、预算或未完成的验收。
 

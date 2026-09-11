@@ -1,6 +1,129 @@
 # 新窗口交接：安全知识研究助手
 
-## 最新：**Issue 08 完成（done）** —— 向量 / BM25 / RRF 三路检索对照，**无净提升（如实负面结果）**，下一步 10
+## 最新：**Issue 12 完成（done）** —— 保留集首评 **recall@5=0.75**、演示跑通、四例失败复盘、生成侧 ② 用户裁定通过、五项验收全满足、**无预算耗尽**
+
+本轮按用户「下一步」推进 Issue 12 至收口，**付费仅 0.046104 元**（4 次生成调用）；账本 **0.471396 → 0.5175** 元，可用 9.4825。
+**主线 12 条 Issue 全部 done（09 可选未采用）。**
+
+### 生成侧复核（验收项 ②，2026-09-10）→ **用户已裁定通过**
+
+4 题覆盖四个行为（`check_acceptance.py --live`）：**Q05 grounded ✅**（3 结论逐字有据）/
+**Q08 insufficient ✅**（检索到证据却答不了，**0 结论、无任何数字**，最关键通过项）/
+**Q09 partial ✅**（概念按原文、百分比单列）/**Q06 partial ❌**（期望 grounded）。
+用户逐题裁定：引文与释义**一致**、Q06 归因**接受**、Q08 行为**算通过** → **② 通过**。
+
+**Q06 根因（已查实，与 H03/H09 同源）**：含「最小权限」（LLM01 措施 4）的块 `L36-55` 在 Q06 查询下
+排**第 5 名**；验收运行器内部 `k=3` → 门外 → 模型拿不到措施 4 → **如实**判 partial。
+属 **Issue 03 已记录的已知检索欠项**，**不是生成缺陷**。证据
+`docs/evidence/issue12-generation-review-20260910.{md,json}`。
+**保留诚实记录**：样本仅 4 题，**不构成指标、不宣称整体准确率**；② 通过的是**行为正确性**，不是检索能力已足够。
+
+### 本轮做完的三件事
+
+1. **修好一个真实评测缺陷（先于评测）**：`run_baseline(..., holdout=...)` 会加载保留集却**只评 dev**、
+   且把 `sample_kind` 硬编码 `"development"` —— 会让"保留集最终评测"把 **dev 分数挂在保留集标题下**。
+   按 tdd 先写失败测试 `FinalHoldoutEvaluationTest`（4 例，3 红）再最小修复（`kind` 推导/校验、
+   评 `loaded.holdout`、正确标注、剔除过时 `not_run`），CLI 接线。**25 例 eval 测试全绿。**
+2. **保留集首次开封评测**：报告 `docs/evidence/issue12-holdout-baseline-20260910.json`，
+   `sample_kind="holdout"`、`evaluated_case_ids=[H01…H10]`、**`recall_at_5=0.75`**（dev 0.85）、
+   `broken_bundles=0`、`failed_cases=[]`、`complete=false`（生成侧与人工复核未跑）。
+   逐例：H03 0.50、H04 0.00、H09 0.00，其余 1.00。**未因结果改任何代码/提示词。**
+3. **演示脚本 `scripts/demo.py` 端到端跑通**（免费离线，修复 2 个真实报错后）：
+   ① 切分预览 ② 同题前后证据（同一问题三种切分下覆盖片段名次）③ 失败复盘 ④ 边界（无证据→insufficient）
+   ⑤ 生成路径回执（`request_bytes=13078`、单次最大预留 `3.159228` 元、可用 `9.528604` 元、
+   `blocked=False`、`network_called=False`）。成功与失败路径都展示。
+
+### 三个真实失败案例（均已定位，未修，交接 13/14/11）
+
+| 例 | recall | 覆盖块 | 现象与定位 |
+| --- | --- | --- | --- |
+| H04 | 0.00 | `2d61fd19df57` L1–18 | 覆盖块是整个文档头，向量排序在 top-5 之外（独立复现第 7 名）→ 两个标注束都没取回 |
+| H09 | 0.00 | `7e3ff71da9ec` L45–64 | "预防与缓解"整节被压成一块、稀释 → 未进前 5，标注束没取回 |
+| H03 | 0.50 | `a0636ee4f451` L36–55 中（第 3）/ `45f7c6e76593` L56–67 未进 | 标注 2 束只取回 1 → `recall_at_5=0.50`（**部分取回，非全落空**）；bundle 规则要求全部覆盖才算该束命中，**故意保守** |
+
+共同根因：`heading-lines-v1:20` 把标题+来源+出版者+导语压进 18–20 行块，答案被埋、嵌入被稀释。
+**覆盖片段存在，是"排序未进前 5"，不是"资料没有"。**
+**注意区分行为与度量**：取到部分时系统**照常返回部分答案**（`status=partial`，并说明缺了什么）；
+`0.50` 衡量的是「检索有没有把标注证据取全」，不是「系统有没有作答」。
+
+### 验收项状态：①②③④⑤ 全部完成，**Issue 12 关闭（done）**
+
+- ⑤ 三态区分已收口（见 Issue 卡片）：**已完成**（评测/演示/复盘/行为复核/缺陷修复）、
+  **故意可选/不采用**（09、结构适配修复移交 13/14/11、生成侧正式指标以 4 题行为复核代替）、
+  **预算所致未完成：无**（可用 9.4825 元，未因预算不足暂停任何付费评测）。
+- 用户「全部接受」：引文与释义一致、Q06 归因接受、Q08 行为通过、0.75 与四例缺口作为最终交付接受。
+- 证据文档：`docs/evidence/issue12-holdout-and-failures-20260910.md`、
+  `docs/evidence/issue12-generation-review-20260910.md`。
+- **148 tests 全绿**。
+
+### 主线完成后的状态
+
+- **主线 01–08、10、11、13、14、15、12 全部 done；09 可选、未采用。**
+- **最终交付（诚实版）**：保留集检索 `recall_at_5=0.75`；生成侧**行为正确**（不编造、如实降级、
+  释义准确、不编造分歧）；**能力缺口四例已定位**（根因=20 行粗块、排序掉出预算），**明确移交**而非含糊通过。
+- **未因结果改任何代码或提示词**（保留集独立成绩保持可信）。
+- **切分取舍已定（免费离线）**：保留集三策略对照，`heading-block-v2` 0.750（打平）、`heading-procedure-v3` 0.600（退化）；
+  **无一优于基线 → 维持 `heading-lines-v1:20` 默认**；四例缺口的答案是"段落内部短句 / 清单单条"，
+  现有切分无法在不伤其他题的前提下救回，**记为已知局限**。见
+  `docs/evidence/issue12-holdout-splitter-comparison-20260910.{md,json}`。
+
+**边界**：不重置账本（0.471396 元）、不动任何标签；付费调用仅在本机交互终端。
+
+## 此前：**Issue 10 完成（done）** —— 有界补充检索（最多两轮），**开发集对照如实记录无增益（正确行为）**，下一步 12
+
+本轮按用户「下一步」推进 Issue 10，**全程无付费调用**；账本保持 **0.471396** 元。
+
+### Issue 10 → done（前置架构复核 → 按 TDD 落地 → 开发集开关对照）
+
+让回答在证据不足时，于导入资料内**最多补充检索两轮**，并输出**停止原因与可复查轨迹**。
+**前置复核结论：新增窄接口编排模块 `skra/orchestrate.py`，不重写 `answer()`**（`answer()` 实测 120 行，
+见 `docs/evidence/issue10-precheck-orchestration-20260910.md`）。
+
+**交付物：**
+
+- `skra/orchestrate.py`（新增）：`MAX_SUPPLEMENTARY_ROUNDS = 2`（初次不计）；`StopReason` 六值
+  `sufficient` / `no_new_evidence` / `round_limit` / `timeout` / `error` / `budget`；
+  `Orchestrator` 只做迭代与停止判定，用 `answer_once(evidence, round_no)` 回调 + `is_sufficient` 谓词解耦。
+- `skra/answer.py`（改）：新增 `bounded_answer()`，在 `answer()` 外包一层有界补充检索；**`answer()` 本身未改**。
+- `skra/store.py`（改）：新增 `amend_run()`，把补充记录并入**同一条** run（补写在答案自己的记录上，不追加新行）。
+- `scripts/compare_supplement.py`（新增）：开发集三臂开关对照。
+- `tests/test_orchestrate.py`（19 例）、`tests/test_bounded_answer.py`（7 例）。**144 tests 全绿**（118 → 144）。
+
+**开发集开关对照（固定语料/切分/k/问题/标注，唯一变量=补充轮数）：**
+
+| 臂 | 检索方式 | 10 题停止原因 | 到达证据 |
+| --- | --- | --- | --- |
+| `supplement-off` | 单次 top-k=5 | — | 每题 5 片段 |
+| `supplement-on` | 同查询、静态语料 | **`no_new_evidence`×10**，1 补充轮 | 每题 5 片段，与 off 一致 |
+| `supplement-widening` | 逐轮放宽 k | **`round_limit`×10**，恰 2 补充轮 | 每题 15 片段，0 题退化 |
+
+**结论（如实、不夸大）**：① 同查询静态语料下补充检索**无增益且这是正确行为**——重问同一问题仍返回同一 top-k，
+累积集不增长即停止，**有界循环不会凭空造证据**（安全性证据，非效果提升）；② 加宽臂证明**两轮上限确实 bind**；
+③ 两臂 `lost_cases` 恒为空是**结构性质**，不作为效果证据；④ **生成侧效果未测**（需付费 + 人工语义复核），
+已在报告 `not_run` 列明。**结构状态命中 ≠ 语义通过。**
+
+```bash
+./.venv/Scripts/python.exe scripts/compare_supplement.py \
+  --out docs/evidence/issue10-supplement.json
+```
+
+**四项验收全部满足**：① 最多两轮 + 六种停止原因（逐条测试）；② 参数复用 `check_search_args`、
+工具越权候选被程序拒绝、无联网/写入参数、每请求经真实 `answer()` 走同一账本；
+③ 轨迹含查询/候选/最终证据/外部状态/错误、**无思维链**（回调返回值不入 trace）、随答案持久化；
+④ 无效循环/越权/无新证据/额度耗尽四类测试 + 开发集开关对照。详见
+`docs/evidence/issue10-bounded-search-20260910.md` 与对照 JSON `issue10-supplement.json`。
+
+### ⚠️ 保留集封存（未打开）
+
+`holdout_loaded: false`；`examples/eval-holdout-cases.json`（H01–H10）**全程未打开**，按设计留到 **Issue 12**。
+
+### 下一步：**Issue 12 — 最终保留评测与演示（M3）**
+
+主线：**10（done）→ 12**（+ 可选 09）。12 的依赖（10/11/15）中 11 与 15 已完成，10 本轮完成，
+**依赖已全部满足**。12 将用**封存的保留集**做最终评测，并做端到端演示。
+**边界**：不重置账本（0.471396 元）、不动任何标签；付费调用仅在本机交互终端。
+
+## 此前：**Issue 08 完成（done）** —— 向量 / BM25 / RRF 三路检索对照，**无净提升（如实负面结果）**，下一步 10
 
 本轮按用户「继续」推进 Issue 08，**全程无付费调用**；账本保持 **0.471396** 元。
 
@@ -647,11 +770,12 @@ Issue 05 保持进行中，不进入 06。
 
 ## 1. 从这里继续
 
-**当前进度（2026-09-10）：01–08、11、13、14、15 全部 done；M0/M1/M1D 里程碑完成，15 属 M2D、08 属 M2。主线剩余 10 → 12（09 可选）。**
+**当前进度（2026-09-10）：01–08、10、11、13、14、15、12 全部 done；M0/M1/M1D/M2D/M2/M3 里程碑全部完成；09 可选、未采用。**
+**保留集已于 12 首次开封**（`holdout_loaded=true`，`recall_at_5=0.75`）。
 
-**下一步是 Issue 10**（有限补充检索，M2），入口
-`.scratch/security-research-assistant/issues/10-*.md`。**保留集仍封存至 12**。
-下面第 2–8 节的历史内容保留以便追溯，其中"下一步 08""下一步 15"等表述**均已过时**，勿据此行事。
+**主线已全部完成。** 后续若有新需求，按新 Issue 起；否则项目处于可交付状态。
+下面第 2–8 节的历史内容保留以便追溯，其中"下一步 X"等表述**均已过时**，勿据此行事。
+下面第 2–8 节的历史内容保留以便追溯，其中"下一步 10""下一步 12 前保留集仍封存"等表述**均已过时**，勿据此行事。
 
 ## 2. 用户与协作方式
 
@@ -679,14 +803,15 @@ Issue 05 保持进行中，不进入 06。
 - CLI 入口 `python -m skra`；向量功能与 **PDF 导入**使用 `.\.venv\Scripts\python.exe -m skra`。
 - 现有：Markdown / **文本型 PDF** 导入、快照、**四种切分策略**、SQLite 元数据与运行记录、关键词检索、
   本地纯向量索引、**BM25 关键词检索**、**RRF 排名融合（混合检索）**、DeepSeek 回答、逐字引用校验、
-  **资料更新/删除（版本一致性）**、费用预留与结算、失败正文保存及离线重放。
+  **资料更新/删除（版本一致性）**、**有界补充检索（最多两轮 + 停止原因轨迹）**、
+  费用预留与结算、失败正文保存及离线重放。
 - 切分策略：`heading-lines-v1:20`（基线）/ `heading-block-v2`（指南）/ `heading-procedure-v3`（步骤代码）/
   `pdf-pages-v1`（PDF 按页），导入时按格式与结构自动选择，`--splitter` 可覆盖。
 - chunks 列：`version` / `active` / `kind`（metadata|body）/ `page`（1 基，Markdown 为 NULL）。
 - 本地模型 `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`，revision `e8f8c211226b894fcb81acc59f3b34ba3efd5f42`，384 维，CPU。100-token 窗口归一化均值是编码策略，不是创新切分。
 - 模型位于 `.data/models/minilm`。曾出现 transformers 4.57.6 对重新保存非 Mistral 配置的误报警；核实 model_type=bert、token ID 与保存的 tokenizer.json 一致后，禁用不适用的 Mistral regex 修补。
 - 两份 OWASP 短节选的纯向量开发报告在 `docs/vector-baseline.json`；两题正文 top5 命中，但 top1 为说明段，总样本极小，不能当作正式效果。
-- **最近实际运行的自动测试**：`./.venv/Scripts/python.exe -m unittest discover -s tests`，**118 tests 通过**。
+- **最近实际运行的自动测试**：`./.venv/Scripts/python.exe -m unittest discover -s tests`，**144 tests 通过**。
 
 ## 5. 模型与预算
 
@@ -731,27 +856,32 @@ python -m skra --db .data/boundaries.sqlite3 replay 14
 
 ## 7. Issue 状态与后续顺序
 
-- **done：01、02、03、04、05、06、07、08、11、13、14、15**（03/05/06/07/08/13/14/11/15 均 2026-09-10 完成）。
-- **open：10、12**；09 可选。
-- 主线：**10 → 12**（+ 可选 09）。**下一步 10**。
-- 里程碑：**M0（01–03）、M1（04–06 + 07）、M1D（13/14/11）均已完成**；M2D 完成（15）；M2 进行中（08 完成）。
+- **done：01、02、03、04、05、06、07、08、10、11、12、13、14、15**（均 2026-09-10 完成）。
+- **09 可选、未采用**。主线全部完成。
+- 里程碑：**M0（01–03）、M1（04–06 + 07）、M1D（13/14/11）、M2D（15）、M2（08/10）、M3（12）全部完成**。
+- 里程碑：**M0（01–03）、M1（04–06 + 07）、M1D（13/14/11）均已完成**；M2D 完成（15）；M2 完成（08、10）。
 - 07 已完成（开发/保留集冻结 + `skra eval` 基线，`recall_at_5=0.85`）；**15 已完成**
   （四策略对照：指南 +0.050 / 步骤 −0.450，并修复 procedure 元数据误标缺陷）；
   **08 已完成**（三路检索对照：BM25 −0.450 / RRF −0.100，**无净提升**，如实负面结果）；
-  10 有限补充检索；12 最终保留评测与演示。
-- 编排：11 已提前完成（PDF），故 12 的依赖（10/11/15）中 11 与 15 已满足。
+  **10 已完成**（有界补充检索，最多两轮 + 六种停止原因；开发集对照同查询无增益=正确行为，
+  加宽臂证明两轮上限 bind）；
+  **12 已完成**（修复保留集误评缺陷 → 保留集首评 `recall@5=0.75` → 演示脚本跑通 → 三例失败复盘 →
+  生成侧 4 题经用户裁定通过；**五项验收全满足、无预算耗尽**）。
+- 编排：11 已提前完成（PDF），12 的依赖（10/11/15）**已全部满足**。
 
 ## 8. 技能授权与触发
 
 用户已明确要求“到时候直接调用”，不再询问是否启用：
 
-- **TDD**：06、13、14、11、07、15、**08** **均已完成**（按 tdd 逐条红→绿）；10 继续按 tdd。
+- **TDD**：06、13、14、11、07、15、08、**10** **均已完成**（按 tdd 逐条红→绿）；12 按需继续。
   一次外部行为测试失败→最小实现→通过，不先堆一整批测试。不要把之前事后测试称为 TDD
   （15 是**对照型**：先写可复现的对照脚本，测试只固定外部行为，不把"指标变好"当通过条件；
-  **08 混合了两种**：BM25/融合模块按 TDD 红→绿，三路对照为对照型，**也不把"指标变好"当通过条件**）。
+  **08 混合了两种**：BM25/融合模块按 TDD 红→绿，三路对照为对照型，**也不把"指标变好"当通过条件**；
+  **10 同样混合**：编排器 19 例按 TDD 红→绿，开发集开关对照为对照型，**不把"指标变好"当通过条件**）。
 - **improve-codebase-architecture**：04–06 后、13 前的检查**已完成**（用户裁定本次不重构）；
   13/14 后就 ② 做了刻意最小的局部收敛（`peel_metadata`）；**08 前就 ⑤ 做了第二次刻意最小收敛**
-  （共享检索规则，等价性逐字节证明）。**10 前按新证据复核即可，无新证据则不重构。**
+  （共享检索规则，等价性逐字节证明）；**10 前做了针对性局部复核（发现 ③④）**，结论为新增窄接口
+  `skra/orchestrate.py` 而非重构 `answer()`。**12 前按新证据复核即可，无新证据则不重构。**
 - **diagnose**：当前没有待诊断的真实失败；遇到可复现产品错误时使用（先重放保存的响应、
   写正确层级的回归测试，再修复），不能仅追加提示词后声称语义问题解决。
 - 详细授权见 `docs/development-workflow.md` 和对应 Issue。技能文件从新窗口当前技能目录读取，不凭本摘要替代技能原文。
@@ -762,21 +892,27 @@ python -m skra --db .data/boundaries.sqlite3 replay 14
 先读：本文件 → `PRD.md` v0.2 → `CONTEXT.md` → `docs/development-workflow.md` → **`ROADMAP.md`（任务 State 以此为准）** → 目标 Issue → 最新证据。`docs/progress.md` 是倒序历史记录，旧段落会出现过时状态，以最新节及任务 State 为准。
 
 - 任务：`.scratch/security-research-assistant/issues/`；总览 `ROADMAP.md`。
-- 回答/预算：`skra/answer.py`；入口：`skra/cli.py`；资料：`skra/store.py`；向量：`skra/vector.py`；PDF：`skra/pdf.py`；评测：`skra/eval.py`；BM25：`skra/bm25.py`；融合：`skra/fusion.py`。
+- 回答/预算：`skra/answer.py`（含 `bounded_answer`）；入口：`skra/cli.py`；资料：`skra/store.py`（含 `amend_run`）；向量：`skra/vector.py`；PDF：`skra/pdf.py`；评测：`skra/eval.py`；BM25：`skra/bm25.py`；融合：`skra/fusion.py`；**有界补充检索：`skra/orchestrate.py`**。
 - 切分策略：`store.py` 的 `SPLITTER` / `STRUCTURED_SPLITTER` / `PROCEDURE_SPLITTER` / `PDF_SPLITTER`。
 - 共享检索规则（08 收敛）：`store.py` 的 `check_search_args` / `active_chunk_ids` / `record_run` / `search_terms` / `TOKEN_RE` / `BM25_K1` / `BM25_B` / `RRF_K`。
 - 边界测试：`skra/boundaries.py`、`examples/boundary-cases.json`、`scripts/check_boundaries.py`、`tests/test_boundaries.py`。
 - 验收：`examples/acceptance-cases.json`、`scripts/check_acceptance.py`、`docs/acceptance-draft.md`。
-- 评测：`examples/eval-dev-cases.json`（开发集）、`examples/eval-holdout-cases.json`（**保留集，封存至 12**）、`tests/test_eval.py`。
+- 评测：`examples/eval-dev-cases.json`（开发集）、`examples/eval-holdout-cases.json`（保留集，**已于 12 开封**）、`tests/test_eval.py`。
+- 保留集评测（12）：`docs/evidence/issue12-holdout-baseline-20260910.json`（`sample_kind=holdout`、`recall_at_5=0.75`）、
+  `docs/evidence/issue12-holdout-and-failures-20260910.md`（验收证据 + 三例失败复盘）、
+  `scripts/demo.py`（约三分钟演示，免费离线；`--live` 才付费）。
 - 切分对照（15）：`scripts/compare_splitters.py`（免费离线；`--preview` 导出切分预览与原文前后对照）、
   `docs/evidence/issue15-splitter-comparison-20260910.{json,md}`、`issue15-splitter-preview-20260910.json`。
 - 检索对照（08）：`scripts/compare_retrievers.py`（免费离线；三路向量/BM25/RRF）、
   `docs/evidence/issue08-retriever-comparison-20260910.{json,md}`、`issue08-term-mismatch-20260910.txt`。
+- 补充检索对照（10）：`scripts/compare_supplement.py`（免费离线；开关 + 加宽三臂）、
+  `docs/evidence/issue10-supplement.json`、`issue10-bounded-search-20260910.md`、
+  `issue10-precheck-orchestration-20260910.md`。
 - 指南：`docs/issue05-verification.md`、`docs/live-m0.md`、`docs/vector-usage.md`、`README.md`。
 
 ```bash
 cd E:/DSWorking/project_01
-./.venv/Scripts/python.exe -m unittest discover -s tests -v   # 当前 118 tests
+./.venv/Scripts/python.exe -m unittest discover -s tests -v   # 当前 144 tests
 ./.venv/Scripts/python.exe -m skra budget                      # 0.471396 / 9.528604 / 预留 0
 python scripts/check_boundaries.py                             # 受控边界（免费）
 python scripts/check_acceptance.py                             # 原资料验收（免费；--live 付费）
@@ -789,10 +925,22 @@ python scripts/measure_term_mismatch.py                        # 中英词项错
 # 三路检索对照（免费、离线；向量 / BM25 / RRF）
 ./.venv/Scripts/python.exe scripts/compare_retrievers.py \
   --out docs/evidence/issue08-retriever-comparison-20260910.json
+# 有界补充检索开关对照（免费、离线；off / on / widening 三臂）
+./.venv/Scripts/python.exe scripts/compare_supplement.py \
+  --out docs/evidence/issue10-supplement.json
 # 评测基线（免费、离线；--exclude 排除合成夹具，剔除项会写入报告）
 ./.venv/Scripts/python.exe -m skra eval --exclude 85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97
 # 以下才联网付费；需本机交互终端，密钥不入库不入聊天
 python scripts/check_acceptance.py --live
+
+# 保留集最终评测（12；免费离线；注意 --holdout 会标 sample_kind=holdout）
+./.venv/Scripts/python.exe -m skra eval \
+  --holdout examples/eval-holdout-cases.json \
+  --exclude 85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97 \
+  --out docs/evidence/issue12-holdout-baseline-20260910.json
+
+# 约三分钟演示（12；免费离线；成功与失败路径均展示；加 --live 才付费）
+./.venv/Scripts/python.exe scripts/demo.py
 ```
 
 真实脚本没有环境密钥时会隐藏输入一次，本次进程内使用；未知费用或请求/格式错误即停止。生成报告按时间戳保存，不覆盖原失败证据。
@@ -802,9 +950,12 @@ python scripts/check_acceptance.py --live
 ## 10. 给新窗口的第一条指令
 
 > 请先读取 E:/DSWorking/project_01/HANDOFF.md，按其中的阅读顺序检查项目文件，继承已确认范围、预算和技能授权。
-> **当前进度：01–08、11、13、14、15 已完成（done），M0/M1/M1D 里程碑完成、M2D 完成；主线剩余 10 → 12（09 可选）。**
-> **下一步是 Issue 10**（有限补充检索，M2）——先读 `.scratch/security-research-assistant/issues/` 下对应的 10 卡片。
-> 08 的实测已表明瓶颈在切分粒度与跨资料排序（D04/D07），10 设计补充检索时应纳入考虑，而非继续堆检索路数。
-> **保留集 `examples/eval-holdout-cases.json` 封存至 12，不要打开**。
-> 不预设指标门槛、不宣称效果提升。不要重复询问已有背景，不要重跑已完成的 Issue，不要重置账本。
+> **当前进度：01–08、10、11、13、14、15、12 全部 done；09 可选未采用；M0–M3 里程碑全部完成。**
+> 主线已交付完毕。保留集已于 12 首次开封（`recall_at_5=0.75`），最终交付为**诚实版**：
+> 生成侧行为正确、能力缺口四例（H03/H04/H09 + Q06）已定位并移交 13/14/11 结构适配。
+> 不预设指标门槛、不宣称效果提升、**不把工程改良说成学术创新**。不要重复询问已有背景，不要重跑已完成的 Issue，不要重置账本。
+> 需要真实调用时继续遵守 10 元总预算，密钥只在本机交互终端配置，不在聊天收集。请先简短说明当前状态，然后继续工作。
+> 保留集**已于 12 首次开封**（`recall_at_5=0.75`，dev 0.85），不再封存；三例未取全（H03 0.50、H04/H09 0.00）根因是
+> `heading-lines-v1:20` 的 18–20 行块过粗导致排序未进前 5，已交接 13/14/11 结构适配，**不改固定检索器**。
+> 不预设指标门槛、不宣称效果提升、**不把工程改良说成学术创新**。不要重复询问已有背景，不要重跑已完成的 Issue，不要重置账本。
 > 需要真实调用时继续遵守 10 元总预算，密钥只在本机交互终端配置，不在聊天收集。请先简短说明当前状态，然后继续工作。

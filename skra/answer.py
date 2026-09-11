@@ -8,7 +8,7 @@ from decimal import Decimal, InvalidOperation, ROUND_CEILING
 from datetime import date
 from pathlib import Path
 
-from .store import record_run
+from .store import amend_run, record_run
 
 PROMPT_VERSION = "evidence-v3.5"
 # Per-call output ceiling. Q07 (acceptance) was truncated mid-JSON at 800 tokens
@@ -399,3 +399,60 @@ def answer(store, query, ledger, config=None, key=None, send=transport, demo=Fal
     finally:
         output["answer_run_id"] = record_run(
             store.db, query, output, (time.perf_counter()-started)*1000, sqlite_clock=True)
+
+
+def bounded_answer(store, query, ledger, config=None, key=None, send=transport,
+                   demo=False, preflight=False, search=None, deadline=None):
+    """Answer with at most two supplementary retrieval rounds (Issue 10).
+
+    This wraps `answer` rather than rewriting it: each round is one ordinary
+    single-shot answer, and the orchestrator only decides whether another round
+    is worth running. A round is skipped when the answer is already complete; a
+    round runs when the answer was insufficient or partial and the retriever can
+    still offer something new. The stop reason and a step trace are attached to
+    the returned (and persisted) result, so a run can be reviewed later without
+    any chain-of-thought.
+    """
+    from .orchestrate import Orchestrator
+
+    retriever = search or store.search
+    accumulated = {}
+
+    def accumulate(q, limit):
+        """Return everything gathered so far plus this round's finds.
+
+        Every round is answered from the *accumulated* evidence, never just the
+        latest batch: supplementing widens the evidence, it does not replace it.
+        """
+        raw = retriever(q, limit)
+        for candidate in raw.get("candidates", ()):
+            accumulated.setdefault(candidate["id"], candidate)
+        return {**raw, "candidates": list(accumulated.values())}
+
+    def per_round(evidence, round_no):
+        def fixed_search(q, limit, _evidence=evidence, _round=round_no):
+            return {"mode": "accumulated-evidence", "query": q, "run_id": _round,
+                    "candidates": _evidence}
+        return answer(store, query, ledger, config=config, key=key, send=send,
+                      demo=demo, preflight=preflight, search=fixed_search)
+
+    run = Orchestrator(accumulate, per_round,
+                       is_sufficient=lambda result: bool(result)
+                       and result.get("status") == "grounded",
+                       deadline=deadline)
+    outcome = run.execute(query)
+    outcome.pop("evidence", None)
+    result = run.last_result if run.last_result is not None else {}
+    # The trace describes the answer that was actually returned, so it is stored
+    # on that answer's own run -- otherwise reading the run id would not show why
+    # the loop stopped or how many rounds it took.
+    record = {**result, "supplement": outcome}
+    run_id = result.get("answer_run_id")
+    if run_id is not None:
+        try:
+            amend_run(store.db, run_id, {"supplement": outcome})
+        except ValueError:
+            # A run id that is not this store's (e.g. an injected fixture) is not
+            # a reason to lose the result already computed.
+            pass
+    return record
