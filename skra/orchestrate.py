@@ -24,6 +24,10 @@ from .store import check_search_args
 MAX_SUPPLEMENTARY_ROUNDS = 2
 
 
+class BudgetExceeded(ValueError):
+    """The persistent ledger refused a new reservation."""
+
+
 class StopReason(str, Enum):
     """Why the loop stopped. A str enum so it serialises as a plain word."""
 
@@ -136,6 +140,11 @@ class Orchestrator:
                     "mode": result.get("mode"),
                     "run_id": result.get("run_id"),
                 })
+                if round_no >= 1 and not fresh:
+                    stop_reason, detail = (StopReason.NO_NEW_EVIDENCE,
+                                           "本轮没有带来新证据，跳过重复生成。")
+                    break
+                self._check_time()
                 produced = self.answer_once(list(known.values()), round_no)
                 self.last_result = produced
                 if self.is_sufficient(produced):
@@ -144,15 +153,13 @@ class Orchestrator:
                 if required and required <= set(known):
                     stop_reason, detail = StopReason.SUFFICIENT, "所需证据已齐。"
                     break
-                if round_no >= 1 and not fresh:
-                    stop_reason, detail = (StopReason.NO_NEW_EVIDENCE,
-                                           "本轮没有带来新证据。")
-                    break
                 if round_no >= MAX_SUPPLEMENTARY_ROUNDS:
                     stop_reason, detail = (StopReason.ROUND_LIMIT,
                                            "已达到最多两轮补充检索。")
                     break
                 round_no += 1
+        except BudgetExceeded as exc:
+            stop_reason, detail = StopReason.BUDGET, str(exc)
         except _Stopped as exc:
             stop_reason, detail = exc.reason, exc.detail
         except Exception as exc:  # a retriever/callback failure must not vanish

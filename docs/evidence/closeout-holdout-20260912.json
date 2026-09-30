@@ -1,0 +1,451 @@
+{
+  "kind": "evaluation-baseline",
+  "sample": "examples\\eval-dev-cases.json",
+  "sample_kind": "holdout",
+  "evaluated_case_ids": [
+    "H01",
+    "H02",
+    "H03",
+    "H04",
+    "H05",
+    "H06",
+    "H07",
+    "H08",
+    "H09",
+    "H10"
+  ],
+  "holdout_loaded": true,
+  "holdout_path": "examples\\eval-holdout-cases.json",
+  "freeze": {
+    "sample_hash": "dd9818ba42cb0c8a559ec9693e02801e69b8f0dcbabbcb1b18a5796f867da128",
+    "corpus_hash": "97a66c906d630c52913c22d03aa86e71ac59c8535867bb8f72b1d431bc7f7a55",
+    "splitter": "heading-lines-v1:20",
+    "encoder": "{\"dimension\": 384, \"license\": \"Apache-2.0\", \"model\": \"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2\", \"pooling\": \"mean-of-normalized-100-token-windows-v1\", \"revision\": \"e8f8c211226b894fcb81acc59f3b34ba3efd5f42\"}",
+    "documents": [
+      {
+        "id": "430c5292e08d172042ae48044d9a6a852a5ec64877c2aa5196c45b389ace71c6",
+        "title": "OWASP LLM01:2025 Prompt Injection",
+        "hash": "679574c46aa5f1f1b617de3a4d118fff1b4de2fca9547cffabf602e23cf7dc03",
+        "splitter": "heading-lines-v1:20"
+      },
+      {
+        "id": "5b2cde247c42322e5ec7c226586e6df77adb01dbb2ffb5957ba08fd8edd63086",
+        "title": "OWASP LLM06:2025 Excessive Agency",
+        "hash": "04622e640483933541976c92209980a04a81d2bc96dd32878efeecffca39b333",
+        "splitter": "heading-lines-v1:20"
+      },
+      {
+        "id": "7952100613d7af06f2ba3ee8274113cae58af10b8bdc4462ab2c3797db00bb0e",
+        "title": "OWASP LLM Prompt Injection Prevention Cheat Sheet",
+        "hash": "a2c453d8d7ee492e1956e38fb09408cf48c248b1906b3135af2a2de1c1663c31",
+        "splitter": "heading-lines-v1:20"
+      }
+    ]
+  },
+  "k": 5,
+  "case_count": 10,
+  "scored_cases": 10,
+  "failed_cases": [],
+  "aggregate": {
+    "recall_at_5": 0.75,
+    "mean_evidence_tokens": 1663.0,
+    "total_metadata_chunks": 0,
+    "broken_bundles": 0
+  },
+  "cases": [
+    {
+      "case_id": "H01",
+      "question": "多模态模型在提示注入上带来了哪些新增风险？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "f407b0df0751e293b16cd7d45574cdd1b7acfe0cf70ee3d90e1455d02ab29c4c",
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+        "a06df48618a25bd08385b31da58da8d14709ce4b26c0fe94cc7d61b9b0541596"
+      ],
+      "evidence_tokens": 1295,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 34,
+          "end_line": 34,
+          "required_together": true,
+          "covering_chunks": [
+            "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e"
+          ],
+          "retrieved_chunks": [
+            "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 65.07949999650009,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "H02",
+      "question": "成功的提示注入可能造成哪些后果？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "f407b0df0751e293b16cd7d45574cdd1b7acfe0cf70ee3d90e1455d02ab29c4c",
+        "4bd74e58fad53520645a2d9acc5332538b494553b7a9bcbd1af8229a8c4753b4",
+        "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282"
+      ],
+      "evidence_tokens": 1497,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 25,
+          "end_line": 32,
+          "required_together": true,
+          "covering_chunks": [
+            "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e"
+          ],
+          "retrieved_chunks": [
+            "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 31.503700010944158,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "H03",
+      "question": "资料建议用哪些措施来缓解提示注入？",
+      "relevant_bundles": 2,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 0.5,
+      "retrieved_chunk_ids": [
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+        "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282",
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b"
+      ],
+      "evidence_tokens": 2406,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 60,
+          "end_line": 62,
+          "required_together": true,
+          "covering_chunks": [
+            "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb"
+          ],
+          "retrieved_chunks": [],
+          "whole": false,
+          "broken": false
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 52,
+          "end_line": 54,
+          "required_together": true,
+          "covering_chunks": [
+            "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c"
+          ],
+          "retrieved_chunks": [
+            "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 26.115900021977723,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "H04",
+      "question": "允许模型自主调用扩展时，为什么会放大提示注入的影响？",
+      "relevant_bundles": 2,
+      "retrieved_bundles": 0,
+      "broken_bundles": 0,
+      "recall_at_5": 0.0,
+      "retrieved_chunk_ids": [
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "f407b0df0751e293b16cd7d45574cdd1b7acfe0cf70ee3d90e1455d02ab29c4c",
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+        "4bd74e58fad53520645a2d9acc5332538b494553b7a9bcbd1af8229a8c4753b4"
+      ],
+      "evidence_tokens": 1381,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "start_line": 9,
+          "end_line": 9,
+          "required_together": true,
+          "covering_chunks": [
+            "2d61fd19df57160f8effc70d284a5fb9824ff6886f8ebf580556a0787774c419"
+          ],
+          "retrieved_chunks": [],
+          "whole": false,
+          "broken": false
+        },
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "start_line": 11,
+          "end_line": 11,
+          "required_together": true,
+          "covering_chunks": [
+            "2d61fd19df57160f8effc70d284a5fb9824ff6886f8ebf580556a0787774c419"
+          ],
+          "retrieved_chunks": [],
+          "whole": false,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 62.637099996209145,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "H05",
+      "question": "为什么说「用另一个模型做护栏」不能作为唯一防线？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b",
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb",
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c"
+      ],
+      "evidence_tokens": 2038,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html",
+          "start_line": 46,
+          "end_line": 46,
+          "required_together": true,
+          "covering_chunks": [
+            "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b"
+          ],
+          "retrieved_chunks": [
+            "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 64.22140001086518,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "H06",
+      "question": "对抗性测试为什么要把模型当成不受信任的用户来对待？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b",
+        "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb",
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "3e71aae89bfa24dc89bb9f73e4597d067b5cd8d40435de0ace51086d2308d5a0"
+      ],
+      "evidence_tokens": 1669,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 64,
+          "end_line": 66,
+          "required_together": true,
+          "covering_chunks": [
+            "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb"
+          ],
+          "retrieved_chunks": [
+            "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 46.22430002200417,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "H07",
+      "question": "怎样把「执行扩展时沿用用户身份」落到具体做法上？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "242267a0915520318f41eb1062035766fe6bda3d69cfdd259531a6f46c93b85e",
+        "7e3ff71da9ec17fc696ead54882d82cbd564162ee3e24300377be885069834ac",
+        "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282",
+        "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb",
+        "1500d1a3e1fa10de10fc3fb97ac470c3edd9b316d9af6c5dc28b5979e5d6ddca"
+      ],
+      "evidence_tokens": 1402,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "start_line": 65,
+          "end_line": 67,
+          "required_together": true,
+          "covering_chunks": [
+            "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282"
+          ],
+          "retrieved_chunks": [
+            "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 41.679699992528185,
+      "expected_status": "grounded"
+    },
+    {
+      "case_id": "H08",
+      "question": "资料是否给出了各家护栏模型的检出率对比？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b",
+        "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb",
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282"
+      ],
+      "evidence_tokens": 2129,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html",
+          "start_line": 34,
+          "end_line": 34,
+          "required_together": false,
+          "covering_chunks": [
+            "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b"
+          ],
+          "retrieved_chunks": [
+            "f7502921434df683fee131786d30b6d0508eb43900942caebe23cb68653ea29b"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 65.27950000599958,
+      "expected_status": "insufficient"
+    },
+    {
+      "case_id": "H09",
+      "question": "限制扩展权限对减少损害有多大作用？在样例系统上能减少多少误操作？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 0,
+      "broken_bundles": 0,
+      "recall_at_5": 0.0,
+      "retrieved_chunk_ids": [
+        "9389e6b24937a9745cfbf138319503bb9902283e9cba90a9695e31f5929b9282",
+        "a0636ee4f451d86dd991007a640f1b37534abc8bd9ace2942fa076793c434e0c",
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "45f7c6e76593810a193fe4baa414fdf897663c95cee6b7fb1e8829da9d41fbeb"
+      ],
+      "evidence_tokens": 1833,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "start_line": 61,
+          "end_line": 63,
+          "required_together": true,
+          "covering_chunks": [
+            "7e3ff71da9ec17fc696ead54882d82cbd564162ee3e24300377be885069834ac"
+          ],
+          "retrieved_chunks": [],
+          "whole": false,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 47.599000012269244,
+      "expected_status": "partial"
+    },
+    {
+      "case_id": "H10",
+      "question": "在 RAG 场景里，攻击者是怎么让模型输出被误导的？",
+      "relevant_bundles": 1,
+      "retrieved_bundles": 1,
+      "broken_bundles": 0,
+      "recall_at_5": 1.0,
+      "retrieved_chunk_ids": [
+        "f407b0df0751e293b16cd7d45574cdd1b7acfe0cf70ee3d90e1455d02ab29c4c",
+        "423d590dde4178b97284a543a5c9b3a36e309163e08b38596dd38396460eac5e",
+        "c71543c98acb35ec7293a744439d58504cda150a7453a890d2880a4fa13f1b25",
+        "1ce33834ed9908799e3048650a5900f36129cc17d32ffffb7d82eb3c6bc2ab1a",
+        "a06df48618a25bd08385b31da58da8d14709ce4b26c0fe94cc7d61b9b0541596"
+      ],
+      "evidence_tokens": 980,
+      "metadata_chunks": 0,
+      "bundles": [
+        {
+          "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "start_line": 78,
+          "end_line": 80,
+          "required_together": true,
+          "covering_chunks": [
+            "f407b0df0751e293b16cd7d45574cdd1b7acfe0cf70ee3d90e1455d02ab29c4c"
+          ],
+          "retrieved_chunks": [
+            "f407b0df0751e293b16cd7d45574cdd1b7acfe0cf70ee3d90e1455d02ab29c4c"
+          ],
+          "whole": true,
+          "broken": false
+        }
+      ],
+      "error": null,
+      "elapsed_ms": 37.692599988076836,
+      "expected_status": "grounded"
+    }
+  ],
+  "elapsed_ms": 488.05740001262166,
+  "network_called": false,
+  "billed_calls": 0,
+  "cost_rmb": 0,
+  "budget_note": "本基线不联网、不记账；付费生成指标留待需要时在本机交互终端运行。",
+  "evidence_tokens_estimate_note": "证据 token 为 字符数/4 的确定性估算，不是真实分词计数；仅用于在同一把尺子下比较策略。",
+  "complete": false,
+  "not_run": [
+    "生成侧指标（引用支持率、无答案正确说明率、误拒答率）：需付费调用与人工语义复核，本任务未运行。",
+    "切分对照与混合检索比较：属于 Issue 15 / 08。"
+  ],
+  "manual_review": "pending",
+  "retrieval": "vector",
+  "excluded_doc_ids": []
+}

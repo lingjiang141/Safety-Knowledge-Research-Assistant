@@ -1,0 +1,26 @@
+[
+  {
+    "title": "OWASP LLM Prompt Injection Prevention Cheat Sheet",
+    "source": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html",
+    "license": "CC BY-SA 4.0",
+    "acquired": "2026-09-10",
+    "sha256": "a2c453d8d7ee492e1956e38fb09408cf48c248b1906b3135af2a2de1c1663c31",
+    "file": "owasp-prevention-cheatsheet-full.md"
+  },
+  {
+    "title": "OWASP LLM01:2025 Prompt Injection",
+    "source": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+    "license": "CC BY-SA 4.0",
+    "acquired": "2026-09-10",
+    "sha256": "679574c46aa5f1f1b617de3a4d118fff1b4de2fca9547cffabf602e23cf7dc03",
+    "file": "owasp-llm01-prompt-injection-full.md"
+  },
+  {
+    "title": "OWASP LLM06:2025 Excessive Agency",
+    "source": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+    "license": "CC BY-SA 4.0",
+    "acquired": "2026-09-10",
+    "sha256": "04622e640483933541976c92209980a04a81d2bc96dd32878efeecffca39b333",
+    "file": "owasp-llm06-excessive-agency-full.md"
+  }
+]

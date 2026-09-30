@@ -1,8 +1,9 @@
 """One-command, ~3-minute demo of the delivered pipeline (Issue 12).
 
 The demo is deliberately free and offline: it needs only the standard library
-plus the local model in `.venv`, and it never touches the network or the budget
-ledger. It walks the four things the project is actually for:
+plus the downloaded local model. It reads the budget summary and writes local
+run records, but does not call the network or reserve/spend budget by default.
+It walks the four things the project is actually for:
 
   1. 切分预览    what the splitter does to the same original lines;
   2. 同题前后证据 the same question, retrieved before and after the structural
@@ -26,7 +27,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from skra.answer import Ledger, answer  # noqa: E402
-from skra.eval import load_cases, score_retrieval  # noqa: E402
+from skra.eval import load_cases, score_retrieval, resolve_span  # noqa: E402
 from skra.store import Store  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,7 +36,7 @@ DEV_CASES = ROOT / "examples/eval-dev-cases.json"
 HOLDOUT_CASES = ROOT / "examples/eval-holdout-cases.json"
 FIXTURE = "85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97"
 SPLITTERS = ("heading-lines-v1:20", "heading-block-v2", "heading-procedure-v3")
-SHOWCASE = "D04"        # 结构切分把定义段从第 2 名提到第 1 名
+SHOWCASE = "D04"        # 展示真实命中与未命中，不预设结构切分会提升。
 MISSES = ("H03", "H04", "H09")
 
 
@@ -85,7 +86,7 @@ def step_before_after(docs, workdir, cases):
     case = next(c for c in cases if c.id == SHOWCASE)
     span = case.evidence[0]
     print(f"问题：{case.question}")
-    print(f"标注答案：{span.source.rsplit('/', 1)[-1]} 第 {span.start_line}–{span.end_line} 行")
+    print(f"标注答案：{span.source.rstrip('/').rsplit('/', 1)[-1]} 第 {span.start_line}–{span.end_line} 行")
     print(f"必须含：{'、'.join(span.must_include)}")
     print()
     for splitter in SPLITTERS:
@@ -95,18 +96,17 @@ def step_before_after(docs, workdir, cases):
             vector = VectorSearch(store, encoder=Encoder())
             vector.build()
             # Which active chunk covers the annotated span under this splitter?
-            covered = store.db.execute(
-                """SELECT id,start_line,end_line FROM chunks
-                   WHERE active=1 AND start_line<=? AND end_line>=?
-                   ORDER BY start_line""",
-                (span.end_line, span.start_line)).fetchall()
+            covered = resolve_span(store, span)
             covered_ids = [r["id"] for r in covered]
             result = vector.search(case.question, 5)
             ids = [c["id"] for c in result["candidates"]]
             ranks = [ids.index(cid) + 1 for cid in covered_ids if cid in ids]
             span_desc = "、".join(f"L{r['start_line']}-{r['end_line']}" for r in covered)
-            got = f"第 {ranks[0]} 名" if ranks else "未进前 5"
-            marker = "✅" if ranks else "❌"
+            whole = (len(ranks) == len(covered_ids)) if span.required_together else bool(ranks)
+            got = (f"第 {', '.join(map(str, sorted(ranks)))} 名" if ranks else "未进前 5")
+            if ranks and not whole:
+                got += "（仅部分证据，未完整命中）"
+            marker = "✅" if whole else "❌"
             print(f"  {splitter:<22} 覆盖片段 {span_desc:<10} → {marker} {got}")
         finally:
             store.close()
@@ -164,7 +164,7 @@ def step_boundary(store, ledger):
     print("  （检索不到证据时如实降级为「无结论 + 明确缺失」，不生成回答、不编造。）")
 
 
-def step_generation(store, ledger, live):
+def step_generation(store, ledger, live, config_path=None):
     """Show the paid path as a receipt; only bill with --live.
 
     The question is in English on purpose: the local keyword retriever indexes
@@ -174,11 +174,18 @@ def step_generation(store, ledger, live):
     """
     rule("⑤ 生成路径（付费需 --live）")
     question = "What is excessive agency?"
-    config = json.loads(
-        (ROOT / "examples/deepseek-flash.2026-09-09.json").read_text(encoding="utf-8"))
+    config = json.loads(Path(config_path or
+        ROOT / "examples/deepseek-flash.2026-09-09.json").read_text(encoding="utf-8"))
     # Preflight needs the verified config (to compute the reservation) but no key:
     # it stops before any network call. A key is only read under --live.
-    check = answer(store, question, ledger, config, preflight=True)
+    try:
+        check = answer(store, question, ledger, config, preflight=True)
+    except ValueError as exc:
+        if live:
+            raise
+        print(f"  预检不可用：{exc}")
+        print("  离线演示继续；需要有效计费配置时传 --config。没有联网或计费。")
+        return
     print(f"  问题：{question}")
     if "request_bytes" not in check:
         # No evidence retrieved: answer() returns the honest `insufficient` shape
@@ -201,7 +208,7 @@ def step_generation(store, ledger, live):
     result = answer(store, question, ledger, config, key)
     print(f"  状态：{result['status']}")
     print(f"  运行记录：answer_run_id={result.get('answer_run_id')}"
-          f"（可用 `python -m skra run <id>` 回看）")
+          f"（使用本次 --db 路径执行 `python -m skra --db <路径> run <id>` 回看）")
     print("  结论：")
     for claim in result["claims"]:
         print(f"    · {claim['text']}")
@@ -223,12 +230,16 @@ def main():
         sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="约三分钟演示：切分、检索、失败与边界")
     parser.add_argument("--live", action="store_true", help="执行付费生成（需本机密钥）")
+    parser.add_argument("--db", default=str(SOURCE_DB), help="已准备的语料库")
+    parser.add_argument("--config", help="已核对的本机计费配置；不会自动更新核对日期")
     args = parser.parse_args()
 
-    docs = load_corpus()
+    if not Path(args.db).is_file():
+        raise SystemExit("数据库不存在；先运行 scripts/prepare_demo.py，再用 --db 指定演示库。")
+    docs = load_corpus(args.db)
     if not docs:
         raise SystemExit("工作库里没有真实资料，先导入 OWASP 快照再演示。")
-    store = Store(SOURCE_DB)
+    store = Store(args.db)
     ledger = Ledger(ROOT / ".data/budget.sqlite3")
     try:
         cases = load_cases(DEV_CASES)
@@ -237,7 +248,7 @@ def main():
             step_before_after(docs, workdir, cases)
             step_failures(docs, workdir)
         step_boundary(store, ledger)
-        step_generation(store, ledger, args.live)
+        step_generation(store, ledger, args.live, args.config)
     finally:
         store.close()
         ledger.close()

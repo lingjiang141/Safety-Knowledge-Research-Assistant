@@ -9,6 +9,7 @@ from datetime import date
 from pathlib import Path
 
 from .store import amend_run, record_run
+from .orchestrate import BudgetExceeded
 
 PROMPT_VERSION = "evidence-v3.5"
 # Per-call output ceiling. Q07 (acceptance) was truncated mid-JSON at 800 tokens
@@ -148,10 +149,10 @@ class Ledger:
         try:
             info = self.summary()
             if info["blocked"]:
-                raise ValueError("存在未结算请求；核对账单前禁止新调用。")
+                raise BudgetExceeded("存在未结算请求；核对账单前禁止新调用。")
             spent = self.db.execute("SELECT COALESCE(SUM(spent),0) FROM calls").fetchone()[0]
             if amount < 0 or spent + amount > 10000000:
-                raise ValueError("预算不足，未发起请求。")
+                raise BudgetExceeded("预算不足，未发起请求。")
             row = self.db.execute("INSERT INTO calls VALUES (NULL,'pending',?,0,?,NULL)",
                                   (amount, json.dumps(metadata, ensure_ascii=False)))
             self.db.commit()
@@ -416,27 +417,16 @@ def bounded_answer(store, query, ledger, config=None, key=None, send=transport,
     from .orchestrate import Orchestrator
 
     retriever = search or store.search
-    accumulated = {}
-
-    def accumulate(q, limit):
-        """Return everything gathered so far plus this round's finds.
-
-        Every round is answered from the *accumulated* evidence, never just the
-        latest batch: supplementing widens the evidence, it does not replace it.
-        """
-        raw = retriever(q, limit)
-        for candidate in raw.get("candidates", ()):
-            accumulated.setdefault(candidate["id"], candidate)
-        return {**raw, "candidates": list(accumulated.values())}
-
     def per_round(evidence, round_no):
         def fixed_search(q, limit, _evidence=evidence, _round=round_no):
-            return {"mode": "accumulated-evidence", "query": q, "run_id": _round,
-                    "candidates": _evidence}
+            snapshot = {"mode": "accumulated-evidence", "query": q, "round": _round,
+                        "candidates": _evidence}
+            snapshot["run_id"] = record_run(store.db, q, snapshot, 0)
+            return snapshot
         return answer(store, query, ledger, config=config, key=key, send=send,
                       demo=demo, preflight=preflight, search=fixed_search)
 
-    run = Orchestrator(accumulate, per_round,
+    run = Orchestrator(retriever, per_round,
                        is_sufficient=lambda result: bool(result)
                        and result.get("status") == "grounded",
                        deadline=deadline)

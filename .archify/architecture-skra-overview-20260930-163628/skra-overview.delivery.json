@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "c5966324-3e44-4027-a721-f7c2cbd6a7d1",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Users\\XiaQiu Ling\\AppData\\Local\\Temp\\archify-run\\.archify\\architecture-skra-overview-20260930-163628\\candidate.json",
+  "output": "C:\\Users\\XiaQiu Ling\\AppData\\Local\\Temp\\archify-run\\.archify\\architecture-skra-overview-20260930-163628\\skra-overview.html",
+  "specification": {
+    "sha256": "deeef8a74fae8ab71023da0a372d728ef9e5dd34330f2f42d831ffbf847ee17b",
+    "bytes": 9780
+  },
+  "artifact": {
+    "sha256": "88bb0e5135ea998fbdc92016aee0345cab3f0bc866b677425347e80e913a7036",
+    "bytes": 774523
+  }
+}

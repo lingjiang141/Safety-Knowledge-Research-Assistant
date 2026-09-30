@@ -49,7 +49,7 @@ class OrchestrateStopTest(unittest.TestCase):
         self.assertEqual(result["stop_reason"], StopReason.NO_NEW_EVIDENCE)
         self.assertEqual(search.calls, 2)  # first pass + one supplementary round
         self.assertEqual(result["supplementary_rounds"], 1)
-        self.assertEqual(seen, [0, 1], "the answer callback runs once per pass")
+        self.assertEqual(seen, [0], "a pass without new evidence skips generation")
 
     def test_sufficient_evidence_stops_immediately(self):
         search = FakeSearch([["a"]])

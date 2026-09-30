@@ -28,7 +28,9 @@ class BoundedAnswerTest(unittest.TestCase):
         self.addCleanup(self.ledger.close)
         self.store.ingest(ROOT / "examples/security-demo.md", "demo",
                           "urn:demo", "CC0", "2026-09-09")
-        self.evidence = self.store.search("提示注入")["candidates"][:2]
+        self.evidence = (self.store.search("提示注入")["candidates"][:1]
+                         + self.store.search("工具权限")["candidates"][:1])
+        self.assertEqual(len({e["id"] for e in self.evidence}), 2)
         self.config = {"model": "offline-fixture", "verified": True,
                        "verified_at": date.today().isoformat(),
                        "input_bound_strategy": "context-window",
@@ -109,7 +111,7 @@ class BoundedAnswerTest(unittest.TestCase):
                                                   ("insufficient", "资料没有提供该数据。")],
                                                  seen),
                                 search=search)
-        self.assertEqual(len(seen), 2)
+        self.assertEqual(len(seen), 1, "unchanged evidence must not cause another billed call")
         self.assertEqual(result["supplement"]["stop_reason"], "no_new_evidence")
         self.assertEqual(result["supplement"]["supplementary_rounds"], 1)
 
@@ -157,6 +159,20 @@ class BoundedAnswerTest(unittest.TestCase):
         from skra.store import amend_run
         with self.assertRaises(ValueError):
             amend_run(self.store.db, 999999, {"supplement": {}})
+
+    def test_answer_retrieval_id_resolves_to_its_accumulated_evidence(self):
+        result = bounded_answer(self.store, "提示注入", self.ledger, demo=True)
+        retrieval = self.store.run(result["retrieval_run_id"])
+        self.assertEqual(retrieval["mode"], "accumulated-evidence")
+        self.assertTrue(retrieval["candidates"])
+
+    def test_insufficient_budget_is_reported_as_budget(self):
+        self.ledger.reserve(10_000_000, {})
+        seen = []
+        result = bounded_answer(self.store, "提示注入", self.ledger, self.config, "k",
+                                send=self.sender([], seen))
+        self.assertEqual(result["supplement"]["stop_reason"], "budget")
+        self.assertEqual(seen, [])
 
     def test_the_two_round_cap_holds_even_when_every_round_adds_evidence(self):
         pool = self.evidence + [{"id": "extra", "text": "额外证据", "version": "v"}]

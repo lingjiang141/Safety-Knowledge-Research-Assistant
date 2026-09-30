@@ -1,7 +1,8 @@
 """Compare document-splitting strategies on the frozen development sample (Issue 15).
 
 One factor changes between runs: the splitter. The corpus text, the questions, the
-annotations, the encoder, top-k and the evidence budget all stay fixed, so a
+annotations, the encoder and top-k all stay fixed (token volume is measured,
+not capped), so a
 difference in the report can only come from how the document was cut.
 
 Each strategy is materialised as its own database from the *same* stored snapshots,
@@ -114,12 +115,17 @@ def preview(strategies, source_db=SPLITTER_SOURCE, context=2):
         doc_previews = []
         for source in sorted(by_source):
             doc = by_source[source]
-            store.ingest(_write_snapshot(source, doc["snapshot"]), doc["title"],
-                         source, doc["license"], doc["acquired"], splitter=splitter)
+            snapshot_path = _write_snapshot(source, doc["snapshot"])
+            try:
+                imported = store.ingest(snapshot_path, doc["title"],
+                                        source, doc["license"], doc["acquired"], splitter=splitter)
+            finally:
+                snapshot_path.unlink(missing_ok=True)
             lines = doc["snapshot"].split("\n")
             rows = [dict(r) for r in store.db.execute(
                 "SELECT id,kind,start_line,end_line,text FROM chunks "
-                "WHERE active=1 ORDER BY start_line, id")]
+                "WHERE active=1 AND doc_id=? ORDER BY start_line, id",
+                (imported["document_id"],))]
             doc_previews.append({
                 "source": source,
                 "title": doc["title"],
@@ -249,7 +255,7 @@ def build_report(runs, cases, k):
             "encoder": (runs[0]["freeze"]["encoder"] if runs else None),
             "retriever": "local exact-cosine vector search",
             "k": k,
-            "evidence_budget": "固定 top-k=5；证据 token 为估算，同一把尺子比较",
+            "evidence_budget": f"固定 top-k={k}；未限制总 token，证据 token 为字符数/4 的估算",
             "questions": "开发集 D01–D10，标注与 07 冻结一致",
         },
         "corpus_freeze": (runs[0]["freeze"]["corpus_hash"] if runs else None),

@@ -266,11 +266,10 @@ class Store:
     def _chunk_structured(self, doc_id, content_hash, content):
         """Structure-aware splitting for guides.
 
-        A block = a heading plus its body up to the next heading of the same or
-        higher level. Within a block, a definition paragraph is kept together with
-        the list it introduces, so a qualifier is never separated from its items.
-        Oversized blocks are split only at blank-line boundaries and keep their
-        section label, never mid-sentence.
+        Any Markdown heading starts a block. Metadata is labelled separately.
+        Body blocks use a 20-line threshold with a narrow exception for a colon
+        immediately followed by a list item. This is not paragraph- or hierarchy-
+        aware and does not guarantee whole lists or sentences stay together.
         """
         lines = content.splitlines()
         blocks = []  # (section, start_line, end_line)
@@ -296,9 +295,7 @@ class Store:
             text = "\n".join(lines[start - 1:end])
             if not text.strip():
                 continue
-            # Keep a definition paragraph with the list that follows it: split only
-            # at blank lines, and never between an introducing colon line and its
-            # list items.
+            # Apply the fixed-line threshold and narrow colon/list exception.
             pieces = self._split_block(lines[start - 1:end], start)
             for piece_start, piece_end, piece_text in pieces:
                 kind = "metadata" if (section == METADATA_SECTION
@@ -576,11 +573,10 @@ class Store:
 
     @staticmethod
     def _procedure_pieces(start, end, lines, budget=20):
-        """Cut one unit into pieces, keeping fences and their introducer together.
+        """Keep code fences atomic; split prose at blank lines or the line budget.
 
-        A fenced block (plus the sentence that announces it) is atomic — never split
-        — and a blank line starts a new piece, so a step's paragraph, its code and a
-        following warning each stay locatable.
+        Only prose still pending at the fence is attached to it. A preceding blank
+        line can already have emitted the introducer as a separate piece.
         """
         block = lines[start - 1:end]
         pieces, pending, at = [], [], start
@@ -620,7 +616,7 @@ class Store:
 
     @staticmethod
     def _split_block(block_lines, offset, budget=20):
-        """Split a block at blank lines, keeping a list with its introducing line."""
+        """Split at the line budget, deferring a colon immediately before a list item."""
         pieces = []
         pending, start = [], offset
         i = 0
@@ -767,8 +763,8 @@ class Store:
             tokens = set(re.findall(r"[a-z0-9_]+|[\u4e00-\u9fff]+", row["text"].lower()))
             score = len(terms & tokens)
             if score:
-                # Body evidence takes precedence over provenance boilerplate, so
-                # a licence/source line cannot occupy a body search slot (Issue 13).
+                # Prefer body over metadata only when lexical scores tie; this
+                # does not reserve body slots or filter metadata out.
                 ranked.append((-score, row["kind"] != "body", row["id"]))
         ranked.sort()
         results = [{**self.read(cid), "score": -score} for score, _, cid in ranked[:limit]]

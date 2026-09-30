@@ -30,6 +30,11 @@ def store_with(rows):
 
 
 class BM25SearchTest(unittest.TestCase):
+    def make_store(self, rows):
+        store = store_with(rows)
+        self.addCleanup(store.close)
+        return store
+
     def test_term_frequency_saturates_instead_of_scaling_linearly(self):
         """The 10th repeat must add far less than the 1st; a count-based score would not.
 
@@ -40,7 +45,7 @@ class BM25SearchTest(unittest.TestCase):
         for both terms, so which chunk wins is not the point -- how much the
         repeats are worth is.
         """
-        store = store_with([
+        store = self.make_store([
             ("once", "least privilege", "body"),
             ("ten", "least privilege " * 10, "body"),
         ])
@@ -60,7 +65,7 @@ class BM25SearchTest(unittest.TestCase):
         Same terms in both, same counts -- the difference is how much unrelated
         text surrounds them. BM25's b term must rank the focused chunk first.
         """
-        store = store_with([
+        store = self.make_store([
             ("diluted", "least privilege " + "filler " * 60, "body"),
             ("focused", "least privilege limits what an agent may do.", "body"),
         ])
@@ -70,14 +75,14 @@ class BM25SearchTest(unittest.TestCase):
 
     def test_retired_versions_are_never_returned(self):
         """The active filter is shared with every other retriever (Issue 06)."""
-        store = store_with([("old", "prompt injection retired copy", "body")])
+        store = self.make_store([("old", "prompt injection retired copy", "body")])
         with store.db:
             store.db.execute("UPDATE chunks SET active=0 WHERE id='old'")
         result = BM25Search(store).search("prompt injection", limit=5)
         self.assertEqual(result["candidates"], [])
 
     def test_the_shared_argument_guard_applies(self):
-        store = store_with([("a", "prompt injection", "body")])
+        store = self.make_store([("a", "prompt injection", "body")])
         for bad in (0, 21):
             with self.subTest(limit=bad):
                 with self.assertRaises(ValueError):
@@ -87,7 +92,7 @@ class BM25SearchTest(unittest.TestCase):
 
     def test_the_result_is_reviewable_and_persisted_like_the_other_retrievers(self):
         """Fusion needs one candidate shape across retrievers, and a stored run."""
-        store = store_with([("a", "prompt injection is a real risk", "body")])
+        store = self.make_store([("a", "prompt injection is a real risk", "body")])
         result = BM25Search(store).search("prompt injection", limit=5)
         self.assertEqual(result["mode"], "bm25")
         self.assertEqual(result["parameters"]["k1"], BM25_K1)
@@ -104,7 +109,7 @@ class BM25SearchTest(unittest.TestCase):
         BM25 follows the keyword path (body first) and says so in the report, so a
         fusion layer can see the difference instead of guessing.
         """
-        store = store_with([
+        store = self.make_store([
             ("meta", "Least Privilege License: least privilege least privilege", "metadata"),
             ("body", "least privilege limits what an agent may do.", "body"),
         ])
@@ -120,7 +125,7 @@ class BM25SearchTest(unittest.TestCase):
         docs/evidence/issue08-term-mismatch-20260910.txt); BM25 has to report the
         miss honestly instead of returning arbitrary chunks.
         """
-        store = store_with([("a", "least privilege limits what an agent may do.", "body")])
+        store = self.make_store([("a", "least privilege limits what an agent may do.", "body")])
         result = BM25Search(store).search("为什么不能只让模型自己判断？", limit=5)
         self.assertEqual(result["candidates"], [])
 

@@ -1,7 +1,7 @@
 """Compare retrieval modes on the frozen development sample (Issue 08).
 
 One factor changes between runs: the retriever. The corpus, the splitter, the
-questions, the annotations, the encoder, top-k and the evidence budget all stay
+questions, the annotations, the encoder, top-k all stay
 fixed, so a difference in the report can only come from how candidates were
 ranked. That is the whole point of the task -- "does adding keyword matching and
 rank fusion to the vector retriever change what the same questions retrieve?"
@@ -13,7 +13,7 @@ Three modes are compared:
   hybrid-rrf  Reciprocal Rank Fusion of the two above
 
 RRF is deliberately rank-based, so the two very different score scales (cosine
-in [0,1], BM25 unbounded) are never added together; each candidate records which
+in [-1,1], BM25 unbounded) are never added together; each candidate records which
 retriever gave it which rank, so a fusion result can be audited.
 
 The holdout set stays sealed: this script only ever names the development sample.
@@ -241,7 +241,7 @@ def build_report(runs, cases, k, splitter):
             "splitter": splitter,
             "encoder": (runs[0]["freeze"]["encoder"] if runs else None),
             "k": k,
-            "evidence_budget": "固定 top-k=5；证据 token 为估算，同一把尺子比较",
+            "evidence_budget": f"固定 top-k={k}；未限制总 token，证据 token 为字符数/4 的估算",
             "questions": "开发集 D01–D10，标注与 07 冻结一致",
             "changed_factor": "仅检索与排序方式（向量 / BM25 / RRF 融合）",
         },

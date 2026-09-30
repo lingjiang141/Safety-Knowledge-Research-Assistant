@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "安全知识研究助手 · 系统架构（PRD v0.2 / ROADMAP 交付范围）",
+    "locale": "zh-CN",
+    "output": ".archify/architecture-skra-overview-20260930-163628/skra-overview.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/lingjiang141/Safety-Knowledge-Research-Assistant.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "5f6ee134b9e9e855d270102fa5fe7d785c668ece"
+    }
+  },
+  "components": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "学习者",
+      "sublabel": "中文提问 · 核对引用",
+      "pos": [30, 280],
+      "size": [130, 72],
+      "sources": [{ "path": "PRD.md", "line": 9, "label": "学习者定位" }]
+    },
+    {
+      "id": "present",
+      "type": "frontend",
+      "label": "展示与评测",
+      "sublabel": "CLI · 评测报告",
+      "pos": [255, 280],
+      "size": [140, 72],
+      "sources": [
+        { "path": "skra/cli.py", "line": 22, "end_line": 57, "label": "子命令定义" },
+        { "path": "skra/eval.py", "line": 319, "end_line": 375, "label": "run_baseline 报告" },
+        { "path": "skra/__main__.py", "line": 1, "end_line": 3, "label": "包入口" }
+      ]
+    },
+    {
+      "id": "answer",
+      "type": "backend",
+      "label": "证据与回答",
+      "sublabel": "引用映射 · 回答状态",
+      "pos": [490, 280],
+      "size": [150, 72],
+      "sources": [
+        { "path": "skra/answer.py", "line": 78, "end_line": 105, "label": "证据覆盖与状态判定" },
+        { "path": "skra/answer.py", "line": 192, "end_line": 195, "label": "引用与状态校验" },
+        { "path": "skra/answer.py", "line": 282, "label": "answer 生成入口" }
+      ]
+    },
+    {
+      "id": "orchestration",
+      "type": "backend",
+      "label": "检索编排",
+      "sublabel": "初次 + 最多两轮",
+      "tag": "6 种停止原因",
+      "pos": [735, 280],
+      "size": [150, 72],
+      "sources": [
+        { "path": "skra/orchestrate.py", "line": 24, "label": "MAX_SUPPLEMENTARY_ROUNDS = 2" },
+        { "path": "skra/orchestrate.py", "line": 27, "end_line": 32, "label": "StopReason 枚举" },
+        { "path": "skra/orchestrate.py", "line": 47, "label": "Orchestrator" }
+      ]
+    },
+    {
+      "id": "retrieval",
+      "type": "backend",
+      "label": "检索",
+      "sublabel": "向量 · BM25 · RRF",
+      "pos": [980, 280],
+      "size": [150, 72],
+      "sources": [
+        { "path": "skra/vector.py", "line": 41, "end_line": 73, "label": "VectorSearch" },
+        { "path": "skra/bm25.py", "line": 22, "end_line": 43, "label": "BM25Search" },
+        { "path": "skra/fusion.py", "line": 23, "end_line": 31, "label": "RRFSearch" }
+      ]
+    },
+    {
+      "id": "encoder",
+      "type": "external",
+      "label": "本地编码模型",
+      "sublabel": "MiniLM · CPU · 离线",
+      "tag": "不联网",
+      "pos": [980, 40],
+      "size": [150, 62],
+      "sources": [
+        { "path": "skra/vector.py", "line": 9, "label": "MODEL_DIR = .data/models/minilm" },
+        { "path": "skra/vector.py", "line": 18, "end_line": 24, "label": "provenance 校验与离线加载" }
+      ]
+    },
+    {
+      "id": "docstore",
+      "type": "backend",
+      "label": "资料管理",
+      "sublabel": "解析 · 切分 · 版本",
+      "tag": "4 种策略",
+      "pos": [980, 520],
+      "size": [150, 72],
+      "sources": [
+        { "path": "skra/store.py", "line": 12, "end_line": 16, "label": "四种切分策略标识" },
+        { "path": "skra/store.py", "line": 191, "end_line": 206, "label": "Store 与三张主表" },
+        { "path": "skra/pdf.py", "line": 18, "label": "PDF 文本层按页提取" }
+      ]
+    },
+    {
+      "id": "sqlite",
+      "type": "database",
+      "label": "知识库 SQLite",
+      "sublabel": ".data/knowledge.sqlite3",
+      "pos": [980, 760],
+      "size": [150, 66],
+      "sources": [
+        { "path": "skra/store.py", "line": 196, "end_line": 206, "label": "documents / chunks / runs" },
+        { "path": "skra/vector.py", "line": 46, "label": "vectors / vector_meta 同库" }
+      ]
+    },
+    {
+      "id": "modelbudget",
+      "type": "backend",
+      "label": "模型与预算",
+      "sublabel": "预留 · 结算 · 记账",
+      "tag": "≤ ¥10",
+      "pos": [490, 520],
+      "size": [150, 66],
+      "sources": [
+        { "path": "skra/answer.py", "line": 125, "end_line": 130, "label": "Ledger 与 calls 账本表" },
+        { "path": "skra/answer.py", "line": 142, "end_line": 153, "label": "10 元上限与预留校验" },
+        { "path": "skra/answer.py", "line": 177, "end_line": 181, "label": "DeepSeek HTTP 端点" }
+      ]
+    },
+    {
+      "id": "ledger",
+      "type": "database",
+      "label": "预算账本",
+      "sublabel": ".data/budget.sqlite3",
+      "tag": "重启不重置",
+      "pos": [255, 520],
+      "size": [140, 66],
+      "sources": [{ "path": "skra/answer.py", "line": 130, "end_line": 133, "label": "calls 表" }]
+    },
+    {
+      "id": "deepseek",
+      "type": "cloud",
+      "label": "DeepSeek 开放平台",
+      "sublabel": "chat/completions",
+      "pos": [490, 760],
+      "size": [150, 62],
+      "sources": [{ "path": "skra/answer.py", "line": 181, "label": "api.deepseek.com 端点" }]
+    }
+  ],
+  "connections": [
+    { "id": "learner-asks", "from": "learner", "to": "present", "label": "中文提问", "variant": "emphasis", "fromSide": "right", "toSide": "left" },
+    { "id": "present-ask", "from": "present", "to": "answer", "label": "ask", "fromSide": "right", "toSide": "left" },
+    { "id": "answer-request", "from": "answer", "to": "orchestration", "label": "检索请求", "fromSide": "right", "toSide": "left" },
+    { "id": "orchestration-retrieval", "from": "orchestration", "to": "retrieval", "label": "最多两轮", "fromSide": "right", "toSide": "left" },
+    { "id": "encoder-encode", "from": "encoder", "to": "retrieval", "label": "向量编码", "fromSide": "bottom", "toSide": "top" },
+    { "id": "retrieval-reads", "from": "retrieval", "to": "docstore", "label": "读有效片段", "fromSide": "bottom", "toSide": "top" },
+    { "id": "docstore-persist", "from": "docstore", "to": "sqlite", "label": "持久化", "fromSide": "bottom", "toSide": "top" },
+    { "id": "answer-reserve", "from": "answer", "to": "modelbudget", "label": "预留预算", "fromSide": "bottom", "toSide": "top" },
+    { "id": "modelbudget-ledger", "from": "modelbudget", "to": "ledger", "label": "记账", "fromSide": "left", "toSide": "right" },
+    { "id": "modelbudget-http", "from": "modelbudget", "to": "deepseek", "label": "HTTPS 请求", "variant": "emphasis", "fromSide": "bottom", "toSide": "top" },
+    { "id": "deepseek-answer", "from": "deepseek", "to": "answer", "label": "回答文本", "variant": "dashed", "fromSide": "right", "toSide": "right" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "检索与切分：实测结论",
+      "items": [
+        "四种切分策略：heading-lines-v1:20（基线）、heading-block-v2（指南）、heading-procedure-v3（步骤/代码）、pdf-pages-v1（PDF 按页）",
+        "Issue 15 对照：heading-block-v2 recall@5 0.850 → 0.900（无退化）；heading-procedure-v3 → 0.400（粒度过碎），并修复一处 procedure 元数据误标",
+        "Issue 08 混合检索无净提升：BM25 0.850 → 0.400（−0.450）、RRF 0.850 → 0.750（−0.100），如实记录为负面结果，未做参数拟合",
+        "Issue 12 保留集首次开封 recall@5 = 0.75（开发集 0.85），四例缺口均为「覆盖块存在但排序未进前 5」"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "有界补充检索",
+      "items": [
+        "初次检索不计入；此后最多 2 轮（MAX_SUPPLEMENTARY_ROUNDS = 2）",
+        "六种停止原因：sufficient / no_new_evidence / round_limit / timeout / error / budget",
+        "开发集开关对照：同查询静态语料下 10 题全为 no_new_evidence（正确行为，不会凭空造证据）；加宽臂 10 题全为 round_limit，证明两轮上限确实 bind",
+        "补充检索计数与停止原因写入可复查执行轨迹，不记录内部思维链"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "引用、状态与权限边界",
+      "items": [
+        "回答状态：grounded / partial / insufficient；冲突说明可与部分回答并存，不强制合并为单一状态",
+        "引用必须定位到有效资料版本中的真实片段；中文释义不能替代英文原文作为证据",
+        "模型被程序禁止调用任何工具：响应中出现 tool_calls 或 function_call 即判定失败，请求体也不携带 tools",
+        "资料管理入口与回答侧分离：回答模型没有修改或删除资料的工具；结构校验只证明引用可定位，不证明证据支持结论"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "预算与凭据",
+      "items": [
+        "第一阶段总预算上限 10 元；内部以微元整数记账，调用前预留、返回后结算",
+        "预算不足时阻止新的付费调用，且不降级为模型凭空回答；费用未知时保留预留、不记成零",
+        "密钥只从环境变量 DEEPSEEK_API_KEY 读取，不写入仓库或日志",
+        "账本持久化于 .data/budget.sqlite3，重启不重置已用额度；本地账本不控制账户在其他程序中的支出"
+      ]
+    }
+  ]
+}

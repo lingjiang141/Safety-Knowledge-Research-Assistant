@@ -14,7 +14,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe scripts/setup_vector.py
 ```
 
-依赖已在 Windows/Python 3.13 安装，锁文件保存精确版本。下载模型后 provenance.json 保存实际 commit revision 与编码策略，检索日志同样保留，避免实验版本不明。初始化需网络，模型文件在 .data 内，不提交 Git。
+依赖已在 Windows/Python 3.13 安装，锁文件保存精确版本。初始化固定使用原评测 revision `e8f8c211226b894fcb81acc59f3b34ba3efd5f42`，下载模型后 provenance.json 保存实际 commit revision 与编码策略，检索日志同样保留，避免实验版本不明。初始化需网络，模型文件在 .data 内，不提交 Git。
 
 ## PDF 导入（Issue 11）
 
@@ -27,7 +27,7 @@ PDF 导入需要 `pypdf`（纯 Python、无运行时依赖），已在 `pyprojec
 
 - 只读**文本层**，不执行文件内任何内容；不做 OCR。
 - 自动选用 `pdf-pages-v1` 策略，片段带 1 基**页码**；跨页段落不合并。
-- 重复页眉页脚判为 `kind=metadata`：保留可查、不占正文检索名额。
+- 重复页眉页脚判为 `kind=metadata`：保留可查；当前检索未保证排除元数据。
 - 扫描件无文本层、文件损坏或阅读顺序明显混乱时**报错**，不静默给出空内容。
 - 夹具可用 `python scripts/make_pdf_fixtures.py` 免费生成（同样无额外依赖）。
 
@@ -57,8 +57,7 @@ PDF 导入需要 `pypdf`（纯 Python、无运行时依赖），已在 `pyprojec
 .\.venv\Scripts\python.exe -m skra eval --exclude 85772b0052029e9b3edb20fe43f7f80f896aa9c0e6703d1ff049e7b8bc8aeb97
 ```
 
-`Recall@5` 的分母是**标注的证据束数**，不随切分策略改变；`required_together` 的束被切开记 `broken`，
-不算命中。`examples/eval-holdout-cases.json` 为保留集，封存至 Issue 12，**调参期间不要打开**。
+`Recall@5` 的分母是**标注的证据束数**，不随切分策略改变；`required_together` 的束只有全部覆盖片段取回才命中；仅部分取回记 `broken`。`examples/eval-holdout-cases.json` 为保留集，封存至 Issue 12，**调参期间不要打开**。
 
 **切分策略对照（Issue 15）**——同一批语料/问题/编码器/top-k 下对照切分策略，一次只改切分器：
 

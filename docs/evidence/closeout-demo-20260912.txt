@@ -1,0 +1,67 @@
+Token indices sequence length is longer than the specified maximum sequence length for this model (334 > 128). Running this sequence through the model will result in indexing errors
+Token indices sequence length is longer than the specified maximum sequence length for this model (405 > 128). Running this sequence through the model will result in indexing errors
+Token indices sequence length is longer than the specified maximum sequence length for this model (209 > 128). Running this sequence through the model will result in indexing errors
+Token indices sequence length is longer than the specified maximum sequence length for this model (334 > 128). Running this sequence through the model will result in indexing errors
+
+==========================================================================
+① 切分预览（heading-lines-v1:20）
+==========================================================================
+OWASP LLM06:2025 Excessive Agency：6 个片段
+  L 1-18 [    body] # LLM06:2025 Excessive Agency  Source: https://genai.owasp
+  L19-38 [    body] ## Common Examples of Risks  1. Excessive Functionality  A
+  L39-44 [    body] An LLM extension that is designed to perform operations in
+  L45-64 [    body] ## Prevention and Mitigation Strategies  The following act
+  L65-82 [    body] 5. Execute extensions in user's context  Track user author
+  L83-85 [    body] ## Example Attack Scenarios  An LLM-based personal assista
+
+==========================================================================
+② 同题前后证据：同一问题，不同切分下的命中名次
+==========================================================================
+问题：功能过多、权限过大、自主程度过高有什么区别？
+标注答案：llm062025-excessive-agency 第 21–23 行
+必须含：excessive functionality、not needed for the intended operation
+
+  heading-lines-v1:20    覆盖片段 L19-38     → ❌ 未进前 5
+  heading-block-v2       覆盖片段 L19-38     → ❌ 未进前 5
+  heading-procedure-v3   覆盖片段 L19-21、L23-23 → ❌ 未进前 5
+
+==========================================================================
+③ 失败复盘：保留集未取全的三例（原因，不是借口）
+==========================================================================
+  H03  recall_at_5=0.50（取回 1/2 个标注束）
+     覆盖片段 L36-55   → 第 3 名
+     覆盖片段 L56-67   → 未进前 5
+     结论：资料建议用哪些措施来缓解提示注入？…  覆盖片段存在但排在 5 名之后（排序未进前 5）
+
+  H04  recall_at_5=0.00（取回 0/2 个标注束）
+     覆盖片段 L1-18    → 未进前 5
+     结论：允许模型自主调用扩展时，为什么会放大提示注入的影响？…  覆盖片段存在但排在 5 名之后（排序未进前 5）
+
+  H09  recall_at_5=0.00（取回 0/1 个标注束）
+     覆盖片段 L45-64   → 未进前 5
+     结论：限制扩展权限对减少损害有多大作用？在样例系统上能减少多少误操作？…  覆盖片段存在但排在 5 名之后（排序未进前 5）
+
+
+==========================================================================
+④ 边界：无依据时如实说明缺失（不编造）
+==========================================================================
+问题：请给出本系统上周的误操作统计。
+  状态：insufficient
+  结论数：0
+  缺失说明：未检索到匹配证据，无法据此回答；不代表资料一定没有答案。
+  （检索不到证据时如实降级为「无结论 + 明确缺失」，不生成回答、不编造。）
+
+==========================================================================
+⑤ 生成路径（付费需 --live）
+==========================================================================
+  问题：What is excessive agency?
+  请求字节：13270
+  单次最大预留：3.159228 元
+  预算可用：9.4825 元　blocked=False
+  是否已配密钥：False　是否联网：False
+  未加 --live：只显示预留回执，不联网、不计费。
+
+==========================================================================
+演示结束
+==========================================================================
+本演示默认全程免费：无网络调用、不计费；保留集仅用于展示「未取全」的原因。

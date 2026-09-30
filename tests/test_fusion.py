@@ -1,6 +1,6 @@
 """RRF fusion: combine retrievers by rank, since their scores are not comparable.
 
-Cosine similarity lives in [0,1]; BM25 is unbounded and corpus-dependent. Adding
+Cosine similarity lives in [-1,1]; BM25 is unbounded and corpus-dependent. Adding
 them (or weighting them) requires a calibration nobody can justify on a small
 corpus. Reciprocal Rank Fusion sidesteps that: it reads only the *rank* each
 retriever assigned, so a chunk both retrievers agree on rises even though their
@@ -40,9 +40,14 @@ def fixed(candidates):
 
 
 class RRFFusionTest(unittest.TestCase):
+    def make_store(self, rows):
+        store = store_with(rows)
+        self.addCleanup(store.close)
+        return store
+
     def test_a_chunk_both_retrievers_rank_high_wins(self):
         """The point of RRF: agreement between retrievers outranks one strong vote."""
-        store = store_with([("shared", "x", "body"), ("only_a", "x", "body"),
+        store = self.make_store([("shared", "x", "body"), ("only_a", "x", "body"),
                             ("only_b", "x", "body")])
         a = fixed([{"id": "only_a"}, {"id": "shared"}])
         b = fixed([{"id": "only_b"}, {"id": "shared"}])
@@ -57,7 +62,7 @@ class RRFFusionTest(unittest.TestCase):
         score magnitudes. If fusion summed scores, 'big' would dominate; by rank it
         is a tie and the deterministic id tiebreak decides.
         """
-        store = store_with([("big", "x", "body"), ("small", "x", "body")])
+        store = self.make_store([("big", "x", "body"), ("small", "x", "body")])
         a = fixed([{"id": "big", "score": 99999.0}])
         b = fixed([{"id": "small", "score": 0.01}])
         result = RRFSearch(store, [("a", a, 1.0), ("b", b, 1.0)]).search("q", limit=5)
@@ -67,7 +72,7 @@ class RRFFusionTest(unittest.TestCase):
         self.assertEqual(ids, sorted(ids), f"同分应由 id 决定顺序，而非分数大小：{ids}")
 
     def test_weights_are_recorded_and_actually_applied(self):
-        store = store_with([("from_a", "x", "body"), ("from_b", "x", "body")])
+        store = self.make_store([("from_a", "x", "body"), ("from_b", "x", "body")])
         a = fixed([{"id": "from_a"}])
         b = fixed([{"id": "from_b"}])
         result = RRFSearch(store, [("a", a, 3.0), ("b", b, 1.0)]).search("q", limit=5)
@@ -77,7 +82,7 @@ class RRFFusionTest(unittest.TestCase):
 
     def test_a_retriever_that_finds_nothing_does_not_block_the_other(self):
         """Four of ten dev questions are BM25-empty; the vector hits must survive."""
-        store = store_with([("vec_only", "x", "body")])
+        store = self.make_store([("vec_only", "x", "body")])
         empty = fixed([])
         vec = fixed([{"id": "vec_only"}])
         result = RRFSearch(store, [("bm25", empty, 1.0), ("vector", vec, 1.0)]).search("q", limit=5)
@@ -85,7 +90,7 @@ class RRFFusionTest(unittest.TestCase):
 
     def test_per_retriever_contributions_are_reported(self):
         """The fusion has to be reviewable: which retriever ranked what, at what rank."""
-        store = store_with([("x1", "x", "body")])
+        store = self.make_store([("x1", "x", "body")])
         a = fixed([{"id": "x1"}])
         b = fixed([{"id": "x1"}])
         result = RRFSearch(store, [("a", a, 1.0), ("b", b, 1.0)]).search("q", limit=5)
@@ -95,7 +100,7 @@ class RRFFusionTest(unittest.TestCase):
 
     def test_retired_versions_never_survive_fusion(self):
         """Fusion must not resurrect a chunk a retriever should not have returned."""
-        store = store_with([("gone", "x", "body")])
+        store = self.make_store([("gone", "x", "body")])
         with store.db:
             store.db.execute("UPDATE chunks SET active=0 WHERE id='gone'")
         a = fixed([{"id": "gone"}])
@@ -103,12 +108,12 @@ class RRFFusionTest(unittest.TestCase):
             RRFSearch(store, [("a", a, 1.0)]).search("q", limit=5)
 
     def test_the_shared_argument_guard_applies(self):
-        store = store_with([("a", "x", "body")])
+        store = self.make_store([("a", "x", "body")])
         with self.assertRaises(ValueError):
             RRFSearch(store, [("a", fixed([{"id": "a"}]), 1.0)]).search("q", 0)
 
     def test_the_fused_run_is_persisted_like_any_other_search(self):
-        store = store_with([("x1", "x", "body")])
+        store = self.make_store([("x1", "x", "body")])
         a = fixed([{"id": "x1"}])
         result = RRFSearch(store, [("a", a, 1.0)]).search("q", limit=5)
         self.assertEqual(result["mode"], "hybrid-rrf")

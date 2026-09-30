@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "C:\\Users\\XiaQiu Ling\\AppData\\Local\\Temp\\archify-run\\.archify\\architecture-skra-overview-20260930-163628\\candidate.json",
+    "sha256": "deeef8a74fae8ab71023da0a372d728ef9e5dd34330f2f42d831ffbf847ee17b",
+    "bytes": 9780
+  },
+  "artifact": {
+    "path": "C:\\Users\\XiaQiu Ling\\AppData\\Local\\Temp\\archify-run\\.archify\\architecture-skra-overview-20260930-163628\\skra-overview.html",
+    "sha256": "88bb0e5135ea998fbdc92016aee0345cab3f0bc866b677425347e80e913a7036",
+    "bytes": 774523
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "C:\\Users\\XiaQiu Ling\\AppData\\Local\\Temp\\archify-run\\.archify\\architecture-skra-overview-20260930-163628\\review-2\\skra-overview.finalize.json",
+    "summaryReceipt": "C:\\Users\\XiaQiu Ling\\AppData\\Local\\Temp\\archify-run\\.archify\\architecture-skra-overview-20260930-163628\\review-2\\skra-overview.finalize-summary.json",
+    "browserCheckReceipt": "C:\\Users\\XiaQiu Ling\\AppData\\Local\\Temp\\archify-run\\.archify\\architecture-skra-overview-20260930-163628\\review-2\\skra-overview.browser-check.json"
+  },
+  "update": {
+    "status": "unavailable",
+    "installedVersion": null,
+    "availableVersion": null,
+    "releaseNotes": null,
+    "checkedAt": null,
+    "source": null,
+    "noticeRequired": false,
+    "noticeText": null,
+    "reason": "cache-valid"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 4692
+}

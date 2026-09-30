@@ -479,9 +479,12 @@ class ShippedSampleTest(unittest.TestCase):
 
     def test_every_shipped_span_carries_its_required_conditions(self):
         """A span that no longer contains its required terms is a stale annotation."""
-        if not (self.ROOT / ".data/knowledge.sqlite3").exists():
-            self.skipTest("缺少已导入的知识库；本机离线时跳过。")
-        store = Store(self.ROOT / ".data/knowledge.sqlite3")
+        from scripts.prepare_demo import prepare
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        database = Path(temp.name) / "corpus.sqlite3"
+        prepare(database)
+        store = Store(database)
         self.addCleanup(store.close)
         cases = load_cases(self.ROOT / "examples/eval-dev-cases.json")
         self.assertGreaterEqual(len(cases), 10)
